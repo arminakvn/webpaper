@@ -23,6 +23,7 @@ app.use serveStatic('./bower_components/d3')
 app.use serveStatic('./bower_components/paper/dist')
 app.use serveStatic('./bower_components/three.js/build')
 app.use serveStatic('./node_modules/three-orbit-controls')
+app.use serveStatic('./images')
 app.use serveStatic('./scripts')
 app.use serveStatic('./styles')
 

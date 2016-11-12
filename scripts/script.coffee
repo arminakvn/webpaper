@@ -64,6 +64,30 @@ window.onload = ->
   geometry.vertices.push new (THREE.Vector3)(10, 30, 40)
   line = new (THREE.Line)(geometry, material)
   scene.add(line)
+
+
+
+
+  # image loader
+  loader = new (THREE.ImageLoader)
+  loader.load 'ph1.png', ((image) ->
+    # do something with it
+    # like drawing a part of it on a canvas
+    canvas = document.createElement('canvas')
+    context = canvas.getContext('2d')
+    context.drawImage image, 100, 100
+    return
+  ), ((xhr) ->
+    console.log xhr.loaded / xhr.total * 100 + '% loaded'
+    return
+  ), (xhr) ->
+    console.log 'An error happened'
+    return
+
+
+
+
+
   animate = (r) ->
     # cube2.rotation.x += Math.PI * r / 60
     # stats.update()

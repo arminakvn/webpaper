@@ -34,6 +34,8 @@
 
   app.use(serveStatic('./node_modules/three-orbit-controls'));
 
+  app.use(serveStatic('./images'));
+
   app.use(serveStatic('./scripts'));
 
   app.use(serveStatic('./styles'));
