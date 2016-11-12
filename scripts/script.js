@@ -96,8 +96,8 @@ function initializeScene(frameConfig){
 	triangleShape.lineTo(0, 0);
 	triangleShape.lineTo(0, -2);
 	triangleShape.lineTo(-0.2, -2);
-	var extrudedGeometry = new THREE.ExtrudeGeometry(triangleShape, {amount: 5, bevelEnabled: false});
-var extrudedMesh = new THREE.Mesh(extrudedGeometry, new THREE.MeshPhongMaterial({color: 0xff0000}));
+	 extrudedGeometry = new THREE.ExtrudeGeometry(triangleShape, {amount: 5, bevelEnabled: false});
+ extrudedMesh = new THREE.Mesh(extrudedGeometry, new THREE.MeshPhongMaterial({color: 0xff0000}));
 scene.add(extrudedMesh);
 
    // var vizTexture = new THREE.textt
@@ -105,10 +105,19 @@ scene.add(extrudedMesh);
 
 
 function animateScene(){
-	xRotation += 0.03;
-	yRotation += 0.02;
-	zRotation += 0.04;
-	// boxMesh.rotation.set(xRotation, yRotation, zRotation);
+	xRotation += 0.01;
+	yRotation += 0.03;
+	zRotation += 0.00;
+	extrudedMesh.rotation.set(xRotation, yRotation, zRotation);
+	var triangleShape = new THREE.Shape();
+	triangleShape.moveTo(xRotation, -2);
+	triangleShape.lineTo(-0.2, 0);
+	triangleShape.lineTo(0, xRotation);
+	triangleShape.lineTo(0, -2);
+	triangleShape.lineTo(-xRotation, -2);
+	 extrudedGeometry = new THREE.ExtrudeGeometry(triangleShape, {amount: d3.randomUniform(-1, 1)(), bevelEnabled: false});
+ extrudedMesh = new THREE.Mesh(extrudedGeometry, new THREE.MeshPhongMaterial({color: 0xff0000}));
+scene.add(extrudedMesh);
 
 	requestAnimationFrame(animateScene);
 
@@ -118,8 +127,8 @@ function animateScene(){
 }
 
 
-function renderScene(e){
-	console.log(e)
+function renderScene(){
+	// console.log(e)
 
 	renderer.render(scene, camera);
 }
