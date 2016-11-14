@@ -40,6 +40,8 @@
 
   app.use(serveStatic('./styles'));
 
+  app.use(serveStatic('./data'));
+
   app.use(serveStatic('./', {
     'index': ['index.html', 'index.htm']
   }));
