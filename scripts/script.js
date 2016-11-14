@@ -29,7 +29,7 @@ var data_map = d3.map();
 // loading the data / starting with loading the locations
 function loadData(){
 	d3.queue()
-		.defer(d3.csv, "locations.csv")
+		.defer(d3.csv, "data/locations.csv")
     .await(dataLoaded);
 }
 
