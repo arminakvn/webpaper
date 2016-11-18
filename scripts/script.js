@@ -2,25 +2,25 @@
 // lat is y
 // lng is x
 
-var scene; 
- 
-             // Global camera object 
-var camera; 
+var scene;
 
-// The cube has to rotate around all three axes, so we need three rotation values. 
+             // Global camera object
+var camera;
 
-// x, y and z rotation 
-var xRotation = 0.0; 
-var yRotation = 0.0; 
-var zRotation = 0.0; 
+// The cube has to rotate around all three axes, so we need three rotation values.
 
-// Global mesh object of the cube 
-var cubeMesh; 
+// x, y and z rotation
+var xRotation = 0.0;
+var yRotation = 0.0;
+var zRotation = 0.0;
+
+// Global mesh object of the cube
+var cubeMesh;
 
 
-var xRotation = 0.0; 
-var yRotation = 0.0; 
-var zRotation = 0.0; 
+var xRotation = 0.0;
+var yRotation = 0.0;
+var zRotation = 0.0;
 var data_coords = [];
 var data_map = d3.map();
 
@@ -38,13 +38,13 @@ function dataLoaded(err, data){
 	// console.log("data load", data);\
 	initializeScene(data);
 
-	
-	// console.log("data_coords", data_coords);
-	// Initialize the scene 
-	
 
-	// Animate the scene 
-	animateScene(); 
+	// console.log("data_coords", data_coords);
+	// Initialize the scene
+
+
+	// Animate the scene
+	animateScene();
 }
 
 
@@ -52,7 +52,7 @@ loadData();
 
 
 function initializeScene(data){
-	
+
 
 
 	// configurations for the position of the image and bounding box of the visible extent
@@ -66,7 +66,7 @@ function initializeScene(data){
 	  this.bbox_reference_top_right_y = 34.091616;
 	  this.bbox_reference_top_right_x = -118.284403;
 	});
-	
+
 	// scales for mapping the points to the x y coordinates
 	scalerConfig = new (function(){
 		this.lat_min = d3.min(data,function(d){
@@ -96,24 +96,24 @@ function initializeScene(data){
 
 	})
 
-	
+
 
 	// console.log(scalerConfig.lat_min, scalerConfig.lat_max);
 	// long_dif = frameConfig.bbox_reference_top_right_y - frameConfig.bbox_reference_bottom_left_y;
-	
-	
 
-	
+
+
+
 
 
 	// making the renderer
 
 	// detecting if the browser supports webGL
-	if(Detector.webgl){ 
-		renderer = new THREE.WebGLRenderer({antialias:true}); 
-	} else { 
-		renderer = new THREE.CanvasRenderer(); 
-	} 
+	if(Detector.webgl){
+		renderer = new THREE.WebGLRenderer({antialias:true});
+	} else {
+		renderer = new THREE.CanvasRenderer();
+	}
 
 	// setting renderer properties
 
@@ -127,14 +127,14 @@ function initializeScene(data){
 	renderer.setSize(canvasWidth, canvasHeight);
 	document.getElementById("WebGLCanvas").appendChild(renderer.domElement);
 
-	// setting up the scene and camera 
+	// setting up the scene and camera
 
 	scene = new THREE.Scene();
 	camera = new THREE.PerspectiveCamera( 100, canvasWidth / canvasHeight, 1, 100 );
-	
+
 	camera.position.set(frameConfig.width/2,frameConfig.height/2,10);
 	// camera.lookAt(scene.position);
-	
+
 	controls = new THREE.OrbitControls(camera);
 	scene.add(camera);
 
@@ -158,8 +158,8 @@ function initializeScene(data){
 
 
 
-// 
-
+//
+group = new THREE.Group();
 // making a small sphere as a market for the points and put it on the actuall locations
 	data_coords.forEach(function(coord){
 		var geometry = new THREE.SphereGeometry(0.1, 10, 10, 0, Math.PI * 2, 0, Math.PI * 2);
@@ -168,20 +168,21 @@ function initializeScene(data){
 		cube.position.x = coord.x;
 		cube.position.y = coord.y;
 		cube.position.z = 2;
-		scene.add(cube);
+    group.add(cube);
+
 
 	})
-	
+
+scene.add(group);
 
 
 
-
-// 
+//
 
 
    // setting up geometry for the visualization itself
    	var triangleShape = new THREE.Shape();
-		
+
 		// triangleShape.moveTo(-0.2, -2);
 		// triangleShape.lineTo(-0.2, 0);
 		// triangleShape.lineTo(0, 0);
@@ -189,6 +190,8 @@ function initializeScene(data){
 		// triangleShape.lineTo(-0.2, -2);
 		triangleShape.moveTo(data_coords[0].x, data_coords[0].y);
 		data_coords.shift();
+
+
 		data_coords.forEach(function(coord){
 			console.log("coord", coord)
 			triangleShape.lineTo(coord.x, coord.y);
@@ -207,6 +210,15 @@ function animateScene(){
 	xRotation += 0.01;
 	yRotation += 0.03;
 	zRotation += 0.00;
+  console.log(group)
+  // group.position.z += d3.randomUniform(-0.1, 0.1)();
+  // var objectGroup = group[0].parent;
+
+  for (j = 0; j < group.children.length; j++) {
+    // group.children[j].material.color.setHex(0x1A75FF);
+    group.children[j].position.z += d3.randomUniform(-0.1, 0.1)();
+
+}
 // 	extrudedMesh.rotation.set(xRotation, yRotation, zRotation);
 // 	var triangleShape = new THREE.Shape();
 // 	triangleShape.moveTo(xRotation, -2);
@@ -217,7 +229,6 @@ function animateScene(){
 // 	 extrudedGeometry = new THREE.ExtrudeGeometry(triangleShape, {amount: d3.randomUniform(-1, 1)(), bevelEnabled: false});
 //  extrudedMesh = new THREE.Mesh(extrudedGeometry, new THREE.MeshPhongMaterial({color: 0xff0000}));
 // scene.add(extrudedMesh);
-
 	requestAnimationFrame(animateScene);
 
 	renderScene();
