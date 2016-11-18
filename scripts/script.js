@@ -159,7 +159,13 @@ function initializeScene(data){
 
 
 //
+
 group = new THREE.Group();
+lineGroup = new THREE.Group();
+lineGeometry = new THREE.Geometry();
+lineMaterial = new THREE.LineBasicMaterial({
+            color: 0x0000ff
+        });
 // making a small sphere as a market for the points and put it on the actuall locations
 	data_coords.forEach(function(coord){
 		var geometry = new THREE.SphereGeometry(0.1, 10, 10, 0, Math.PI * 2, 0, Math.PI * 2);
@@ -171,9 +177,19 @@ group = new THREE.Group();
     group.add(cube);
 
 
+
+       lineGeometry.vertices.push(new THREE.Vector3(coord.x, coord.y, 2));
+      var line = new THREE.Line(lineGeometry, lineMaterial);
+      lineGroup.add(line)
+
+
 	})
 
-scene.add(group);
+
+  console.log(lineGroup)
+  scene.add(lineGroup);
+
+// scene.add(group);
 
 
 
@@ -210,15 +226,26 @@ function animateScene(){
 	xRotation += 0.01;
 	yRotation += 0.03;
 	zRotation += 0.00;
-  console.log(group)
+  // console.log(group)
   // group.position.z += d3.randomUniform(-0.1, 0.1)();
   // var objectGroup = group[0].parent;
+  for (j = 0; j < lineGroup.children.length; j++) {
+    // group.children[j].material.color.setHex(0x1A75FF);
+      for (v = 0; v < lineGroup.children[j].geometry.vertices.length; v++) {
+          lineGroup.children[j].geometry.vertices[v].z = d3.randomUniform(0, 2)();
+          lineGroup.children[j].geometry.verticesNeedUpdate = true;
+      }
+}
 
+
+//
   for (j = 0; j < group.children.length; j++) {
     // group.children[j].material.color.setHex(0x1A75FF);
     group.children[j].position.z += d3.randomUniform(-0.1, 0.1)();
 
 }
+
+
 // 	extrudedMesh.rotation.set(xRotation, yRotation, zRotation);
 // 	var triangleShape = new THREE.Shape();
 // 	triangleShape.moveTo(xRotation, -2);
