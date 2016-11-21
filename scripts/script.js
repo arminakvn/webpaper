@@ -24,19 +24,49 @@ var zRotation = 0.0;
 var data_coords = [];
 var data_map = d3.map();
 
-
+frameConfig = new (function() {
+  this.height = 20;
+  this.width = 20;
+  this.bbox_reference_bottom_left_y = 34.085700;
+  this.bbox_reference_bottom_left_x = -118.291728;
+  this.bbox_reference_top_right_y = 34.091616;
+  this.bbox_reference_top_right_x = -118.284403;
+});
 
 // loading the data / starting with loading the locations
 function loadData(){
 	d3.queue()
-		.defer(d3.csv, "locations.csv")
+		.defer(d3.csv, "locations_nest.csv")
     .await(dataLoaded);
 }
 
-function dataLoaded(err, data){
-	// console.log("data load", data);
+function dataLoaded(err, csv_data){
+
+  scalerConfig = new (function(){
+		this.lat_min = d3.min(csv_data,function(d){
+			return d.lat;
+		})
+		this.lat_max = d3.max(csv_data,function(d){
+			return d.lat;
+		})
+		this.lon_min = d3.min(csv_data,function(d){
+			return d.lon;
+		})
+		this.lon_max = d3.max(csv_data,function(d){
+			return d.lon;
+		})
+
+		this.lat_scale = d3.scaleLinear().range([0, frameConfig.height]).domain([this.lat_min, this.lat_max]);
+		this.lng_scale = d3.scaleLinear().range([0, frameConfig.width]).domain([this.lon_min,this.lon_max]);
+
+	})
+
+  var nested_data = d3.nest()
+    .key(function(d) { return d.street; })
+    .entries(csv_data);
+  console.log("data nest", nested_data);
 	// console.log("data load", data);\
-	initializeScene(data);
+	initializeScene(nested_data);
 
 
 	// console.log("data_coords", data_coords);
@@ -58,44 +88,31 @@ function initializeScene(data){
 	// configurations for the position of the image and bounding box of the visible extent
 
 
-	frameConfig = new (function() {
-	  this.height = 20;
-	  this.width = 20;
-	  this.bbox_reference_bottom_left_y = 34.085700;
-	  this.bbox_reference_bottom_left_x = -118.291728;
-	  this.bbox_reference_top_right_y = 34.091616;
-	  this.bbox_reference_top_right_x = -118.284403;
-	});
+
 
 	// scales for mapping the points to the x y coordinates
-	scalerConfig = new (function(){
-		this.lat_min = d3.min(data,function(d){
-			return d.lat;
-		})
-		this.lat_max = d3.max(data,function(d){
-			return d.lat;
-		})
-		this.lon_min = d3.min(data,function(d){
-			return d.lon;
-		})
-		this.lon_max = d3.max(data,function(d){
-			return d.lon;
-		})
-
-		this.lat_scale = d3.scaleLinear().range([0, frameConfig.height]).domain([this.lat_min, this.lat_max]);
-		this.lng_scale = d3.scaleLinear().range([0, frameConfig.width]).domain([this.lon_min,this.lon_max]);
-
-	})
 
 
-	data.forEach(function(each){
-		data_coords.push({
-			'x': scalerConfig.lng_scale(each.lon),
-			'y': scalerConfig.lat_scale(each.lat)
-		})
+
+	data.forEach(function(each_street){
+    var street_name = each_street.key;
+    console.log(each_street);
+    each_street.values.forEach(function(each_point){
+      console.log(each_point, scalerConfig.lng_scale(each_point.lon))
+      each_point.x = scalerConfig.lng_scale(each_point.lon)
+      each_point.y = scalerConfig.lat_scale(each_point.lat)
+      data_coords.push({
+  			'x': scalerConfig.lng_scale(each_point.lon),
+  			'y': scalerConfig.lat_scale(each_point.lat),
+        'name': street_name
+  		})
+
+    })
+
 
 	})
 
+console.log("data,datadata",data);
 
 
 	// console.log(scalerConfig.lat_min, scalerConfig.lat_max);
@@ -130,20 +147,20 @@ function initializeScene(data){
 	// setting up the scene and camera
 
 	scene = new THREE.Scene();
-	camera = new THREE.PerspectiveCamera( 100, canvasWidth / canvasHeight, 1, 100 );
+	camera = new THREE.OrthographicCamera((frameConfig.width / - 2) - 1 , (frameConfig.width / 2) + 1, frameConfig.height / 3, frameConfig.height / - 3, 1, 1000 )//( 60, canvasWidth / canvasHeight, 1, 100 );
 
-	camera.position.set(frameConfig.width/2,frameConfig.height/2,10);
-	// camera.lookAt(scene.position);
+
+
 
 	controls = new THREE.OrbitControls(camera);
-	scene.add(camera);
+
 
 
 	// setting the box geometry for the background / under;ying image
 
 	var boxGeometry = new THREE.BoxGeometry(frameConfig.width, frameConfig.height, 0.01);
 
-	var mapTexture = new THREE.ImageUtils.loadTexture('ph2.png');
+	var mapTexture = new THREE.ImageUtils.loadTexture('ph6.png');
 
 	var boxMaterial = new THREE.MeshBasicMaterial({
 		map: mapTexture,
@@ -162,10 +179,14 @@ function initializeScene(data){
 
 group = new THREE.Group();
 lineGroup = new THREE.Group();
+surfaveGroup = new THREE.Group()
 lineGeometry = new THREE.Geometry();
 lineMaterial = new THREE.LineBasicMaterial({
             color: 0x0000ff
         });
+
+
+
 // making a small sphere as a market for the points and put it on the actuall locations
 	data_coords.forEach(function(coord){
 		var geometry = new THREE.SphereGeometry(0.1, 10, 10, 0, Math.PI * 2, 0, Math.PI * 2);
@@ -186,7 +207,12 @@ lineMaterial = new THREE.LineBasicMaterial({
 	})
 
 
-  console.log(lineGroup)
+  // console.log(lineGroup)
+
+  camera.position.set(frameConfig.width/2, -frameConfig.height/6, 10);
+
+  camera.lookAt(new THREE.Vector3(frameConfig.width/2, frameConfig.height/2, 0));
+  scene.add(camera);
   scene.add(lineGroup);
 
 // scene.add(group);
@@ -197,24 +223,24 @@ lineMaterial = new THREE.LineBasicMaterial({
 
 
    // setting up geometry for the visualization itself
-   	var triangleShape = new THREE.Shape();
+   // 	var triangleShape = new THREE.Shape();
 
 		// triangleShape.moveTo(-0.2, -2);
 		// triangleShape.lineTo(-0.2, 0);
 		// triangleShape.lineTo(0, 0);
 		// triangleShape.lineTo(0, -2);
 		// triangleShape.lineTo(-0.2, -2);
-		triangleShape.moveTo(data_coords[0].x, data_coords[0].y);
-		data_coords.shift();
+		// triangleShape.moveTo(data_coords[0].x, data_coords[0].y);
+		// data_coords.shift();
 
 
-		data_coords.forEach(function(coord){
-			console.log("coord", coord)
-			triangleShape.lineTo(coord.x, coord.y);
-		})
+		// data_coords.forEach(function(coord){
+		// 	console.log("coord", coord)
+		// 	triangleShape.lineTo(coord.x, coord.y);
+		// })
 
-	extrudedGeometry = new THREE.ExtrudeGeometry(triangleShape, {amount: 15, bevelEnabled: false});
- 	extrudedMesh = new THREE.Mesh(extrudedGeometry, new THREE.MeshPhongMaterial({color: 0xff0000}));
+	// extrudedGeometry = new THREE.ExtrudeGeometry(triangleShape, {amount: 15, bevelEnabled: false});
+ // 	extrudedMesh = new THREE.Mesh(extrudedGeometry, new THREE.MeshPhongMaterial({color: 0xff0000}));
 	// extrudedMesh.position.set(0,0,0)
 	// scene.add(extrudedMesh);
 
@@ -270,24 +296,24 @@ function renderScene(){
 	renderer.render(scene, camera);
 }
 
-gui = new dat.GUI;
-params = new (function() {
-  this.speed = 1;
-  this.camX = 19;
-  this.camY = 21;
-  this.camFov = -2.1;
-});
-gui.add(params, 'camX', -90, 90).onChange(function(e) {
-  renderScene(e);
-  return;
-});
-gui.add(params, 'camY', -90, 90).onChange(function(e) {
-  return renderScene(e);
-});
-gui.add(params, 'camFov', -20, 79).onChange(function(e) {
-  return renderScene(e);
-});
-gui.add(params, 'speed', -5, 5).onChange(function(e) {
-  renderScene(e);
-  return;
-});
+// gui = new dat.GUI;
+// params = new (function() {
+//   this.speed = 1;
+//   this.camX = 19;
+//   this.camY = 21;
+//   this.camFov = -2.1;
+// });
+// gui.add(params, 'camX', -90, 90).onChange(function(e) {
+//   renderScene(e);
+//   return;
+// });
+// gui.add(params, 'camY', -90, 90).onChange(function(e) {
+//   return renderScene(e);
+// });
+// gui.add(params, 'camFov', -20, 79).onChange(function(e) {
+//   return renderScene(e);
+// });
+// gui.add(params, 'speed', -5, 5).onChange(function(e) {
+//   renderScene(e);
+//   return;
+// });
