@@ -36,11 +36,7 @@ frameConfig = new (function() {
 // loading the data / starting with loading the locations
 function loadData(){
 	d3.queue()
-<<<<<<< HEAD
-		.defer(d3.csv, "data/locations.csv")
-=======
 		.defer(d3.csv, "locations_nest.csv")
->>>>>>> master
     .await(dataLoaded);
 }
 
