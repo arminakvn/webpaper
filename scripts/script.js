@@ -19,6 +19,14 @@ var zRotation = 0.0;
 var data_coords = [];
 var data_map = d3.map();
 
+
+
+// ui interactions are updating this which is what the animateScene uses
+var ui_current_state = d3.map();
+
+//setting defult values for ui
+
+ui_current_state.set("component", "loudness")
 frameConfig = new (function() {
   this.height = 20;
   this.width = 20;
@@ -61,30 +69,33 @@ function parseLocations(d) {
 }
 // function
 function callbackDataLoaded(err, csv_data, sample_data){
+  var lat_min = d3.min(csv_data,function(d){
+    return d.lat;
+  })
+  var lat_max = d3.max(csv_data,function(d){
+    return d.lat;
+  })
+  var lon_min = d3.min(csv_data,function(d){
+    return d.lon;
+  })
+  var lon_max = d3.max(csv_data,function(d){
+    return d.lon;
+  })
+  var max_High = d3.max(sample_data, function(d){
+    return d.High
+  })
+  var min_High = d3.min(sample_data, function(d){
+    return d.High
+  })
 
   scalerConfig = new (function(){
-		this.lat_min = d3.min(csv_data,function(d){
-			return d.lat;
-		})
-		this.lat_max = d3.max(csv_data,function(d){
-			return d.lat;
-		})
-		this.lon_min = d3.min(csv_data,function(d){
-			return d.lon;
-		})
-		this.lon_max = d3.max(csv_data,function(d){
-			return d.lon;
-		})
-    this.max_High = d3.max(sample_data, function(d){
-      return d.High
-    })
-    this.min_High = d3.min(sample_data, function(d){
-      return d.High
-    })
 
-		this.lat_scale = d3.scaleLinear().range([frameConfig.height, 0]).domain([this.lat_min, this.lat_max]);
-		this.lng_scale = d3.scaleLinear().range([0, frameConfig.width]).domain([this.lon_min,this.lon_max]);
-    this.High_scale = d3.scaleLinear().range([0, frameConfig.height]).domain([this.min_High,this.max_High]);
+		this.lat_scale = d3.scaleLinear().range([frameConfig.height, 0]).domain([lat_min, lat_max]);
+		this.lng_scale = d3.scaleLinear().range([0, frameConfig.width]).domain([lon_min, lon_max]);
+    this.High_scale = d3.scaleLinear().range([0, frameConfig.height]).domain([min_High, max_High]);
+    this.Components_scale = d3.scaleOrdinal()
+      .range(["#bd0026", "#ffffb2", "#fd8d3c"])
+      .domain(["loudness","frequency"]);
 
 	})
   var nested_data = d3.nest()
@@ -255,7 +266,8 @@ function animateScene(){
           // scale the z value in each time interval
           //
 
-
+          street_lines_group.children[ji].children[j].material.color = makeColorToUpdate();
+          // street_lines_group.children[ji].children[j].material._needsUpdate = true;
           street_lines_group.children[ji].children[j].geometry.vertices[v].z = d3.randomUniform(0, 2)();
           street_lines_group.children[ji].children[j].geometry.verticesNeedUpdate = true;
       }
@@ -273,6 +285,21 @@ function animateScene(){
 
 function renderScene(){
 	renderer.render(scene, camera);
+}
+
+
+function makeColorToUpdate(){
+  var color = new THREE.Color(
+    scalerConfig.Components_scale(
+      ui_current_state.get("component")
+    )
+  );
+  return color
+}
+
+function updateViz(){
+  console.log("ipdate")
+  console.log(makeColorToUpdate())
 }
 // gui = new dat.GUI;
 // params = new (function() {

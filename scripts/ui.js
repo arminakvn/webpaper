@@ -1,5 +1,11 @@
-$('#components').dropdown(
-)
+$('#components').dropdown({
+  // allowAdditions: false,
+  onChange: function(val){
+    console.log("value of selection in drop down", val)
+    ui_current_state.set("component", val)
+    updateViz()
+  }
+})
 
 
 $('#rangestart').calendar({
