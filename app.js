@@ -32,6 +32,10 @@
 
   app.use(serveStatic('./bower_components/three.js/build'));
 
+  app.use(serveStatic('./bower_components/semantic/dist'));
+
+  app.use(serveStatic('./bower_components/semantic-ui-calendar/dist'));
+
   app.use(serveStatic('./node_modules/three-orbit-controls'));
 
   app.use(serveStatic('./images'));

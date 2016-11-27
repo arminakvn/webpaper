@@ -61,6 +61,7 @@ function parseLocations(d) {
 }
 // function
 function callbackDataLoaded(err, csv_data, sample_data){
+
   scalerConfig = new (function(){
 		this.lat_min = d3.min(csv_data,function(d){
 			return d.lat;
@@ -74,9 +75,16 @@ function callbackDataLoaded(err, csv_data, sample_data){
 		this.lon_max = d3.max(csv_data,function(d){
 			return d.lon;
 		})
+    this.max_High = d3.max(sample_data, function(d){
+      return d.High
+    })
+    this.min_High = d3.min(sample_data, function(d){
+      return d.High
+    })
 
-		this.lat_scale = d3.scaleLinear().range([0, frameConfig.height]).domain([this.lat_min, this.lat_max]);
+		this.lat_scale = d3.scaleLinear().range([frameConfig.height, 0]).domain([this.lat_min, this.lat_max]);
 		this.lng_scale = d3.scaleLinear().range([0, frameConfig.width]).domain([this.lon_min,this.lon_max]);
+    this.High_scale = d3.scaleLinear().range([0, frameConfig.height]).domain([this.min_High,this.max_High]);
 
 	})
   var nested_data = d3.nest()
@@ -120,12 +128,14 @@ function initializeScene(data){
 	document.getElementById("WebGLCanvas").appendChild(renderer.domElement);
 	// setting up the scene and camera
 	scene = new THREE.Scene();
-	camera = new THREE.OrthographicCamera((frameConfig.width / - 2) - 1 , (frameConfig.width / 2) + 1, frameConfig.height / 3, frameConfig.height / - 3, 1, 1000 )//( 60, canvasWidth / canvasHeight, 1, 100 );
-	controls = new THREE.OrbitControls(camera);
+	camera = new THREE.PerspectiveCamera( 60, canvasWidth / canvasHeight, 1, 100 );
+// camera = new THREE.PerspectiveCamera((frameConfig.width / - 2) - 1 , (frameConfig.width / 2) + 1, frameConfig.height / 3, frameConfig.height / - 3, 1, 1000 )
+
+  // controls = new THREE.OrbitControls(camera);
 
 	// setting the box geometry for the background / under;ying image
 	var boxGeometry = new THREE.BoxGeometry(frameConfig.width, frameConfig.height, 0.01);
-	var mapTexture = new THREE.ImageUtils.loadTexture('ph6.png');
+	var mapTexture = new THREE.ImageUtils.loadTexture('ph2.png');
 	var boxMaterial = new THREE.MeshBasicMaterial({
 		map: mapTexture,
 		side:THREE.DoubleSide
@@ -156,17 +166,68 @@ lineMaterial = new THREE.LineBasicMaterial({
 
 
 // actuall lines construction
-    lineGeometry.vertices.push(new THREE.Vector3(coord.x, coord.y, 2));
-    var line = new THREE.Line(lineGeometry, lineMaterial);
-    lineGroup.add(line)
-
+    // constucting streets as lines
+    //
+    //
+    // lineGeometry.vertices.push(new THREE.Vector3(coord.x, coord.y, 2));
+    // var line = new THREE.Line(lineGeometry, lineMaterial);
+    // lineGroup.add(line)
 
 	})
-  camera.position.set(frameConfig.width/2, -frameConfig.height/6, 10);
+
+  // possibly using curves later on
+  street_lines_group = new THREE.Group();
+  street_curves_group = new THREE.Group();
+  data.forEach(function(coord){
+    console.log("coord",coord)
+    var lineGroup = new THREE.Group();
+
+    var lineMaterial = new THREE.LineBasicMaterial({
+                color: "red",
+                linewidth:4,
+            });
+    var lineGeometry = new THREE.Geometry();
+    var curveGeometry = new THREE.Geometry();
+    // curve_points_holder = []
+    coord.values.forEach(function(e){
+
+      // curve_points_holder.push(new THREE.Vector3(e.x, e.y, 2))
+      lineGeometry.vertices.push(new THREE.Vector3(e.x, e.y, 2));
+      var line = new THREE.LineSegments(lineGeometry, lineMaterial);
+      lineGroup.add(line)
+
+
+    })
+    // var curve = new THREE.QuadraticBezierCurve3(
+    	// curve_points_holder[0],
+    	// curve_points_holder[1],
+    	// curve_points_holder[2]
+    // );
+    // curveGeometry.vertices = curve.getPoints( 50 );
+    // var curveObject = new THREE.Line( curveGeometry, lineMaterial );
+    street_lines_group.add(lineGroup)
+    // street_curves_group.add(curveObject)
+  })
+  //
+  // lineGeometry.vertices.push(new THREE.Vector3(coord.x, coord.y, 2));
+  // var line = new THREE.Line(lineGeometry, lineMaterial);
+  // lineGroup.add(line)
+
+  console.log("lineGroup", street_lines_group)
+  camera.position.set(frameConfig.width/2, -frameConfig.height/3, 4);
   camera.lookAt(new THREE.Vector3(frameConfig.width/2, frameConfig.height/2, 0));
   scene.add(camera);
-  scene.add(lineGroup);
-// scene.add(group);
+  // street_lines_group.children.forEach(function(lines_group){
+  //   // console.log(lines_group)
+  //   scene.add(lines_group)
+  //   // lines_group.children.forEach(function(line){
+  //     // scene.add(line)
+  //   // })
+  //
+  // })
+  scene.add(street_lines_group);
+  scene.add(street_curves_group);
+scene.add(group);
 }
 
 
@@ -174,17 +235,32 @@ function animateScene(){
 	xRotation += 0.01;
 	yRotation += 0.03;
 	zRotation += 0.00;
-  // console.log(group)
+  // console.log("street_lines_group",street_lines_group)
   // group.position.z += d3.randomUniform(-0.1, 0.1)();
   // var objectGroup = group[0].parent;
-  for (j = 0; j < lineGroup.children.length; j++) {
-    // group.children[j].material.color.setHex(0x1A75FF);
-    for (v = 0; v < lineGroup.children[j].geometry.vertices.length; v++) {
-        lineGroup.children[j].geometry.vertices[v].z = d3.randomUniform(0, 2)();
-        lineGroup.children[j].geometry.verticesNeedUpdate = true;
-    }
-  }
+  for (ji = 0; ji < street_lines_group.children.length; ji++) {
 
+    // group.children[j].material.color.setHex(0x1A75FF);
+    for (j = 0; j < street_lines_group.children[ji].children.length; j++) {
+      // console.log(street_lines_group.children[ji].children[j])
+      for (v = 0; v < street_lines_group.children[ji].children[j].geometry.vertices.length; v++) {
+
+
+
+          //here use
+          // location
+          // time frame we interested
+          // attribute we want to
+          // devide the number of observations we want to show to frame rotate to use as time intervale
+          // scale the z value in each time interval
+          //
+
+
+          street_lines_group.children[ji].children[j].geometry.vertices[v].z = d3.randomUniform(0, 2)();
+          street_lines_group.children[ji].children[j].geometry.verticesNeedUpdate = true;
+      }
+  }
+}
   for (j = 0; j < group.children.length; j++) {
     // group.children[j].material.color.setHex(0x1A75FF);
     group.children[j].position.z += d3.randomUniform(-0.1, 0.1)();
