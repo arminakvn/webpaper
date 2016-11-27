@@ -11,6 +11,7 @@
   <script src="bower_components/three.js/build/three.js"></script>
   <script src="bower_components/semantic/dist/semantic.js"></script>
   <script src="bower_components/semantic-ui-calendar/dist/calendar.js"></script>
+
   <script src="https://dl.dropboxusercontent.com/u/3587259/Code/Threejs/OrbitControls.js"></script>
 
 <link rel="stylesheet" type="text/css" href="bower_components/semantic/dist/semantic.css"> </style>
@@ -24,42 +25,72 @@
 
   <div class="ui grid">
     <div class="row">
+
+    <div class="ui menu">
+      <div class="ui pointing dropdown link item" id="components">
+        <span class="text">Choose component</span>
+        <i class="dropdown icon"></i>
+        <div class="menu">
+          <!-- <div class="header">components</div> -->
+          <div class="item">
+            Loudness</div>
+            <div class="item">
+              Requency</div>
+            <!-- <i class="dropdown icon"></i>
+            <span class="text">Clothing</span>
+            <div class="menu">
+              <div class="header">Mens</div>
+              <div class="item">Shirts</div>
+              <div class="item">Pants</div>
+              <div class="item">Jeans</div>
+              <div class="item">Shoes</div>
+              <div class="divider"></div>
+              <div class="header">Womens</div>
+              <div class="item">Dresses</div>
+              <div class="item">Shoes</div>
+              <div class="item">Bags</div>
+            </div> -->
+          </div>
+        </div>
+      </div>
+      <!-- <div class="ui form">
+        <div class="two fields"> -->
+        from  <div class="field">
+            <!-- <label>Start date</label> -->
+            <div class="ui calendar" id="rangestart">
+              <div class="ui input left icon">
+                <i class="calendar icon"></i>
+                <input placeholder="Date" value="5/30/2015 3pm">
+              </div>
+            </div>
+          </div>
+        to  <div class="field">
+            <!-- <label>End date</label> -->
+            <div class="ui calendar" id="rangeend">
+              <div class="ui input left icon">
+                <i class="calendar icon"></i>
+                <input type="text" placeholder="Date" value="5/30/2015 4pm">
+              <!-- </div> -->
+            <!-- </div> -->
+          </div>
+        </div>
+      </div>
+</div>
+</div>
+    <div class="row">
       <div class="ten wide column">
 
 
       <div id="WebGLCanvas"></div>
-      <canvas id="myCanvas"></canvas>
+      <!-- <canvas id="myCanvas"></canvas>
         <div class="gl-output" id="gl"></div>
-          <div id="stats-gui"></div>
+          <div id="stats-gui"></div> -->
       </div>
     </div>
     <div class="row">
       <div class="four wide column">
 
         <!-- <div class="ui-calendar" id="date_picker"></div> -->
-        <h3>Range</h3>
-        <div class="ui form">
-          <div class="two fields">
-            <div class="field">
-              <label>Start date</label>
-              <div class="ui calendar" id="rangestart">
-                <div class="ui input left icon">
-                  <i class="calendar icon"></i>
-                  <input placeholder="Date" value="5/30/2015 3pm">
-                </div>
-              </div>
-            </div>
-            <div class="field">
-              <label>End date</label>
-              <div class="ui calendar" id="rangeend">
-                <div class="ui input left icon">
-                  <i class="calendar icon"></i>
-                  <input type="text" placeholder="Date" value="5/30/2015 4pm">
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
         <br/>
         <!-- <select id="date_selection"  name="date_selection" class="ui compact dropdown button" >
             <option value="">Date select</option>
