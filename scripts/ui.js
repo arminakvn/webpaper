@@ -1,4 +1,4 @@
-$('#date_selection').dropdown(
+$('#components').dropdown(
 )
 
 
