@@ -3,24 +3,91 @@
   <head>
   <meta charset="UTF-8">
 	<title>philips-data</title>
-	
-  <script src="bower_components/d3/d3.min.js"></script>
-  <script src="scripts/dat.gui.min.js"></script>
-  <!-- <script src="paper-full.js"></script> -->
-  <script src="scripts/Detector.js"></script>
-  <script src="bower_components/three.js/build/three.js"></script>
+  <script src="jquery.js"></script>
+  <script src="d3.min.js"></script>
+  <script src="dat.gui.min.js"></script>
+  <script src="paper-full.js"></script>
+  <script src="Detector.js"></script>
+  <script src="three.js"></script>
+  <script src="semantic.js"></script>
+  <script src="calendar.js"></script>
   <script src="https://dl.dropboxusercontent.com/u/3587259/Code/Threejs/OrbitControls.js"></script>
-  
 
-  <link rel="stylesheet" type="text/css" href="styles/style.css"> </style>     
+<link rel="stylesheet" type="text/css" href="semantic.css"> </style>
+<link rel="stylesheet" type="text/css" href="calendar.css"> </style>
+  <link rel="stylesheet" type="text/css" href="style.css"> </style>
 
 	</head>
 
 <body>
-<div id="WebGLCanvas"></div>
-<canvas id="myCanvas"></canvas>
-	<div class="gl-output" id="gl"></div>
-    <div id="stats-gui"></div>
-<script src="scripts/script.js"></script>
-</body>
+
+
+  <div class="ui grid">
+    <div class="row">
+      <div class="ten wide column">
+
+
+      <div id="WebGLCanvas"></div>
+      <canvas id="myCanvas"></canvas>
+        <div class="gl-output" id="gl"></div>
+          <div id="stats-gui"></div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="four wide column">
+
+        <!-- <div class="ui-calendar" id="date_picker"></div> -->
+        <h3>Range</h3>
+        <div class="ui form">
+          <div class="two fields">
+            <div class="field">
+              <label>Start date</label>
+              <div class="ui calendar" id="rangestart">
+                <div class="ui input left icon">
+                  <i class="calendar icon"></i>
+                  <input placeholder="Date" value="5/30/2015 3pm">
+                </div>
+              </div>
+            </div>
+            <div class="field">
+              <label>End date</label>
+              <div class="ui calendar" id="rangeend">
+                <div class="ui input left icon">
+                  <i class="calendar icon"></i>
+                  <input type="text" placeholder="Date" value="5/30/2015 4pm">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <br/>
+
+        <h3>Initial value</h3>
+        <div class="ui calendar" id="example5">
+          <div class="ui input left icon">
+            <i class="calendar icon"></i>
+            <input type="text" placeholder="Date" value="5/30/2015 3pm">
+          </div>
+        </div>
+        <br/>
+        <!-- <select id="date_selection"  name="date_selection" class="ui compact dropdown button" >
+            <option value="">Date select</option>
+            <option data-id="23" value="23">23</option>
+            <option data-id="24" value="24">24</option>
+              <option data-id="25" value="25">25</option>
+
+          </select> -->
+              <div class="ui hidden divider"></div>
+
+
+
+        </div>
+
+
+
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script src="ui.js"></script></body>
 </html>
