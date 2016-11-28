@@ -10,11 +10,23 @@ $('#components').dropdown({
 
 $('#rangestart').calendar({
   // type: 'date',
-  endCalendar: $('#rangeend')
+  endCalendar: $('#rangeend'),
+  onChange: function(val){
+    console.log(event)
+    event.preventDefault()
+    console.log("rangestart", val)
+    ui_current_state.set("rangestart", val)
+    updateDataForViz()
+  }
 });
 $('#rangeend').calendar({
   // type: 'date',
-  startCalendar: $('#rangestart')
+  startCalendar: $('#rangestart'),
+  onChange: function(val){
+    console.log("rangeend", val)
+    ui_current_state.set("rangeend", val)
+    updateDataForViz()
+  }
 });
 
 $('#example5').calendar();
