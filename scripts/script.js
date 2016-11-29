@@ -20,7 +20,6 @@ ui_current_state.set("data_needs_to_filter", 0)
 // // loading the data / starting with loading the locations
 function loadData(){
 	d3.queue()
-
 		.defer(d3.csv,"locations_nest.csv", parseLocations)
     .defer(d3.csv,"res2.csv", parseSamples)
     .await(callbackDataLoaded)
@@ -58,9 +57,7 @@ function callbackDataLoaded(err, csv_data, sample_data){
   })
   ui_current_state.set("rangestart", min_time)
   ui_current_state.set("rangeend", max_time)
-
   scalerConfig = new (function(){
-
 		this.lat_scale = d3.scaleLinear().range([frameConfig.height, 0]).domain([lat_min, lat_max]);
 		this.lng_scale = d3.scaleLinear().range([0, frameConfig.width]).domain([lon_min, lon_max]);
     this.High_scale = d3.scaleLinear().range([0, frameConfig.height]).domain([min_High, max_High]);
@@ -68,7 +65,6 @@ function callbackDataLoaded(err, csv_data, sample_data){
       .range(["#bd0026", "#ffffb2", "#fd8d3c"])
       .domain(["loudness","frequency"]);
     this.time_range = [min_time,max_time];
-
 	})
 
   var nested_samples = d3.nest()
@@ -90,16 +86,14 @@ function callbackDataLoaded(err, csv_data, sample_data){
       device_mapped_values.set("Voice",d.Voice);
       device_mapped_id_value.set(d.time, device_mapped_values);
     })
+
+
   samples_mapped.set(devic_id,device_mapped_id_value)
-
-
-
   })
+
   var nested_data = d3.nest()
     .key(function(d) { return d.street; })
     .entries(csv_data);
-
-
 
   ui_current_state.set("rangestart", min_time);
   ui_current_state.set("rangeend", max_time);
@@ -166,68 +160,70 @@ function initializeScene(data){
 	boxMesh.position.set(frameConfig.width/2,frameConfig.height/2,0.02);
 	scene.add(boxMesh);
 
-group = new THREE.Group();
-lineGroup = new THREE.Group();
-surfaveGroup = new THREE.Group()
-lineGeometry = new THREE.Geometry();
-lineMaterial = new THREE.LineBasicMaterial({
+  group = new THREE.Group();
+  lineGroup = new THREE.Group();
+  surfaveGroup = new THREE.Group()
+  lineGeometry = new THREE.Geometry();
+  lineMaterial = new THREE.LineBasicMaterial({
     color: 0x0000ff
-});
+  });
 
 // making a small sphere as a market for the points and put it on the actuall locations
-data_coords.forEach(function(coord){
-	var geometry = new THREE.SphereGeometry(0.1, 10, 10, 0, Math.PI * 2, 0, Math.PI * 2);
-	var material = new THREE.MeshNormalMaterial();
-	var cube = new THREE.Mesh(geometry, material);
-	cube.position.x = coord.x;
-	cube.position.y = coord.y;
-	cube.position.z = 2;
-  group.add(cube);
-})
+  data_coords.forEach(function(coord){
+  	var geometry = new THREE.SphereGeometry(0.1, 10, 10, 0, Math.PI * 2, 0, Math.PI * 2);
+  	var material = new THREE.MeshNormalMaterial();
+  	var cube = new THREE.Mesh(geometry, material);
+  	cube.position.x = coord.x;
+  	cube.position.y = coord.y;
+  	cube.position.z = 2;
+    group.add(cube);
+  })
 
   // possibly using curves later on, but line segments for now
-street_lines_group = new THREE.Group();
-street_curves_group = new THREE.Group();
-data.forEach(function(coord){
-  var lineGroup = new THREE.Group();
-  var lineMaterial = new THREE.LineBasicMaterial({
-              color: "red",
-              linewidth:4,
-          });
-  var lineGeometry = new THREE.Geometry();
-  var curveGeometry = new THREE.Geometry();
-  coord.values.forEach(function(e){
-    lineGeometry.vertices.push(new THREE.Vector3(e.x, e.y, 2));
-    var line = new THREE.LineSegments(lineGeometry, lineMaterial);
-    lineGroup.add(line)
+  street_lines_group = new THREE.Group();
+  street_curves_group = new THREE.Group();
+  data.forEach(function(coord){
+    var lineGroup = new THREE.Group();
+    var lineMaterial = new THREE.LineBasicMaterial({
+      color: "red",
+      linewidth:4,
+    });
+    var lineGeometry = new THREE.Geometry();
+    var curveGeometry = new THREE.Geometry();
+    coord.values.forEach(function(e){
+      lineGeometry.vertices.push(new THREE.Vector3(e.x, e.y, 2));
+      var line = new THREE.LineSegments(lineGeometry, lineMaterial);
+      lineGroup.add(line)
+    })
+    street_lines_group.add(lineGroup)
   })
-  street_lines_group.add(lineGroup)
-})
 
 
-device_per_street_map.keys().forEach(function(each_street_key){
-  var devices = device_per_street_map.get(each_street_key);
-  devices.forEach(function(device){
-    var device_values = samples_mapped.get(device);
-    device_values.keys().forEach(function(d_times_key){
-      if (filterValuesByTime(d_times_key) > 0) {
-        var values_for_pointtime = device_values.get(d_times_key);
-      }
+  device_per_street_map.keys().forEach(function(each_street_key){
+    var devices = device_per_street_map.get(each_street_key);
+    devices.forEach(function(device){
+      var device_values = samples_mapped.get(device);
+      device_values.keys().forEach(function(d_times_key){
+        if (filterValuesByTime(d_times_key) > 0) {
+          var values_for_pointtime = device_values.get(d_times_key);
+        }
+      })
     })
   })
-
-})
 
   // lineGeometry.vertices.push(new THREE.Vector3(coord.x, coord.y, 2));
   // var line = new THREE.Line(lineGeometry, lineMaterial);
   // lineGroup.add(line)
-camera.position.set(frameConfig.width/2, -frameConfig.height/3, 4);
-camera.lookAt(new THREE.Vector3(frameConfig.width/2, frameConfig.height/2, 0));
-scene.add(camera);
+  camera.position.set(frameConfig.width/2, -frameConfig.height/3, 4);
+  camera.lookAt(new THREE.Vector3(frameConfig.width/2, frameConfig.height/2, 0));
+  scene.add(camera);
 
-scene.add(street_lines_group);
-scene.add(street_curves_group);
-scene.add(group);
+  scene.add(street_lines_group);
+  scene.add(street_curves_group);
+  scene.add(group);
+
+
+
 }
 
 function onWindowResize() {
@@ -240,6 +236,8 @@ function onWindowResize() {
   renderScene();
 
 }
+
+
 
 function animateScene(){
   if (ui_current_state.get("data_needs_to_filter") > 0){
@@ -258,13 +256,13 @@ function animateScene(){
           // devide the number of observations we want to show to frame rotate to use as time intervale
           // scale the z value in each time interval
           //
-          street_lines_group.children[ji].children[j].material.color = makeColorToUpdate();
+        street_lines_group.children[ji].children[j].material.color = makeColorToUpdate();
           // street_lines_group.children[ji].children[j].material._needsUpdate = true;
-          street_lines_group.children[ji].children[j].geometry.vertices[v].z = d3.randomUniform(0, 2)();
-          street_lines_group.children[ji].children[j].geometry.verticesNeedUpdate = true;
+        street_lines_group.children[ji].children[j].geometry.vertices[v].z = d3.randomUniform(0, 2)();
+        street_lines_group.children[ji].children[j].geometry.verticesNeedUpdate = true;
       }
+    }
   }
-}
   for (j = 0; j < group.children.length; j++) {
     group.children[j].position.z += d3.randomUniform(-0.1, 0.1)();
 
