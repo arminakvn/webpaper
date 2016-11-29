@@ -58,8 +58,8 @@ function callbackDataLoaded(err, csv_data, sample_data){
   ui_current_state.set("rangestart", min_time)
   ui_current_state.set("rangeend", max_time)
   scalerConfig = new (function(){
-		this.lat_scale = d3.scaleLinear().range([frameConfig.height, 0]).domain([lat_min, lat_max]);
-		this.lng_scale = d3.scaleLinear().range([0, frameConfig.width]).domain([lon_min, lon_max]);
+		this.lat_scale = d3.scaleLinear().range([frameConfig.padding_bottom,frameConfig.height - frameConfig.padding_top]).domain([lat_min, lat_max]);
+		this.lng_scale = d3.scaleLinear().range([frameConfig.width-frameConfig.padding_left,frameConfig.padding_right]).domain([lon_min, lon_max]);
     this.High_scale = d3.scaleLinear().range([0, frameConfig.height]).domain([min_High, max_High]);
     this.Components_scale = d3.scaleOrdinal()
       .range(["#bd0026", "#ffffb2", "#fd8d3c"])
@@ -140,7 +140,7 @@ function initializeScene(data){
 	document.getElementById("WebGLCanvas").appendChild(renderer.domElement);
 	// setting up the scene and camera
 	scene = new THREE.Scene();
-	camera = new THREE.PerspectiveCamera( 60, canvasWidth / canvasHeight, 1, 100 );
+	camera = new THREE.PerspectiveCamera( 60, canvasWidth / canvasHeight, 1, frameConfig.fow );
 // camera = new THREE.PerspectiveCamera((frameConfig.width / - 2) - 1 , (frameConfig.width / 2) + 1, frameConfig.height / 3, frameConfig.height / - 3, 1, 1000 )
 
   // controls = new THREE.OrbitControls(camera);
@@ -149,7 +149,7 @@ function initializeScene(data){
 // window.addEventListener( 'resize', onWindowResize, false );
 	// setting the box geometry for the background / under;ying image
 	var boxGeometry = new THREE.BoxGeometry(frameConfig.width, frameConfig.height, 0.01);
-	var mapTexture = new THREE.ImageUtils.loadTexture('ph2.png');
+	var mapTexture = new THREE.ImageUtils.loadTexture('ph8.png');
 	var boxMaterial = new THREE.MeshBasicMaterial({
 		map: mapTexture,
 		side:THREE.DoubleSide
@@ -214,7 +214,7 @@ function initializeScene(data){
   // lineGeometry.vertices.push(new THREE.Vector3(coord.x, coord.y, 2));
   // var line = new THREE.Line(lineGeometry, lineMaterial);
   // lineGroup.add(line)
-  camera.position.set(frameConfig.width/2, -frameConfig.height/3, 4);
+  camera.position.set(frameConfig.width/2, -frameConfig.height/3, frameConfig.camera_z);
   camera.lookAt(new THREE.Vector3(frameConfig.width/2, frameConfig.height/2, 0));
   scene.add(camera);
 
