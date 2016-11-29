@@ -3,6 +3,8 @@ $('#components').dropdown({
   onChange: function(val){
     console.log("value of selection in drop down", val)
     ui_current_state.set("component", val)
+    ui_current_state.set("data_needs_to_filter", 0)
+
     updateViz()
   }
 })

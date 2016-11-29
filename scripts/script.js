@@ -24,9 +24,22 @@ var data_map = d3.map();
 // ui interactions are updating this which is what the animateScene uses
 var ui_current_state = d3.map();
 var data_mapped = d3.map()
+var device_per_street_map = d3.map()
 //setting defult values for ui
 
+
+componentsConfig = new (function(){
+  this.components_map = d3.map()
+})
+
+componentsConfig.components_map.set("Loudness", ["Lmaxdba","Leqdba","Lmindba"])
+componentsConfig.components_map.set("Frequency", ["High","Voice"])
+
+
+
+
 ui_current_state.set("component", "loudness")
+ui_current_state.set("data_needs_to_filter", 0)
 frameConfig = new (function() {
   this.height = 20;
   this.width = 20;
@@ -95,6 +108,8 @@ function callbackDataLoaded(err, csv_data, sample_data){
   var max_time = d3.max(sample_data,function(d){
     return d.time;
   })
+  ui_current_state.set("rangestart", min_time)
+  ui_current_state.set("rangeend", max_time)
   scalerConfig = new (function(){
 
 		this.lat_scale = d3.scaleLinear().range([frameConfig.height, 0]).domain([lat_min, lat_max]);
@@ -129,6 +144,7 @@ function callbackDataLoaded(err, csv_data, sample_data){
   samples_mapped.set(devic_id,device_mapped_id_value)
 
 
+
   })
   var nested_data = d3.nest()
     .key(function(d) { return d.street; })
@@ -149,10 +165,14 @@ loadData();
 function initializeScene(data){
 	data.forEach(function(each_street){
     var street_name = each_street.key;
+    var dev_ids = each_street.values.map(function(v){return v.id;})
     each_street.values.forEach(function(each_point){
       console.log(each_point, scalerConfig.lng_scale(each_point.lon))
+
       each_point.x = scalerConfig.lng_scale(each_point.lon)
       each_point.y = scalerConfig.lat_scale(each_point.lat)
+
+
       data_coords.push({
         'device_id': each_point.id,
   			'x': scalerConfig.lng_scale(each_point.lon),
@@ -161,7 +181,10 @@ function initializeScene(data){
         'device_values': samples_mapped.get(each_point.id)
   		})
     })
+    device_per_street_map.set(street_name,dev_ids)
 	})
+
+
 
 	// making the renderer
 	// detecting if the browser supports webGL
@@ -181,10 +204,10 @@ function initializeScene(data){
 	camera = new THREE.PerspectiveCamera( 60, canvasWidth / canvasHeight, 1, 100 );
 // camera = new THREE.PerspectiveCamera((frameConfig.width / - 2) - 1 , (frameConfig.width / 2) + 1, frameConfig.height / 3, frameConfig.height / - 3, 1, 1000 )
 
-  controls = new THREE.OrbitControls(camera);
+  // controls = new THREE.OrbitControls(camera);
   // controls.enableZoom = true;
-controls.addEventListener( 'change', renderScene );
-window.addEventListener( 'resize', onWindowResize, false );
+// controls.addEventListener( 'change', renderScene );
+// window.addEventListener( 'resize', onWindowResize, false );
 	// setting the box geometry for the background / under;ying image
 	var boxGeometry = new THREE.BoxGeometry(frameConfig.width, frameConfig.height, 0.01);
 	var mapTexture = new THREE.ImageUtils.loadTexture('ph2.png');
@@ -208,6 +231,7 @@ lineMaterial = new THREE.LineBasicMaterial({
 
 // making a small sphere as a market for the points and put it on the actuall locations
 data_coords.forEach(function(coord){
+  console.log("coord",coord)
 	var geometry = new THREE.SphereGeometry(0.1, 10, 10, 0, Math.PI * 2, 0, Math.PI * 2);
 	var material = new THREE.MeshNormalMaterial();
 	var cube = new THREE.Mesh(geometry, material);
@@ -221,7 +245,7 @@ data_coords.forEach(function(coord){
 street_lines_group = new THREE.Group();
 street_curves_group = new THREE.Group();
 data.forEach(function(coord){
-  console.log("coord",coord)
+  console.log("coord s streets",coord)
   var lineGroup = new THREE.Group();
 
   var lineMaterial = new THREE.LineBasicMaterial({
@@ -239,6 +263,29 @@ data.forEach(function(coord){
   })
   street_lines_group.add(lineGroup)
 })
+
+
+device_per_street_map.keys().forEach(function(each_street_key){
+  var devices = device_per_street_map.get(each_street_key);
+  // console.log("devices", devices)
+  devices.forEach(function(device){
+    var device_values = samples_mapped.get(device);
+    // console.log("all_devices_values", device_values);
+    device_values.keys().forEach(function(d_times_key){
+      // console.log("filterValuesByTime(d_times_key)",filterValuesByTime(d_times_key))
+      if (filterValuesByTime(d_times_key) > 0) {
+        var values_for_pointtime = device_values.get(d_times_key);
+        console.log("just values filtered", values_for_pointtime)
+      }
+    })
+  })
+
+})
+
+
+
+
+
   //
   // lineGeometry.vertices.push(new THREE.Vector3(coord.x, coord.y, 2));
   // var line = new THREE.Line(lineGeometry, lineMaterial);
@@ -276,6 +323,9 @@ function animateScene(){
 	zRotation += 0.00;
   if (ui_current_state.get("data_needs_to_filter") > 0){
     data  = filterData()
+  } else {
+    // var data = []
+    // console.log("data",samples_mapped)
   }
   for (ji = 0; ji < street_lines_group.children.length; ji++) {
     // group.children[j].material.color.setHex(0x1A75FF);
@@ -301,7 +351,7 @@ function animateScene(){
 
   }
 	requestAnimationFrame(animateScene);
-  controls.update();
+  // controls.update();
 	renderScene();
 }
 
@@ -322,13 +372,30 @@ function makeColorToUpdate(){
 
 var day = d3.utcDay(new Date);
 
+function filterValuesByTime(timeValue){
+  // console.log("time value", d3.utcDay((timeValue)_
+  var cutoffDate = d3.utcDay(ui_current_state.get("rangestart"));
+  console.log("cutoffDate",cutoffDate)
+  // cutoffDate.setDate(cutoffDate.getDate());
+  if (timeValue < cutoffDate){
+    var cutoffDate = d3.utcDay(ui_current_state.get("rangeend"));
+    if (timeValue > cutoffDate){
+      return 1;
+    } else {
+      return 0;
+    }
+  } else {
+    return 0;
+  }
 
+}
 function filterData(){
 
   var data =[];
   samples_mapped.keys().forEach(function(eachkey){
     var vals = samples_mapped.get(eachkey);
     vals.forEach(function(samplevalue){
+      console.log(samplevalue,samplevalue)
 
     })
   })
@@ -353,8 +420,25 @@ function updateDataForViz(data){
   // var TimeScale d3.scaleTime()
 
   console.log(ui_current_state,scalerConfig)
-  console.log(samples_mapped);
-  console.log(data_coords);
+  console.log("samples_mapped",samples_mapped);
+  console.log("data_coords",data_coords);
+  console.log("device_per_street_map", device_per_street_map)
+  // nested_samples.forEach(function(dev_d){
+  //   console.log("nested_samples", dev_d)
+  //   var devic_id = dev_d.key;
+  //   dev_d.values.forEach(function(d){
+  //     var device_mapped_values = d3.map();
+  //     device_mapped_values.set("High",d.High);
+  //     device_mapped_values.set("Leqdba",d.Leqdba);
+  //     device_mapped_values.set("Lmaxdba",d.Lmaxdba);
+  //     device_mapped_values.set("Lmindba",d.Lmindba);
+  //     device_mapped_values.set("Voice",d.Voice);
+  //     device_mapped_id_value.set(d.time, device_mapped_values);
+  //   })
+  // samples_mapped.set(devic_id,device_mapped_id_value)
+
+
+  // })
   // f = filterData(data)
   // filtered_data = data.filter(function(d){
   //
