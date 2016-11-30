@@ -20,7 +20,7 @@ ui_current_state.set("data_needs_to_filter", 0)
 // // loading the data / starting with loading the locations
 function loadData(){
 	d3.queue()
-		.defer(d3.csv,"locations_nest.csv", parseLocations)
+		.defer(d3.csv,"locationsinter.csv", parseLocations) //locations_nest
     .defer(d3.csv,"res2.csv", parseSamples)
     .await(callbackDataLoaded)
 }
@@ -190,9 +190,13 @@ function initializeScene(data){
     });
     var lineGeometry = new THREE.Geometry();
     var curveGeometry = new THREE.Geometry();
-    coord.values.forEach(function(e){
+		var sorted_streets = coord.values.sort(function(a,b){
+			return d3.descending(a.lon, b.lon);
+		})
+    sorted_streets.forEach(function(e){
+			console.log("e",e)
       lineGeometry.vertices.push(new THREE.Vector3(e.x, e.y, 2));
-      var line = new THREE.LineSegments(lineGeometry, lineMaterial);
+      var line = new THREE.Line(lineGeometry, lineMaterial);
       lineGroup.add(line)
     })
     street_lines_group.add(lineGroup)
@@ -203,11 +207,11 @@ function initializeScene(data){
     var devices = device_per_street_map.get(each_street_key);
     devices.forEach(function(device){
       var device_values = samples_mapped.get(device);
-      device_values.keys().forEach(function(d_times_key){
-        if (filterValuesByTime(d_times_key) > 0) {
-          var values_for_pointtime = device_values.get(d_times_key);
-        }
-      })
+      // device_values.keys().forEach(function(d_times_key){
+      //   if (filterValuesByTime(d_times_key) > 0) {
+      //     var values_for_pointtime = device_values.get(d_times_key);
+      //   }
+      // })
     })
   })
 
@@ -241,6 +245,7 @@ function onWindowResize() {
 
 
 function animateScene(){
+	// console.log
   if (ui_current_state.get("data_needs_to_filter") > 0){
     data  = filterData()
   } else {
