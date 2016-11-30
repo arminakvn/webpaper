@@ -140,7 +140,7 @@ function initializeScene(data){
 	document.getElementById("WebGLCanvas").appendChild(renderer.domElement);
 	// setting up the scene and camera
 	scene = new THREE.Scene();
-	camera = new THREE.PerspectiveCamera( 60, canvasWidth / canvasHeight, 1, frameConfig.fow );
+	camera = new THREE.PerspectiveCamera( frameConfig.fov, frameConfig.aspect, frameConfig.near, frameConfig.far );
 // camera = new THREE.PerspectiveCamera((frameConfig.width / - 2) - 1 , (frameConfig.width / 2) + 1, frameConfig.height / 3, frameConfig.height / - 3, 1, 1000 )
 
   // controls = new THREE.OrbitControls(camera);
@@ -214,13 +214,14 @@ function initializeScene(data){
   // lineGeometry.vertices.push(new THREE.Vector3(coord.x, coord.y, 2));
   // var line = new THREE.Line(lineGeometry, lineMaterial);
   // lineGroup.add(line)
-  camera.position.set(frameConfig.width/2, -frameConfig.height/3, frameConfig.camera_z);
-  camera.lookAt(new THREE.Vector3(frameConfig.width/2, frameConfig.height/2, 0));
+  camera.position.set(5.5*frameConfig.width/10, -frameConfig.height/3, frameConfig.camera_z);
+  camera.lookAt(new THREE.Vector3(5.5*frameConfig.width/10, frameConfig.height/2, 0));
+  camera.rotation.y = 15 * Math.PI / 180
   scene.add(camera);
 
   scene.add(street_lines_group);
   scene.add(street_curves_group);
-  scene.add(group);
+  // scene.add(group);
 
 
 
