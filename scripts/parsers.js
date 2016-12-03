@@ -3,11 +3,12 @@ function parseSamples(d) {
   return {
     time: s_time, // convert "Year" column to Date
     DeviceId: d.DeviceId,
+    Base: +d.Base,
+    Voice: +d.Voice,
     High: +d.High,
     Leqdba: +d.Leqdba,
     Lmaxdba: +d.Lmaxdba,
-    Lmindba: +d.Lmindba,
-    Voice: +d.Voice
+    Lmindba: +d.Lmindba
   };
 }
 function parseLocations(d) {

@@ -20,5 +20,5 @@ componentsConfig = new (function(){
   this.components_map = d3.map()
 })
 
-componentsConfig.components_map.set("Loudness", ["Lmaxdba","Leqdba","Lmindba"])
-componentsConfig.components_map.set("Frequency", ["High","Voice"])
+componentsConfig.components_map.set("loudness", ["Lmaxdba","Leqdba","Lmindba"])
+componentsConfig.components_map.set("frequency", ["Base","Voice","High"])
