@@ -79,7 +79,7 @@ function callbackDataLoaded(err, csv_data, sample_data){
   scalerConfig = new (function(){
 		this.lat_scale = d3.scaleLinear().range([frameConfig.padding_bottom,frameConfig.height - frameConfig.padding_top]).domain([lat_min, lat_max]);
 		this.lng_scale = d3.scaleLinear().range([frameConfig.width-frameConfig.padding_left,frameConfig.padding_right]).domain([lon_min, lon_max]);
-    this.High_scale = d3.scaleLinear().range([0, 8]).domain([min_High, max_High]);
+    this.High_scale = d3.scaleLinear().range([0, frameConfig.height]).domain([min_High, max_High]);
     this.Components_scale_Loudness = d3.scaleOrdinal()
       .range(["#bd0026", "#ffffb2", "#fd8d3c"])
       .domain(["Base","Voice","High"]);
@@ -179,10 +179,10 @@ function initializeScene(data){
 	camera = new THREE.PerspectiveCamera( frameConfig.fov, frameConfig.aspect, frameConfig.near, frameConfig.far );
 // camera = new THREE.PerspectiveCamera((frameConfig.width / - 2) - 1 , (frameConfig.width / 2) + 1, frameConfig.height / 3, frameConfig.height / - 3, 1, 1000 )
 
-//   controls = new THREE.OrbitControls(camera);
-//   controls.enableZoom = true;
-// controls.addEventListener( 'change', renderScene );
-// window.addEventListener( 'resize', onWindowResize, false );
+  controls = new THREE.OrbitControls(camera);
+  controls.enableZoom = true;
+controls.addEventListener( 'change', renderScene );
+window.addEventListener( 'resize', onWindowResize, false );
 	// setting the box geometry for the background / under;ying image
 
 
@@ -195,7 +195,7 @@ function initializeScene(data){
 	});
 
 	boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
-	boxMesh.position.set(frameConfig.width/2,frameConfig.height/2,0.0);
+	boxMesh.position.set(frameConfig.width/2,frameConfig.height/2,0.02);
 	scene.add(boxMesh);
 
 
@@ -227,39 +227,37 @@ function initializeScene(data){
 	data.forEach(function(coord){
     var lineGroup = new THREE.Group();
 
-
+    var lineGeometry = new THREE.Geometry();
     var curveGeometry = new THREE.Geometry();
 
 
 		var sorted_streets = coord.values.sort(function(a,b){
-			return d3.descending(a.instreet_rank, b.instreet_rank);
+			return d3.descending(a.lon, b.lon);
 		})
 
 
 
+		var spline = new THREE.SplineCurve3()
+		var svector_array = [];
 
 
 
+		sorted_streets.forEach(function(e){
 
-		// var dstnce = (new THREE.Vector3(sorted_streets[0].x,sorted_streets[0].y,2)).distanceTo(new THREE.Vector3(sorted_streets[sorted_streets.length-1].x,sorted_streets[sorted_streets.length-1].y,2));
-		// var _before = getPointInBetweenByLen
+			var dstnce = (new THREE.Vector3(sorted_streets[0].x,sorted_streets[0].y,2)).distanceTo(new THREE.Vector3(sorted_streets[sorted_streets.length-1].x,sorted_streets[sorted_streets.length-1].y,2));
+
+			var pointMeasuredVect = new THREE.Vector3(e.x, e.y, 2)
+			svector_array.push(pointMeasuredVect)
+		})
+		var spline = new THREE.SplineCurve3(svector_array)
+		var splinePoints = spline.getPoints(frameConfig.numPoints);
+		for(var i = 0; i < splinePoints.length; i++){
+		    lineGeometry.vertices.push(splinePoints[i]);
+		}
+
 		var lineColorGroup = new THREE.Group();
-		for (iii = 0; iii < sorted_streets.length-1; iii++){
 
-			var lineGeometry = new THREE.Geometry();
-			var svector_array = [];
-			var dstnce = (new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,0)).distanceTo(new THREE.Vector3(sorted_streets[iii +1].x,sorted_streets[iii +1].y,0));
-			var _before = getPointInBetweenByLen(new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,0),new THREE.Vector3(sorted_streets[iii +1].x,sorted_streets[iii +1].y,0),-1 * dstnce / 2)
-			var _after = getPointInBetweenByLen(new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,0),new THREE.Vector3(sorted_streets[iii +1].x,sorted_streets[iii +1].y,0),1 * dstnce / 2)
-			console.log(sorted_streets[iii],sorted_streets[iii+1],dstnce, _before, _after)
-			// add the two to array and make the spline points and addthat to lineGeometry and make the line
-			svector_array.push(_before)
-			svector_array.push(_after)
-			var spline = new THREE.SplineCurve3(svector_array)
-			var splinePoints = spline.getPoints(frameConfig.numPoints);
-			for(var i = 0; i < splinePoints.length; i++){
-			    lineGeometry.vertices.push(splinePoints[i]);
-			}
+    sorted_streets.forEach(function(e){
 			var current_component = ui_current_state.get("component");
 			var colorScale = scalerConfig.color_scale_map.get(current_component);
 				var lineMaterial = new THREE.LineBasicMaterial({
@@ -267,53 +265,18 @@ function initializeScene(data){
 		      linewidth:2,
 		    });
 	      var line = new THREE.Line(lineGeometry, lineMaterial);
-				line.name = sorted_streets[iii].id;
+				line.name = e.id;
 	      lineColorGroup.add(line)
-				lineColorGroup.name = sorted_streets[iii].street;
-				lineColorGroup.numberOfNodesInStreet = sorted_streets.length;
+				lineColorGroup.name = e.street;
+				lineGroup.add(lineColorGroup);
 
-		}
-		lineGroup.add(lineColorGroup);
 
-		//
-		// sorted_streets.forEach(function(e){
-		//
-		//
-		//
-		//
-		// 	var pointMeasuredVect = new THREE.Vector3(e.x, e.y, 2)
-		// 	svector_array.push(pointMeasuredVect)
-		//
-		//
-		// })
-		// var spline = new THREE.SplineCurve3(svector_array)
-		// var splinePoints = spline.getPoints(frameConfig.numPoints);
-		// for(var i = 0; i < splinePoints.length; i++){
-		//     lineGeometry.vertices.push(splinePoints[i]);
-		// }
-		//
-		//
-		//
-    // sorted_streets.forEach(function(e){
-		// 	var current_component = ui_current_state.get("component");
-		// 	var colorScale = scalerConfig.color_scale_map.get(current_component);
-		// 		var lineMaterial = new THREE.LineBasicMaterial({
-		//       color: colorScale(current_component),
-		//       linewidth:2,
-		//     });
-	  //     var line = new THREE.Line(lineGeometry, lineMaterial);
-		// 		line.name = e.id;
-	  //     lineColorGroup.add(line)
-		// 		lineColorGroup.name = e.street;
-		// 		lineGroup.add(lineColorGroup);
-		//
-		//
-    // })
+    })
     street_lines_group.add(lineGroup)
   })
 
-	// var streets_device_line_segs = d3.map()
-	// var lineGroup_2 = new THREE.Group();
+	var streets_device_line_segs = d3.map()
+	var lineGroup_2 = new THREE.Group();
   // device_per_street_map.keys().forEach(function(each_street_key){
 	//
 	//
@@ -387,7 +350,7 @@ function initializeScene(data){
   scene.add(camera);
 
   scene.add(street_lines_group);
-	// console.log("street_lines_group", street_lines_group)
+	console.log("street_lines_group", street_lines_group)
   // scene.add(street_curves_group);
   // scene.add(lineGroup_2);
 	// console.log("streets_device_line_segs",streets_device_line_segs)
@@ -411,14 +374,80 @@ function onWindowResize() {
 
 function animateScene(){
 
-	if (requestStream.frame_counter > frameConfig.numPoints){
-			requestStream.frame_counter = 1;
-			var t = requestStream.frame_counter;
-	} else {
-		var t = requestStream.frame_counter;
-	}
+	// if (requestStream.frame_counter > frameConfig.numPoints){
+	// 	return requestStream.frame_counter = 1;
+	// } else {
+	// 	requestStream.frame_counter += 1;
+	// }
+	var t = requestStream.frame_counter;
+	// console.log("frame counter", requestStream.frame_counter)
 
-	// console.log("t",t,street_lines_group)
+
+	// config has a totaltime is ms  that gets updated when users change input
+	// totaltime is the time in ms from start date to enddate
+	// figure out how long the data object is
+	// condidering
+	//   - data sample is for every config._rate (1/5 minutes = 1/300,000 ms ) = .000005
+	//   - stream_el is the expected number of records based on time range and rate
+	//   - stream_ovl is the number of actull data points/values (in terms of length) considering there are multiple devices
+	//   - stream_hl is the time in milliseconds we want the animation of on full iteration of data points to last and then loop
+	//   - example:
+	//      stream_ovl: 3455 data points (samples)
+	//      range: from 1472047200000 to 1472096400000 = 49200000
+	//      totaltime: 49200000 ms
+	//      timescale range has: 49200000 / 300000 = 164  intervals is basicaly the number of times it should render/update load datachage
+	//        lets say each 2 frame it can load a datachange (later see frequency = 1 / 2 = 0.5)
+	//        then it will need 328 frames which say 5.5 seconds or 5500 ms
+	//        the other way would be lets say we want the visualization to last about 5 seconds (stream_hl=2500 ms)
+	//        5000 ms / 164 (number of times it should render) = 30.487804878 ms which is every 30.5 ms or 0.0305 of a second or
+	//        0.0305 * 60 = 1.83 frame or about 2 frames for each load of datachange to last,1 / 2 = .5 is the frequency
+  //
+	//        thinking of the visualization for each component frozen at a given time, the stream is some kind of line graph with x axis mapped on the street the line is running on top
+	//        x axis scale for time from startrange to endrange
+	//        which is the number of x
+	//        unfreezing the time for one unit / ms and freezing again how many (half) data change
+	//        at every 2 frame, or tick -- naming of d3 convention, it shifts the graph forward
+	//        basically adding a point from begining to end and shifting all the points in between one forward in the array
+	//        imagining it as there are small spheres for each datapoint the can go up/down on a verical axis,
+	//        are stacked on/along the street/stream x axis and data is moving/floating/looping through/on top of it and loopig from the end to the begining and back
+	//        if each sphere is numbered, and data for each point of time could be indexed by the id number of each and as data floats it gets the next point in time
+	//        the first frame/tick sphere 1 gets datapoint 1, 2 gets 2 etc.
+	//        the second frame data floats forward with amount of frequency
+	//        if the frequency is 0.5 then every 2 frames all the datapoints shift one forward then
+	//        sphere one gets the last datepoint (if it return back to the queue after dropping at the end), sphere 2 gets datapoint 1 and sphere 3 gets datapoint 2 so on so forth
+	//        every 1/frequency = 1/0.5 = 2 frame
+///           if im a frame //
+///						: if it is tick number 1 then, or t=1:
+///              no datachange
+
+///              for sphere number 1 or sn=1 try data_array[sn * t / frequency] = data_array[1 * 1 * 0.5] = data_array[0.5]
+///							 for sphere number 2 or sn=2 try data_array[sn * t / frequency] = data_array[2 * 1 * 0.5] = data_array[1]
+///							 for sphere number 3 or sn=3 try data_array[sn * t / frequency] = data_array[3 * 1 * 0.5] = data_array[1.5]
+	//             ...
+///						: if it is tick numner 2 then, or t=2:
+///							datachange  or dt = 1
+///							 for sphere number 1 or sn=1 try data_array[sn * t / frequency - dt] = data_array[1 * 2 * 0.5 - 1] = data_array[0] ///  data_array[sn - dt]
+///							 for sphere number 2 or sn=2 try data_array[sn * t / frequency - dt] = data_array[2 * 2 * 0.5 - 1] = data_array[1] /// datachange tick
+///							 for sphere number 3 or sn=3 try data_array[sn * t / frequency - dt] = data_array[3 * 2 * 0.5 - 1] = data_array[2] /// datachange tick
+/// 						....
+///             ....
+///           : on tick 4, t=4:
+///							datachange  or dt = 2
+///							 for sphere number 1 or sn=1 try data_array[sn * t / frequency - dt] = data_array[1 * 4 * 0.5 - 2] = data_array[0] /// datachange tick
+///							 for sphere number 2 or sn=2 try data_array[sn * t / frequency - dt] = data_array[2 * 4 * 0.5 - 2] = data_array[1] /// datachange tick
+///							 for sphere number 3 or sn=3 try data_array[sn * t / frequency - dt] = data_array[3 * 4 * 0.5 - 2] = data_array[2] /// datachange tick
+///
+/// data could be a dataConfig function that has the data array and counter to be the frame number/t and datachenge dt number
+/// which gets accressed through a function in the form of /get updated dataConfig/ when / from inside the request animation frame/or scene and not directly
+
+//// each frame vs rach datachange from
+/// at each frame that data change happens with the datachange number dn icrease one
+/// sphere number sn gets the data_array[sn - dt]
+
+///
+	//
+	// for each frame it should do:
+	//   - get/use the totaltime from config then
   if (ui_current_state.get("data_needs_to_filter") > 0){
     data  = filterData()
   } else {
@@ -432,15 +461,14 @@ function animateScene(){
 
 			for (jiv = 0; jiv < street_lines_group.children[ji].children[j].children.length; jiv++) {
 
-				var street_name =  street_lines_group.children[ji].children[j].numberOfNodesInStreet;
+				var street_name =  street_lines_group.children[ji].children[j].name;
 
-				// console.log(street_name)
+				// console.log(datamap)
 				// console.log("bureakj",ddjk)
 				for (v = 0; v < street_lines_group.children[ji].children[j].children[jiv].geometry.vertices.length; v++) {
 						var datamap = samples_mapped.get(street_lines_group.children[ji].children[j].children[jiv].name)
-						// console.log(samples_mapped,datamap,street_lines_group.children[ji].children[j].children[jiv].name)
 						count = t-1;
-						var vir_v = v - count - 1;
+						var vir_v = v + count - 1;
 
 						if (vir_v < 0){
 							var bufferIndex = vir_v + street_lines_group.children[ji].children[j].children[jiv].geometry.vertices.length - 1;
@@ -450,11 +478,16 @@ function animateScene(){
 						}	else {
 							var bufferIndex = vir_v;
 						}
-						// console.log(requestStream.frame_counter,v,count, t, vir_v, bufferIndex)
+						console.log(requestStream.frame_counter,v,count, t, vir_v, bufferIndex)
 						var va = datamap.get(datamap.keys()[bufferIndex])
 						var High = va.get("High")
-						// if (High > 0) {}
-
+						//here use
+						// location
+						// time frame we interested
+						// attribute we want to
+						// devide the number of observations we want to show to frame rotate to use as time intervale
+						// scale the z value in each time interval
+						// console.log( ["#bd0026", "#ffffb2", "#fd8d3c"][d3.randomUniform(0, 2)()])
 					street_lines_group.children[ji].children[j].children[jiv].material.color = makeColorToUpdate()
 						// street_lines_group.children[ji].children[j].children[jiv].material._needsUpdate = true;
 					street_lines_group.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.High_scale(High) ;
@@ -494,8 +527,8 @@ requestStream.frame_counter += 1;
 }
 
 function update(){
-	// controls.update();
-	// console.log(mTime);
+	controls.update();
+	console.log(mTime);
 }
 
 function renderScene(){
@@ -519,8 +552,8 @@ var day = d3.utcDay(new Date);
 function updateDataForViz(data){
 }
 function updateViz(){
-  // console.log("ipdate")
-  // console.log(makeColorToUpdate())
+  console.log("ipdate")
+  console.log(makeColorToUpdate())
 }
 
 // gui = new dat.GUI;

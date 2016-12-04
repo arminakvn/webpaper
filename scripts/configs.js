@@ -14,6 +14,7 @@ frameConfig = new (function() {
   this.padding_left = 41
   this.padding_top = 9
   this.padding_bottom = 5
+  this.numPoints = 154;
 });
 
 componentsConfig = new (function(){

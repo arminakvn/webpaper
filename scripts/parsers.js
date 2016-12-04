@@ -16,7 +16,8 @@ function parseLocations(d) {
     street: d.street,
     lat: d.lat,
     lon:d.lon,
-    id: d.id
+    id: d.id,
+    instreet_rank: +d.instreet_rank
   }
 
 }
