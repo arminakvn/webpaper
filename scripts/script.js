@@ -67,6 +67,24 @@ function callbackDataLoaded(err, csv_data, sample_data){
     return d.High
   })
 
+	var max_Base = d3.max(sample_data, function(d){
+    return d.Base
+  })
+  var min_Base = d3.min(sample_data, function(d){
+    return d.Base
+  })
+
+
+	var max_Voice = d3.max(sample_data, function(d){
+    return d.Voice
+  })
+  var min_Voice = d3.min(sample_data, function(d){
+    return d.Voice
+  })
+
+
+
+
   var min_time = d3.min(sample_data,function(d){
     return d.time;
   })
@@ -79,7 +97,9 @@ function callbackDataLoaded(err, csv_data, sample_data){
   scalerConfig = new (function(){
 		this.lat_scale = d3.scaleLinear().range([frameConfig.padding_bottom,frameConfig.height - frameConfig.padding_top]).domain([lat_min, lat_max]);
 		this.lng_scale = d3.scaleLinear().range([frameConfig.width-frameConfig.padding_left,frameConfig.padding_right]).domain([lon_min, lon_max]);
-    this.High_scale = d3.scaleLinear().range([0, 8]).domain([min_High, max_High]);
+    this.High_scale = d3.scaleLinear().range([0, 4]).domain([min_High, max_High]);
+		this.Base_scale = d3.scaleLinear().range([0, 4]).domain([min_Base, max_Base]);
+		this.Voice_scale = d3.scaleLinear().range([0, 4]).domain([min_Voice, max_Voice]);
     this.Components_scale_Loudness = d3.scaleOrdinal()
       .range(["#bd0026", "#ffffb2", "#fd8d3c"])
       .domain(["Base","Voice","High"]);
@@ -179,10 +199,10 @@ function initializeScene(data){
 	camera = new THREE.PerspectiveCamera( frameConfig.fov, frameConfig.aspect, frameConfig.near, frameConfig.far );
 // camera = new THREE.PerspectiveCamera((frameConfig.width / - 2) - 1 , (frameConfig.width / 2) + 1, frameConfig.height / 3, frameConfig.height / - 3, 1, 1000 )
 
-//   controls = new THREE.OrbitControls(camera);
-//   controls.enableZoom = true;
-// controls.addEventListener( 'change', renderScene );
-// window.addEventListener( 'resize', onWindowResize, false );
+  controls = new THREE.OrbitControls(camera);
+  controls.enableZoom = true;
+controls.addEventListener( 'change', renderScene );
+window.addEventListener( 'resize', onWindowResize, false );
 	// setting the box geometry for the background / under;ying image
 
 
@@ -211,6 +231,10 @@ function initializeScene(data){
 
 
   street_lines_group = new THREE.Group();
+	street_lines_group_voice = new THREE.Group();
+	street_lines_group_base = new THREE.Group();
+
+
   street_curves_group = new THREE.Group();
 
 
@@ -226,6 +250,8 @@ function initializeScene(data){
 
 	data.forEach(function(coord){
     var lineGroup = new THREE.Group();
+		var lineGroupVoice = new THREE.Group();
+		var lineGroupBase = new THREE.Group();
 
 
     var curveGeometry = new THREE.Geometry();
@@ -244,36 +270,82 @@ function initializeScene(data){
 		// var dstnce = (new THREE.Vector3(sorted_streets[0].x,sorted_streets[0].y,2)).distanceTo(new THREE.Vector3(sorted_streets[sorted_streets.length-1].x,sorted_streets[sorted_streets.length-1].y,2));
 		// var _before = getPointInBetweenByLen
 		var lineColorGroup = new THREE.Group();
+		var lineColorGroupVoice = new THREE.Group();
+		var lineColorGroupBase = new THREE.Group();
 		for (iii = 0; iii < sorted_streets.length-1; iii++){
 
 			var lineGeometry = new THREE.Geometry();
+			var lineGeometryVoice = new THREE.Geometry();
+			var lineGeometryBase = new THREE.Geometry();
 			var svector_array = [];
+			var svector_array_Voice = [];
+			var svector_array_Base = [];
 			var dstnce = (new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,0)).distanceTo(new THREE.Vector3(sorted_streets[iii +1].x,sorted_streets[iii +1].y,0));
 			var _before = getPointInBetweenByLen(new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,0),new THREE.Vector3(sorted_streets[iii +1].x,sorted_streets[iii +1].y,0),-1 * dstnce / 2)
 			var _after = getPointInBetweenByLen(new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,0),new THREE.Vector3(sorted_streets[iii +1].x,sorted_streets[iii +1].y,0),1 * dstnce / 2)
-			console.log(sorted_streets[iii],sorted_streets[iii+1],dstnce, _before, _after)
+			// console.log(sorted_streets[iii],sorted_streets[iii+1],dstnce, _before, _after)
 			// add the two to array and make the spline points and addthat to lineGeometry and make the line
 			svector_array.push(_before)
 			svector_array.push(_after)
+			// svector_array_Voice.push(_before)
+			// svector_array_Voice.push(_after)
 			var spline = new THREE.SplineCurve3(svector_array)
 			var splinePoints = spline.getPoints(frameConfig.numPoints);
+			var splineVoice = new THREE.SplineCurve3(svector_array)
+			var splinePointsVoice = spline.getPoints(frameConfig.numPoints);
+			var splineBase = new THREE.SplineCurve3(svector_array)
+			var splinePointsBase = spline.getPoints(frameConfig.numPoints);
+
 			for(var i = 0; i < splinePoints.length; i++){
 			    lineGeometry.vertices.push(splinePoints[i]);
 			}
+			for(var i = 0; i < splinePointsVoice.length; i++){
+					lineGeometryVoice.vertices.push(splinePointsVoice[i]);
+			}
+
+			for(var i = 0; i < splinePointsVoice.length; i++){
+					lineGeometryBase.vertices.push(splinePointsBase[i]);
+			}
+
+
 			var current_component = ui_current_state.get("component");
 			var colorScale = scalerConfig.color_scale_map.get(current_component);
 				var lineMaterial = new THREE.LineBasicMaterial({
-		      color: colorScale(current_component),
+		      color: "#bd0026", // scalerConfig.Components_scale_Frequency.get("High"),// colorScale(current_component),
+		      linewidth:2,
+		    });
+
+				var lineMaterialVoice = new THREE.LineBasicMaterial({
+		      color:"#ffffb2",// scalerConfig.Components_scale_Frequency.get("Voice"),//"#fd8d3c",
+		      linewidth:2,
+		    });
+
+				var lineMaterialBase = new THREE.LineBasicMaterial({
+		      color:"#fd8d3c",// scalerConfig.Components_scale_Frequency.get("Voice"),//"#fd8d3c",
 		      linewidth:2,
 		    });
 	      var line = new THREE.Line(lineGeometry, lineMaterial);
+				var lineVoice = new THREE.Line(lineGeometryVoice, lineMaterialVoice);
+				var lineBase = new THREE.Line(lineGeometryBase, lineMaterialBase);
 				line.name = sorted_streets[iii].id;
-	      lineColorGroup.add(line)
+				lineVoice.name = sorted_streets[iii].id;
+				lineBase.name = sorted_streets[iii].id;
+	      lineColorGroup.add(line);
+				lineColorGroupVoice.add(lineVoice)
+				lineColorGroupBase.add(lineBase)
+
 				lineColorGroup.name = sorted_streets[iii].street;
+				lineColorGroupVoice.name = sorted_streets[iii].street;
+				lineColorGroupBase.name = sorted_streets[iii].street;
+
 				lineColorGroup.numberOfNodesInStreet = sorted_streets.length;
+				lineColorGroupVoice.numberOfNodesInStreet = sorted_streets.length;
+				lineColorGroupBase.numberOfNodesInStreet = sorted_streets.length;
 
 		}
 		lineGroup.add(lineColorGroup);
+		lineGroupVoice.add(lineColorGroupVoice)
+		lineGroupBase.add(lineColorGroupBase)
 
 		//
 		// sorted_streets.forEach(function(e){
@@ -310,6 +382,8 @@ function initializeScene(data){
 		//
     // })
     street_lines_group.add(lineGroup)
+		street_lines_group_voice.add(lineGroupVoice)
+		street_lines_group_base.add(lineGroupBase)
   })
 
 	// var streets_device_line_segs = d3.map()
@@ -387,6 +461,8 @@ function initializeScene(data){
   scene.add(camera);
 
   scene.add(street_lines_group);
+	scene.add(street_lines_group_voice);
+	scene.add(street_lines_group_base);
 	// console.log("street_lines_group", street_lines_group)
   // scene.add(street_curves_group);
   // scene.add(lineGroup_2);
@@ -410,12 +486,21 @@ function onWindowResize() {
 
 
 function animateScene(){
+	// camera.lookAt(new THREE.Vector3(5.5*frameConfig.width/10, frameConfig.height/2, 0));
+
 
 	if (requestStream.frame_counter > frameConfig.numPoints){
 			requestStream.frame_counter = 1;
 			var t = requestStream.frame_counter;
+			// camera.position.x -= 0.01
+			// camera.position.y -= 0.02
+			// camera.position.z -= 0.01
+			// camera.rotation.y -+ 1 * Math.PI / 180
 	} else {
 		var t = requestStream.frame_counter;
+		// camera.position.x += 0.01
+		// camera.position.y += 0.02
+		// camera.position.z += 0.01
 	}
 
 	// console.log("t",t,street_lines_group)
@@ -453,12 +538,23 @@ function animateScene(){
 						// console.log(requestStream.frame_counter,v,count, t, vir_v, bufferIndex)
 						var va = datamap.get(datamap.keys()[bufferIndex])
 						var High = va.get("High")
+						var Voice = va.get("Voice")
+						var Base = va.get("Base")
 						// if (High > 0) {}
 
-					street_lines_group.children[ji].children[j].children[jiv].material.color = makeColorToUpdate()
 						// street_lines_group.children[ji].children[j].children[jiv].material._needsUpdate = true;
+						street_lines_group.children[ji].children[j].children[jiv].material.color = makeColorToUpdate()
+
 					street_lines_group.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.High_scale(High) ;
 					street_lines_group.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
+
+					street_lines_group_voice.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.Voice_scale(Voice) ;
+					street_lines_group_voice.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
+
+					street_lines_group_base.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.Base_scale(Base) ;
+					street_lines_group_base.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
+
+
 				}
 
 
