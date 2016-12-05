@@ -9,7 +9,8 @@ var cubeMesh;
 var data_coords = [];
 var data_map = d3.map();
 
-
+var scene, renderer;
+			var mouseX = 0, mouseY = 0;
 
 // ui interactions are updating this which is what the animateScene uses
 var ui_current_state = d3.map();
@@ -39,6 +40,7 @@ requestStream = new (function(){
 	this.frame_counter = 0;
 	this.frequency = .5;
 	this.frame_interval = 0.5
+	this.duration = 10
 
 });
 
@@ -98,9 +100,9 @@ function callbackDataLoaded(err, csv_data, sample_data){
   scalerConfig = new (function(){
 		this.lat_scale = d3.scaleLinear().range([frameConfig.padding_bottom,frameConfig.height - frameConfig.padding_top]).domain([lat_min, lat_max]);
 		this.lng_scale = d3.scaleLinear().range([frameConfig.width-frameConfig.padding_left,frameConfig.padding_right]).domain([lon_min, lon_max]);
-    this.High_scale = d3.scaleLinear().range([0, 4]).domain([min_High, max_High]);
-		this.Base_scale = d3.scaleLinear().range([0, 4]).domain([min_Base, max_Base]);
-		this.Voice_scale = d3.scaleLinear().range([0, 4]).domain([min_Voice, max_Voice]);
+    this.High_scale = d3.scaleLinear().range([0, 2]).domain([min_High, max_High]);
+		this.Base_scale = d3.scaleLinear().range([0, 2]).domain([min_Base, max_Base]);
+		this.Voice_scale = d3.scaleLinear().range([0, 2]).domain([min_Voice, max_Voice]);
     this.Components_scale_Loudness = d3.scaleOrdinal()
       .range(["#bd0026", "#ffffb2", "#fd8d3c"])
       .domain(["Base","Voice","High"]);
@@ -195,12 +197,13 @@ function initializeScene(data){
 	// setting up the scene and camera
 	scene = new THREE.Scene();
 	camera = new THREE.PerspectiveCamera( frameConfig.fov, frameConfig.aspect, frameConfig.near, frameConfig.far );
+	// camera = new THREE.CubeCamera( frameConfig.near, frameConfig.far, 128 );
 // camera = new THREE.PerspectiveCamera((frameConfig.width / - 2) - 1 , (frameConfig.width / 2) + 1, frameConfig.height / 3, frameConfig.height / - 3, 1, 1000 )
 
-  controls = new THREE.OrbitControls(camera);
-  controls.enableZoom = true;
-controls.addEventListener( 'change', renderScene );
-window.addEventListener( 'resize', onWindowResize, false );
+//   controls = new THREE.OrbitControls(camera);
+//   controls.enableZoom = true;
+// controls.addEventListener( 'change', renderScene );
+// window.addEventListener( 'resize', onWindowResize, false );
 	// setting the box geometry for the background / under;ying image
 
 
@@ -254,10 +257,11 @@ window.addEventListener( 'resize', onWindowResize, false );
 
 		// var dstnce = (new THREE.Vector3(sorted_streets[0].x,sorted_streets[0].y,2)).distanceTo(new THREE.Vector3(sorted_streets[sorted_streets.length-1].x,sorted_streets[sorted_streets.length-1].y,2));
 		// var _before = getPointInBetweenByLen
-		var lineColorGroup = new THREE.Group();
-		var lineColorGroupVoice = new THREE.Group();
-		var lineColorGroupBase = new THREE.Group();
+
 		for (iii = 0; iii < sorted_streets.length-1; iii++){
+			var lineColorGroup = new THREE.Group();
+			var lineColorGroupVoice = new THREE.Group();
+			var lineColorGroupBase = new THREE.Group();
 
 			var lineGeometry = new THREE.Geometry();
 			var lineGeometryVoice = new THREE.Geometry();
@@ -375,7 +379,9 @@ function onWindowResize() {
 function animateScene(){
 	// camera.lookAt(new THREE.Vector3(5.5*frameConfig.width/10, frameConfig.height/2, 0));
 
-
+	// camera.position.x += ( mouseX - camera.position.x ) * .05;
+	// camera.position.y += ( - mouseY - camera.position.y ) * .05;
+	// camera.lookAt( scene.position );
 	if (requestStream.frame_counter > frameConfig.numPoints){
 			requestStream.frame_counter = 1;
 			var t = requestStream.frame_counter;
@@ -468,6 +474,7 @@ function animateScene(){
 
  mTime += mTimeStep;
  mTime %= mDuration;
+ // console.log(mTime)
 requestStream.frame_counter += 1;
  requestAnimationFrame(animateScene);
  // requestAnimationFrame(tick);
@@ -482,6 +489,7 @@ function update(){
 }
 
 function renderScene(){
+
 	renderer.render(scene, camera);
 }
 
@@ -505,3 +513,25 @@ function updateViz(){
   // console.log("ipdate")
   // console.log(makeColorToUpdate())
 }
+
+
+
+
+function onDocumentMouseMove( event ) {
+				mouseX = event.clientX - windowHalfX;
+				mouseY = event.clientY - windowHalfY;
+			}
+			function onDocumentTouchStart( event ) {
+				if ( event.touches.length > 1 ) {
+					event.preventDefault();
+					mouseX = event.touches[ 0 ].pageX - windowHalfX;
+					mouseY = event.touches[ 0 ].pageY - windowHalfY;
+				}
+			}
+			function onDocumentTouchMove( event ) {
+				if ( event.touches.length == 1 ) {
+					event.preventDefault();
+					mouseX = event.touches[ 0 ].pageX - windowHalfX;
+					mouseY = event.touches[ 0 ].pageY - windowHalfY;
+				}
+			}
