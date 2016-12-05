@@ -234,9 +234,7 @@ window.addEventListener( 'resize', onWindowResize, false );
 		var sorted_streets = coord.values.sort(function(a,b){
 			return d3.descending(a.lon, b.lon);
 		})
-
-
-
+		var numPoints = 54;
 		var spline = new THREE.SplineCurve3()
 		var svector_array = [];
 
@@ -250,7 +248,7 @@ window.addEventListener( 'resize', onWindowResize, false );
 			svector_array.push(pointMeasuredVect)
 		})
 		var spline = new THREE.SplineCurve3(svector_array)
-		var splinePoints = spline.getPoints(frameConfig.numPoints);
+		var splinePoints = spline.getPoints(numPoints);
 		for(var i = 0; i < splinePoints.length; i++){
 		    lineGeometry.vertices.push(splinePoints[i]);
 		}
@@ -374,14 +372,8 @@ function onWindowResize() {
 
 function animateScene(){
 
-	// if (requestStream.frame_counter > frameConfig.numPoints){
-	// 	return requestStream.frame_counter = 1;
-	// } else {
-	// 	requestStream.frame_counter += 1;
-	// }
-	var t = requestStream.frame_counter;
 	// console.log("frame counter", requestStream.frame_counter)
-
+	requestStream.frame_counter = requestStream.frame_counter + requestStream.frame_interval;
 
 	// config has a totaltime is ms  that gets updated when users change input
 	// totaltime is the time in ms from start date to enddate
@@ -463,24 +455,8 @@ function animateScene(){
 
 				var street_name =  street_lines_group.children[ji].children[j].name;
 
-				// console.log(datamap)
-				// console.log("bureakj",ddjk)
 				for (v = 0; v < street_lines_group.children[ji].children[j].children[jiv].geometry.vertices.length; v++) {
-						var datamap = samples_mapped.get(street_lines_group.children[ji].children[j].children[jiv].name)
-						count = t-1;
-						var vir_v = v + count - 1;
-
-						if (vir_v < 0){
-							var bufferIndex = vir_v + street_lines_group.children[ji].children[j].children[jiv].geometry.vertices.length - 1;
-						}
-						else if (vir_v < street_lines_group.children[ji].children[j].children[jiv].geometry.vertices.length - 1){
-							var bufferIndex = vir_v;
-						}	else {
-							var bufferIndex = vir_v;
-						}
-						console.log(requestStream.frame_counter,v,count, t, vir_v, bufferIndex)
-						var va = datamap.get(datamap.keys()[bufferIndex])
-						var High = va.get("High")
+						sample_data.get(street_name).get
 						//here use
 						// location
 						// time frame we interested
@@ -490,7 +466,7 @@ function animateScene(){
 						// console.log( ["#bd0026", "#ffffb2", "#fd8d3c"][d3.randomUniform(0, 2)()])
 					street_lines_group.children[ji].children[j].children[jiv].material.color = makeColorToUpdate()
 						// street_lines_group.children[ji].children[j].children[jiv].material._needsUpdate = true;
-					street_lines_group.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.High_scale(High) ;
+					street_lines_group.children[ji].children[j].children[jiv].geometry.vertices[v].z = d3.randomUniform(0, 2)();
 					street_lines_group.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
 				}
 
@@ -518,7 +494,7 @@ function animateScene(){
 
  mTime += mTimeStep;
  mTime %= mDuration;
-requestStream.frame_counter += 1;
+
  requestAnimationFrame(animateScene);
  // requestAnimationFrame(tick);
 

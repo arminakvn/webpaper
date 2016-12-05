@@ -38,6 +38,7 @@ requestStream = new (function(){
 	this.dt = 0;
 	this.frame_counter = 0;
 	this.frequency = .5;
+	this.frame_interval = 0.5
 
 });
 
@@ -178,9 +179,6 @@ loadData();
 
 function initializeScene(data){
 
-
-
-
 	// making the renderer
 	// detecting if the browser supports webGL
 	if(Detector.webgl){
@@ -219,16 +217,11 @@ window.addEventListener( 'resize', onWindowResize, false );
 	scene.add(boxMesh);
 
 
-
 	group = new THREE.Group();
   // surfaveGroup = new THREE.Group()
   lineMaterial = new THREE.LineBasicMaterial({
     color: 0x0000ff
   });
-
-
-
-
 
   street_lines_group = new THREE.Group();
 	street_lines_group_voice = new THREE.Group();
@@ -236,14 +229,6 @@ window.addEventListener( 'resize', onWindowResize, false );
 
 
   street_curves_group = new THREE.Group();
-
-
-
-
-
-
-
-
 
 // creating the line from iteration through the data
 
@@ -280,12 +265,15 @@ window.addEventListener( 'resize', onWindowResize, false );
 			var svector_array = [];
 			var svector_array_Voice = [];
 			var svector_array_Base = [];
-			var dstnce = (new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,0)).distanceTo(new THREE.Vector3(sorted_streets[iii +1].x,sorted_streets[iii +1].y,0));
-			var _before = getPointInBetweenByLen(new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,0),new THREE.Vector3(sorted_streets[iii +1].x,sorted_streets[iii +1].y,0),-1 * dstnce / 2)
-			var _after = getPointInBetweenByLen(new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,0),new THREE.Vector3(sorted_streets[iii +1].x,sorted_streets[iii +1].y,0),1 * dstnce / 2)
+			var _this_point = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,0);
+			var _next_point = new THREE.Vector3(sorted_streets[iii +1].x,sorted_streets[iii +1].y,0);
+			var dstnce = (_this_point).distanceTo(_next_point);
+			var _before = getPointInBetweenByLen(_this_point,_next_point,-1 * dstnce)
+			var _after = getPointInBetweenByLen(_this_point,_next_point,1 * dstnce)
 			// console.log(sorted_streets[iii],sorted_streets[iii+1],dstnce, _before, _after)
 			// add the two to array and make the spline points and addthat to lineGeometry and make the line
 			svector_array.push(_before)
+			svector_array.push(_this_point)
 			svector_array.push(_after)
 			// svector_array_Voice.push(_before)
 			// svector_array_Voice.push(_after)
@@ -346,118 +334,17 @@ window.addEventListener( 'resize', onWindowResize, false );
 		lineGroup.add(lineColorGroup);
 		lineGroupVoice.add(lineColorGroupVoice)
 		lineGroupBase.add(lineColorGroupBase)
-
-		//
-		// sorted_streets.forEach(function(e){
-		//
-		//
-		//
-		//
-		// 	var pointMeasuredVect = new THREE.Vector3(e.x, e.y, 2)
-		// 	svector_array.push(pointMeasuredVect)
-		//
-		//
-		// })
-		// var spline = new THREE.SplineCurve3(svector_array)
-		// var splinePoints = spline.getPoints(frameConfig.numPoints);
-		// for(var i = 0; i < splinePoints.length; i++){
-		//     lineGeometry.vertices.push(splinePoints[i]);
-		// }
-		//
-		//
-		//
-    // sorted_streets.forEach(function(e){
-		// 	var current_component = ui_current_state.get("component");
-		// 	var colorScale = scalerConfig.color_scale_map.get(current_component);
-		// 		var lineMaterial = new THREE.LineBasicMaterial({
-		//       color: colorScale(current_component),
-		//       linewidth:2,
-		//     });
-	  //     var line = new THREE.Line(lineGeometry, lineMaterial);
-		// 		line.name = e.id;
-	  //     lineColorGroup.add(line)
-		// 		lineColorGroup.name = e.street;
-		// 		lineGroup.add(lineColorGroup);
-		//
-		//
-    // })
     street_lines_group.add(lineGroup)
 		street_lines_group_voice.add(lineGroupVoice)
 		street_lines_group_base.add(lineGroupBase)
   })
 
-	// var streets_device_line_segs = d3.map()
-	// var lineGroup_2 = new THREE.Group();
-  // device_per_street_map.keys().forEach(function(each_street_key){
-	//
-	//
-  //   var lineGeometry2 = new THREE.Geometry();
-  //   var curveGeometry2 = new THREE.Geometry();
-	// 	var device_line_segs = d3.map();
-  //   var devices = device_per_street_map.get(each_street_key);
-	// 	// console.log("devices",devices)
-	//
-	// 	var spline = new THREE.SplineCurve3()
-	//
-	// 	for (dvi=0; dvi < devices.length-1; dvi++) {
-	// 		// var devices_data_array = samples_mapped.get(first_device);
-	// 		var first_device = devices[dvi];
-	// 		var second_device = devices[dvi + 1];
-	// 		// console.log("first_device", first_device)
-	// 		var dev1_latlong = device_latlng.get(first_device);
-	// 		var dev2_latlong = device_latlng.get(second_device);
-	// 		var vec1 = new THREE.Vector3(dev1_latlong[0], dev1_latlong[1], 2)
-	// 		var vec2 = new THREE.Vector3(dev2_latlong[0], dev2_latlong[1], 2)
-	// 		var between_point = getPointInBetweenByPerc(vec1, vec2, 0.5)
-	// 		var before_point = getPointInBetweenByPerc(vec1, vec2, -0.5)
-	//
-	// 		// make two scalers based on these two:
-	// 		// get the range in range with making a line and getting the bbox for it to be used for scale
-	//
-	//
-	// 		var lineSeg = new THREE.Line3(before_point, between_point);
-	// 		var dstnce = before_point.distanceTo(between_point)//lineSeg.distance()
-	// 		device_line_segs.set(first_device, lineSeg)
-	//
-	//
-	//
-	// 		var dist_scale = d3.scaleLinear().range([0,dstnce]).domain([0, 164]);
-	// 		var current_component = ui_current_state.get("component");
-	// 		var lineColorGroup = new THREE.Group();
-	// 		var phereGeometry = new THREE.SphereGeometry()
-	// 		var vector_array = [];
-	// 		lineGeometry2.vertices.push(before_point)
-	// 		for (eps = 0; eps < 164; eps++){
-	// 			var eps_point = getPointInBetweenByPerc(lineSeg.start, lineSeg.end, dist_scale(eps));
-	// 			// console.log("eps_point", eps_point);
-	// 			// var pointMeasuredVect = new THREE.Vector3(e.x, e.y, 2)
-	// 			// vector_array.push(pointMeasuredVect)
-	// 			lineGeometry2.vertices.push(eps_point);
-	// 			var colorScale = scalerConfig.color_scale_map.get(current_component);
-	//
-	// 			var lineMaterial = new THREE.LineBasicMaterial({
-	// 	      color: colorScale(current_component),
-	// 	      linewidth:4,
-	// 	    });
-	// 			lineGeometry2.vertices.push(between_point)
-	//
-	//       var line = new THREE.Line(lineGeometry2, lineMaterial);
-	//
-	//
-	//       lineGroup_2.add(line)
-	// 		}
-	// 	}
-	//
-	// 	streets_device_line_segs.set(each_street_key,device_line_segs);
-	//
-  // })
 
-  // lineGeometry.vertices.push(new THREE.Vector3(coord.x, coord.y, 2));
-  // var line = new THREE.Line(lineGeometry, lineMaterial);
-  // lineGroup.add(line)
-  camera.position.set(5.5*frameConfig.width/10, -frameConfig.height/3, frameConfig.camera_z);
-  camera.lookAt(new THREE.Vector3(5.5*frameConfig.width/10, frameConfig.height/2, 0));
-  camera.rotation.y = 15 * Math.PI / 180
+  camera.position.set(frameConfig.camera_x, frameConfig.camera_y, frameConfig.camera_z);
+  camera.lookAt(new THREE.Vector3(0*5.5*frameConfig.width/10, frameConfig.height/2, 0));
+  camera.rotation.y = frameConfig.camera_rotate_y
+	camera.rotation.z = frameConfig.camera_rotate_z
+	// camera.rotation.x = frameConfig.camera_rotate_x
   scene.add(camera);
 
   scene.add(street_lines_group);
@@ -618,25 +505,3 @@ function updateViz(){
   // console.log("ipdate")
   // console.log(makeColorToUpdate())
 }
-
-// gui = new dat.GUI;
-// params = new (function() {
-//   this.speed = 1;
-//   this.camX = 19;
-//   this.camY = 21;
-//   this.camFov = -2.1;
-// });
-// gui.add(params, 'camX', -90, 90).onChange(function(e) {
-//   renderScene(e);
-//   return;
-// });
-// gui.add(params, 'camY', -90, 90).onChange(function(e) {
-//   return renderScene(e);
-// });
-// gui.add(params, 'camFov', -20, 79).onChange(function(e) {
-//   return renderScene(e);
-// });
-// gui.add(params, 'speed', -5, 5).onChange(function(e) {
-//   renderScene(e);
-//   return;
-// });
