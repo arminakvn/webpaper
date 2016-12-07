@@ -286,9 +286,6 @@ function initializeScene(data){
 		var objectGroupBase = new THREE.Group();
 
 		var axisStreetGroups = new THREE.Group();
-		var lineStreetGroupsHigh = new THREE.Group();
-		var lineStreetGroupsVoice = new THREE.Group();
-		var lineStreetGroupsBase = new THREE.Group();
 
     var curveGeometry = new THREE.Geometry();
 
@@ -347,7 +344,7 @@ function initializeScene(data){
 			var _this_point_buffer_base = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,0);
 
 			if (iii == 0){
-				var _this_point_buffer = new THREE.Vector3(sorted_streets[0].x,sorted_streets[0].y,-1);
+				var _this_point_buffer = new THREE.Vector3(sorted_streets[0].x,sorted_streets[0].y+2,-1);
 				var _this_point_buffer_voice = new THREE.Vector3(sorted_streets[0].x,sorted_streets[0].y,-1);
 				var _this_point_buffer_base = new THREE.Vector3(sorted_streets[0].x,sorted_streets[0].y,-1);
 				svector_array.push(_this_point_buffer)
@@ -496,13 +493,7 @@ function initializeScene(data){
 
 
 				axisStreetGroups.add(axis_line)
-
-				lineStreetGroupsHigh.add(line)
-				lineStreetGroupsVoice.add(lineVoice)
-				lineStreetGroupsBase.add(lineBase)
-
 				// axis_lines_group.add(axisStreetGroups)
-
 
 				objectColorGroup.name = sorted_streets[iii].street
 				objectColorGroupVoice.name = sorted_streets[iii].street
@@ -523,16 +514,10 @@ function initializeScene(data){
 				// scene.add(object)
 
 		}
-
 		axisColorGroup.add(axisStreetGroups)
-
-		lineColorGroup.add(lineStreetGroupsHigh)
-		lineColorGroupVoice.add(lineStreetGroupsVoice)
-		lineColorGroupBase.add(lineStreetGroupsBase)
-
-		// lineGroup.add(lineColorGroup);
-		// lineGroupVoice.add(lineColorGroupVoice)
-		// lineGroupBase.add(lineColorGroupBase)
+		lineGroup.add(lineColorGroup);
+		lineGroupVoice.add(lineColorGroupVoice)
+		lineGroupBase.add(lineColorGroupBase)
 
 		objectGroup.add(objectColorGroup)
 		objectGroupVoice.add(objectColorGroupVoice)
@@ -541,9 +526,9 @@ function initializeScene(data){
 
 		// axisGroups.add(axisStreetGroupsGroup);
 
-    street_lines_group.add(lineColorGroup)
-		street_lines_group_voice.add(lineColorGroupVoice)
-		street_lines_group_base.add(lineColorGroupBase)
+    street_lines_group.add(lineGroup)
+		street_lines_group_voice.add(lineGroupVoice)
+		street_lines_group_base.add(lineGroupBase)
 
 		street_lines_object_group.add(objectGroup)
 		street_lines_object_group_voice.add(objectGroupVoice)
@@ -737,9 +722,9 @@ function animateScene(){
 
 							}
 
-							// street_lines_object_group.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-							// street_lines_object_group_voice.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-							// street_lines_object_group_base.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
+							street_lines_object_group.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
+							street_lines_object_group_voice.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
+							street_lines_object_group_base.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
 							axis_lines_group.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
 
 							// console.log(street_lines_object_group.children[ji].children[j].children[jiv], street_lines_group)

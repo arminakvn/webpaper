@@ -30,11 +30,6 @@ function loadData(){
 }
 
 
-
-
-
-
-
 requestStream = new (function(){
 	this.line = function(){
 
@@ -48,8 +43,6 @@ requestStream = new (function(){
 	this.duration = 10
 
 });
-
-
 
 
 
@@ -211,8 +204,6 @@ function callbackDataLoaded(err, csv_data, sample_data){
 
 loadData();
 
-
-
 function initializeScene(data){
 
 	// making the renderer
@@ -238,6 +229,9 @@ function initializeScene(data){
   // controls.enableZoom = true;
 // controls.addEventListener( 'change', renderScene );
 // window.addEventListener( 'resize', onWindowResize, false );
+	// setting the box geometry for the background / under;ying image
+
+
 	var boxGeometry = new THREE.BoxGeometry(frameConfig.width, frameConfig.height, 0.01);
 	var mapTexture = new THREE.ImageUtils.loadTexture('ph8.png');
 	var boxMaterial = new THREE.MeshBasicMaterial({
@@ -256,6 +250,10 @@ function initializeScene(data){
   lineMaterial = new THREE.LineBasicMaterial({
     color: 0x0000ff
   });
+
+
+
+
   street_lines_group = new THREE.Group();
 	street_lines_group_voice = new THREE.Group();
 	street_lines_group_base = new THREE.Group();
@@ -285,10 +283,7 @@ function initializeScene(data){
 		var objectGroupVoice = new THREE.Group();
 		var objectGroupBase = new THREE.Group();
 
-		var axisStreetGroups = new THREE.Group();
-		var lineStreetGroupsHigh = new THREE.Group();
-		var lineStreetGroupsVoice = new THREE.Group();
-		var lineStreetGroupsBase = new THREE.Group();
+		var axisGroups = new THREE.Group();
 
     var curveGeometry = new THREE.Geometry();
 
@@ -296,6 +291,15 @@ function initializeScene(data){
 		var sorted_streets = coord.values.sort(function(a,b){
 			return d3.descending(a.instreet_rank, b.instreet_rank);
 		})
+
+
+
+
+
+
+
+		// var dstnce = (new THREE.Vector3(sorted_streets[0].x,sorted_streets[0].y,2)).distanceTo(new THREE.Vector3(sorted_streets[sorted_streets.length-1].x,sorted_streets[sorted_streets.length-1].y,2));
+		// var _before = getPointInBetweenByLen
 
 		var svector_array = [];
 		var svector_array_Voice = [];
@@ -336,20 +340,40 @@ function initializeScene(data){
 
 
 			var axis_line = new THREE.Line(axisGeometry, lineMaterial)
-			// axisStreetGroups.add(axis_line)
 
-			var _this_point = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,0);
+
+
+
+
+
+
+
+
+			var _this_point = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y+2,0);
 			var _this_point_voice = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,0);
-			var _this_point_base = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,0);
+			var _this_point_base = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y+4,0);
 
-			var _this_point_buffer = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,0);
+			var _this_point_buffer = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y+2,0);
 			var _this_point_buffer_voice = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,0);
-			var _this_point_buffer_base = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,0);
+			var _this_point_buffer_base = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y+4,0);
+
+
+
+
+
+
+			// var _next_point = new THREE.Vector3(sorted_streets[iii +1].x,sorted_streets[iii +1].y,0);
+			// var dstnce = (_this_point).distanceTo(_next_point);
+			// var _before = getPointInBetweenByLen(_this_point,_next_point,-1 * dstnce)
+			// var _after = getPointInBetweenByLen(_this_point,_next_point,1 * dstnce)
+			// console.log(sorted_streets[iii],sorted_streets[iii+1],dstnce, _before, _after)
+			// add the two to array and make the spline points and addthat to lineGeometry and make the line
+			// svector_array.push(_before)
 
 			if (iii == 0){
-				var _this_point_buffer = new THREE.Vector3(sorted_streets[0].x,sorted_streets[0].y,-1);
+				var _this_point_buffer = new THREE.Vector3(sorted_streets[0].x,sorted_streets[0].y+2,-1);
 				var _this_point_buffer_voice = new THREE.Vector3(sorted_streets[0].x,sorted_streets[0].y,-1);
-				var _this_point_buffer_base = new THREE.Vector3(sorted_streets[0].x,sorted_streets[0].y,-1);
+				var _this_point_buffer_base = new THREE.Vector3(sorted_streets[0].x,sorted_streets[0].y+4,-1);
 				svector_array.push(_this_point_buffer)
 				svector_array_Voice.push(_this_point_buffer_voice)
 				svector_array_Base.push(_this_point_buffer_base)
@@ -363,9 +387,9 @@ function initializeScene(data){
 			// axis_svector_array.push(_this_point_axis_head)
 
 			if (iii == sorted_streets.length-1) {
-				var _last_point_buffer = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,-1);
+				var _last_point_buffer = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y+2,-1);
 				var _last_point_buffer_voice = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,-1);
-				var _last_point_buffer_base = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,-1);
+				var _last_point_buffer_base = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y+4,-1);
 				svector_array.push(_last_point_buffer)
 				svector_array_Voice.push(_last_point_buffer_voice)
 				svector_array_Base.push(_last_point_buffer_base)
@@ -377,6 +401,10 @@ function initializeScene(data){
 			var splinePointsVoice = spline.getPoints(sorted_streets.length+1);
 			var splineBase = new THREE.SplineCurve3(svector_array_Base)
 			var splinePointsBase = spline.getPoints(sorted_streets.length+1);
+
+
+
+
 
 
 						for(var i = 0; i < splinePoints.length; i++){
@@ -405,6 +433,13 @@ function initializeScene(data){
 						for (vi = 0; vi < splinePoints.length-2; vi++){
 							lineGeometryBase.faces.push( new THREE.Face3( 0, vi+1, vi+2) );
 						}
+
+
+		// }
+			// svector_array.push(_after)
+			// svector_array_Voice.push(_before)
+			// svector_array_Voice.push(_after)
+
 
 
 // for (iii = 0; iii < sorted_streets.length-1; iii++){
@@ -469,6 +504,26 @@ function initializeScene(data){
 					//  alphaTest: 0.5
 				});
 
+
+
+
+				// for (vi = 0; vi < sorted_streets.length-2; vi++){
+				// 	lineGeometry.faces.push( new THREE.Face3( 0, vi+1, vi+2) );
+				// }
+				//  for(i = 0; i < lineGeometry.faces.length; i++){
+				// 	 if(lineGeometry.faces[i] instanceof THREE.Face4){
+				// 		 pyramidGeometry.faces[i].vertexColors[0] = new THREE.Color(0xFF0000);
+				// 	 }
+				//  }
+				// lineGeometry.faces.push( new THREE.Face3( 0, 1, 2 ) );
+				// lineGeometry.faces.push( new THREE.Face3( 0, 2, 3 ) );
+				// lineGeometry.faces.push( new THREE.Face3( 0, 3, 4 ) );
+				// lineGeometry.faces.push( new THREE.Face3( 0, 4, 5 ) );
+				// lineGeometry.computeFaceNormals();
+				// lineGeometryVoice.computeFaceNormals();
+				// lineGeometryBase.computeFaceNormals();
+				// object.position.z = -100;
+				// object.position.y = -Math.PI * .5;
 	      var line = new THREE.Line(lineGeometry, lineMaterial);
 				var lineVoice = new THREE.Line(lineGeometryVoice, lineMaterialVoice);
 				var lineBase = new THREE.Line(lineGeometryBase, lineMaterialBase);
@@ -495,13 +550,7 @@ function initializeScene(data){
 				objectColorGroupBase.add(objectBase)
 
 
-				axisStreetGroups.add(axis_line)
-
-				lineStreetGroupsHigh.add(line)
-				lineStreetGroupsVoice.add(lineVoice)
-				lineStreetGroupsBase.add(lineBase)
-
-				// axis_lines_group.add(axisStreetGroups)
+				axisColorGroup.add(axis_line)
 
 
 				objectColorGroup.name = sorted_streets[iii].street
@@ -523,33 +572,26 @@ function initializeScene(data){
 				// scene.add(object)
 
 		}
-
-		axisColorGroup.add(axisStreetGroups)
-
-		lineColorGroup.add(lineStreetGroupsHigh)
-		lineColorGroupVoice.add(lineStreetGroupsVoice)
-		lineColorGroupBase.add(lineStreetGroupsBase)
-
-		// lineGroup.add(lineColorGroup);
-		// lineGroupVoice.add(lineColorGroupVoice)
-		// lineGroupBase.add(lineColorGroupBase)
+		lineGroup.add(lineColorGroup);
+		lineGroupVoice.add(lineColorGroupVoice)
+		lineGroupBase.add(lineColorGroupBase)
 
 		objectGroup.add(objectColorGroup)
 		objectGroupVoice.add(objectColorGroupVoice)
 		objectGroupBase.add(objectColorGroupBase)
 
 
-		// axisGroups.add(axisStreetGroupsGroup);
+		axisGroups.add(axisColorGroup);
 
-    street_lines_group.add(lineColorGroup)
-		street_lines_group_voice.add(lineColorGroupVoice)
-		street_lines_group_base.add(lineColorGroupBase)
+    street_lines_group.add(lineGroup)
+		street_lines_group_voice.add(lineGroupVoice)
+		street_lines_group_base.add(lineGroupBase)
 
 		street_lines_object_group.add(objectGroup)
 		street_lines_object_group_voice.add(objectGroupVoice)
 		street_lines_object_group_base.add(objectGroupBase)
-		axis_lines_group.add(axisColorGroup)
 
+		axis_lines_group.add(axisGroups)
 
   })
 
@@ -564,10 +606,17 @@ function initializeScene(data){
   // scene.add(street_lines_group);
 	// scene.add(street_lines_group_voice);
 	// scene.add(street_lines_group_base);
-	scene.add(street_lines_object_group_voice);
-	scene.add(street_lines_object_group_base);
-	scene.add(street_lines_object_group);
+	// scene.add(street_lines_object_group_voice);
+	// scene.add(street_lines_object_group_base);
+	// scene.add(street_lines_object_group);
 	scene.add(axis_lines_group);
+
+
+	// console.log("street_lines_group", street_lines_group)
+  // scene.add(street_curves_group);
+  // scene.add(lineGroup_2);
+	// console.log("streets_device_line_segs",streets_device_line_segs)
+
 
 
 }
@@ -587,15 +636,26 @@ function onWindowResize() {
 
 function animateScene(){
 
-// console.log(axis_lines_group)
-// console.log(lkjnsdlk)
+console.log(axis_lines_group)
+console.log(lkjnsdlk)
 
+	// camera.lookAt(new THREE.Vector3(5.5*frameConfig.width/10, frameConfig.height/2, 0));
 
+	// camera.position.x += ( mouseX - camera.position.x ) * .05;
+	// camera.position.y += ( - mouseY - camera.position.y ) * .05;
+	// camera.lookAt( scene.position );
 	if (requestStream.frame_counter > frameConfig.numPoints){
 			requestStream.frame_counter = 1;
 			var t = requestStream.frame_counter;
+			// camera.position.x -= 0.01
+			// camera.position.y -= 0.02
+			// camera.position.z -= 0.01
+			// camera.rotation.y -+ 1 * Math.PI / 180
 	} else {
 		var t = requestStream.frame_counter;
+		// camera.position.x += 0.01
+		// camera.position.y += 0.02
+		// camera.position.z += 0.01
 	}
 
 	// console.log("t",t,street_lines_group)
@@ -614,10 +674,12 @@ function animateScene(){
 
 				var street_num_of_devices =  street_lines_group.children[ji].children[j].numberOfNodesInStreet;
 
-//
+				// console.log(street_name)
+				// console.log("bureakj",ddjk)
 				for (v = 0; v < street_lines_group.children[ji].children[j].children[jiv].geometry.vertices.length; v++) {
 						var datamap = samples_mapped.get(street_lines_group.children[ji].children[j].children[jiv].name)
-
+						// console.log(street_lines_group.children[ji].children[j].children[jiv].name,datamap)
+						// console.log(samples_mapped,datamap,street_lines_group.children[ji].children[j].children[jiv].name)
 						count = t-1;
 						var vir_v = v - count - 1;
 
@@ -669,7 +731,7 @@ function animateScene(){
 									street_lines_group_voice.children[ji].children[j].children[jiv].geometry.faces[h].color = colorBase
 								}
 										street_lines_group.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.High_scale(High) ;
-									street_lines_object_group.children[ji].children[j].children[jiv].geometry.vertices[1].z = scalerConfig.Leqdba_scale(Leqdba)
+									// street_lines_object_group.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.Leqdba_scale(Leqdba)
 									street_lines_group_voice.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.Voice_scale(Voice) ;
 									street_lines_group_base.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.Base_scale(Base) ;
 
@@ -719,10 +781,9 @@ function animateScene(){
 								street_lines_group_base.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
 							} else {
 									street_lines_group.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.Leqdba_scale(Leqdba)
-									// console.log(axis_lines_group.children[ji].children[j].children[jiv])
 									axis_lines_group.children[ji].children[j].children[jiv].geometry.vertices[1].z = scalerConfig.Leqdba_scale(Leqdba)
-									// console.log(axis_lines_group);
-									// // console.log(kjsds)
+									console.log(axis_lines_group);
+									// console.log(kjsds)
 
 
 									for (h = 0; h < street_lines_group.children[ji].children[j].children[jiv].geometry.faces.length; h++){
@@ -737,9 +798,9 @@ function animateScene(){
 
 							}
 
-							// street_lines_object_group.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-							// street_lines_object_group_voice.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-							// street_lines_object_group_base.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
+							street_lines_object_group.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
+							street_lines_object_group_voice.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
+							street_lines_object_group_base.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
 							axis_lines_group.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
 
 							// console.log(street_lines_object_group.children[ji].children[j].children[jiv], street_lines_group)
