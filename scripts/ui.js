@@ -40,8 +40,15 @@ var startValue=timeScale(new Date('2012-03-20'));
 var brush=d3.brushX()
 // brushX(timeScale).extent([startingValue,startingValue]).on("brush",brushed);
 // brush.handleSize([2,2])
-var svg=d3.select("#dynamictext").append("g")
-svg.data("smetext").append("text").text(d)
+
+
+// console.log("in update dynamic text")
+// var dtext=d3.select("#dynemictext").selectAll("g").data(ui_current_state.get("data_map_buffr_ind"))
+// var dtextEnter = dtext.enter().append("g").attr('transform', 'translate(' + 30 + ',' + 49 + ')')
+// dtextExit = dtext.exit().remove().transition()
+// dtext.append("text").transition().duration(19).text(function(d){return d;})
+
+
 var svg=d3.select("#timedatetext").append("g").attr("class","x axis").attr(
   "transform","translate("+margin.left+","+margin.top+")"
 // )

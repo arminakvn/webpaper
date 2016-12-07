@@ -20,7 +20,7 @@ var device_latlng = d3.map()
 //setting defult values for ui
 ui_current_state.set("component", "loudness")
 ui_current_state.set("data_needs_to_filter", 0)
-
+ui_current_state.set("data_map_buffr_ind", [1]);
 // // loading the data / starting with loading the locations
 function loadData(){
 	d3.queue()
@@ -30,7 +30,7 @@ function loadData(){
 }
 
 
-
+var parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S");
 
 
 
@@ -631,7 +631,8 @@ function animateScene(){
 						}
 						// console.log(requestStream.frame_counter,v,count, t, vir_v, bufferIndex)
 						var va = datamap.get(datamap.keys()[bufferIndex]);
-						ui_current_state.set("data_map_buffr_ind", bufferIndex);
+						ui_current_state.set("data_map_buffr_ind", [datamap.keys()[bufferIndex]]);
+						updateDynamicText()
 						// console.log("vaa", datamap.keys()[bufferIndex])
 
 						if (ui_current_state.get("component") == "frequency") {
@@ -803,7 +804,7 @@ requestStream.frame_counter += 1;
 
 			requestAnimationFrame(animateScene);
 
-	}, 100);
+	}, 500);
 
 
  // requestAnimationFrame(tick);
@@ -844,7 +845,15 @@ function updateViz(){
 }
 
 
-
+function updateDynamicText(){
+	console.log("in update dynamic text",ui_current_state.get("data_map_buffr_ind"))
+	var dtext=$("#dynemictext").html("")
+	var dtext=$("#dynemictext").html(ui_current_state.get("data_map_buffr_ind"))
+	// .selectAll(".textClass")
+	// var dtextEnter = dtext.data(ui_current_state.get("data_map_buffr_ind")).enter().append("g").attr("class","textClass").attr('transform', 'translate(' + 30 + ',' + 49 + ')')
+	// // dtextExit = dtext.exit().remove()
+	// dtext.append("text").text(function(d){return d;})
+}
 
 function onDocumentMouseMove( event ) {
 				mouseX = event.clientX - windowHalfX;
