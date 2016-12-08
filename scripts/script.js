@@ -479,7 +479,7 @@ function initializeScene(data){
 					 color: "#ffffb2",
 					 transparent: true,
 					 linewidth:5,
-					 opacity: 0.8,
+					 opacity: 0.5,
 					 depthWrite: true, depthTest: false
 					//  alphaTest: 0.5
 				});
@@ -493,7 +493,7 @@ function initializeScene(data){
 					 color: "#fd8d3c",
 					 transparent: true,
 					 linewidth:5,
-					 opacity: 0.8,
+					 opacity: 0.5,
 					 depthWrite: true, depthTest: false
 					//  alphaTest: 0.5
 				});
