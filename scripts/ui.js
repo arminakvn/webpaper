@@ -106,3 +106,11 @@ function brushed(){
   // handle.attr("transform","translate("+timeScale(value)+",0)");
   // handle.select('text').text(formatDate(value));
 }
+
+
+
+$('#range-speed').range({
+    min: 0,
+    max: 10,
+    start: 5
+  });

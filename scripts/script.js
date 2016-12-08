@@ -129,12 +129,16 @@ function callbackDataLoaded(err, csv_data, sample_data){
   scalerConfig = new (function(){
 		this.lat_scale = d3.scaleLinear().range([frameConfig.padding_bottom,frameConfig.height - frameConfig.padding_top]).domain([lat_min, lat_max]);
 		this.lng_scale = d3.scaleLinear().range([frameConfig.width-frameConfig.padding_left,frameConfig.padding_right]).domain([lon_min, lon_max]);
-    this.High_scale = d3.scaleLog().range([0, 4]).domain([min_High, max_High]);
-		this.Base_scale = d3.scaleLog().range([0, 4]).domain([min_Base, max_Base]);
-		this.Voice_scale = d3.scaleLog().range([0, 4]).domain([min_Voice, max_Voice]);
-		this.Leqdba_scale = d3.scaleLog().range([0, 4]).domain([min_Leqdba, max_Leqdba]);
-		this.Lmaxdba_scale = d3.scaleLog().range([0, 4]).domain([min_Lmaxdba, max_Lmaxdba]);
-		this.Lmindba_scale = d3.scaleLog().range([0, 4]).domain([min_Lmindba, max_Lmindba]);
+    this.High_scale = d3.scalePow().range([0, 4]).domain([40, 800]);
+		this.Base_scale = d3.scalePow().range([0, 4]).domain([40, 800]);
+		this.Voice_scale = d3.scalePow().range([0, 4]).domain([40, 800]);
+		// this.Leqdba_scale = d3.scaleLog().range([0, 4]).domain([min_Leqdba, max_Leqdba]);
+		// this.Lmaxdba_scale = d3.scaleLog().range([0, 4]).domain([min_Lmaxdba, max_Lmaxdba]);
+		// this.Lmindba_scale = d3.scaleLog().range([0, 4]).domain([min_Lmindba, max_Lmindba]);
+
+		this.Leqdba_scale = d3.scaleLog().range([1, 2]).domain([min_Leqdba, max_Leqdba]);
+		this.Lmaxdba_scale = d3.scaleLog().range([2, 3]).domain([min_Lmaxdba, max_Lmaxdba]);
+		this.Lmindba_scale = d3.scaleLog().range([0, 1]).domain([min_Lmindba, max_Lmindba]);
     this.Components_scale_Loudness = d3.scaleOrdinal()
       .range(["#bd0026", "#ffffb2", "#fd8d3c"])
       .domain(["Base","Voice","High"]);
@@ -236,8 +240,8 @@ function initializeScene(data){
 
   controls = new THREE.OrbitControls(camera);
   controls.enableZoom = true;
-controls.addEventListener( 'change', renderScene );
-window.addEventListener( 'resize', onWindowResize, false );
+	controls.addEventListener( 'change', renderScene );
+	window.addEventListener( 'resize', onWindowResize, false );
 	var boxGeometry = new THREE.BoxGeometry(frameConfig.width, frameConfig.height, 0.01);
 	var mapTexture = new THREE.ImageUtils.loadTexture('ph8.png');
 	var boxMaterial = new THREE.MeshBasicMaterial({
@@ -453,40 +457,43 @@ window.addEventListener( 'resize', onWindowResize, false );
 		    });
 
 				var objectMaterial = new THREE.MeshBasicMaterial({
-          //  vertexColors:THREE.VertexColors,
+           vertexColors:THREE.VertexColors,
            side:THREE.DoubleSide,
 					 shading: THREE.SmoothShading,
 					combine: THREE.NoBlending,
-					 vertexColors: THREE.FaceColors,
+					//  vertexColors: THREE.FaceColors,
 					 color: "#bd0026",
 					 transparent: true,
 					 opacity: 0.5,
+					 linewidth:8,
 					 depthWrite: true, depthTest: false
 					//  alphaTest: 0.5
 				});
 
 				var objectMaterial2 = new THREE.MeshBasicMaterial({
-          //  vertexColors:THREE.VertexColors,
+           vertexColors:THREE.VertexColors,
            side:THREE.DoubleSide,
 					 shading: THREE.SmoothShading,
 					 combine: THREE.NoBlending,
-					 vertexColors: THREE.FaceColors,
+					//  vertexColors: THREE.FaceColors,
 					 color: "#ffffb2",
 					 transparent: true,
-					 opacity: 0.3,
+					 linewidth:5,
+					 opacity: 0.8,
 					 depthWrite: true, depthTest: false
 					//  alphaTest: 0.5
 				});
 
 				var objectMaterial3 = new THREE.MeshBasicMaterial({
-          //  vertexColors:THREE.VertexColors,
+           vertexColors:THREE.VertexColors,
            side:THREE.DoubleSide,
 					 shading: THREE.SmoothShading,
 					combine: THREE.NoBlending,
-					 vertexColors: THREE.FaceColors,
+					//  vertexColors: THREE.FaceColors,
 					 color: "#fd8d3c",
 					 transparent: true,
-					 opacity: 0.5,
+					 linewidth:5,
+					 opacity: 0.8,
 					 depthWrite: true, depthTest: false
 					//  alphaTest: 0.5
 				});
@@ -494,94 +501,26 @@ window.addEventListener( 'resize', onWindowResize, false );
 
 
 
-				var lineMaterialVoice = new THREE.LineBasicMaterial({
-		      color:"#ffffb2",// scalerConfig.Components_scale_Frequency.get("Voice"),//"#fd8d3c",
-		      linewidth:1,
-		    });
 
-				var objectMaterialVoice = new THREE.MeshBasicMaterial({
-					//  vertexColors:THREE.VertexColors,
-					 side:THREE.DoubleSide,
-					 shading: THREE.SmoothShading,
-					//  combine: THREE.AddOperation,
-					 color: "#ffffb2",
-					 transparent: true,
-					 vertexColors: THREE.FaceColors,
-					 opacity: 0.5,
-					 depthWrite: true, depthTest: false
-					//  alphaTest: 0.5
-				});
-
-
-				var lineMaterialBase = new THREE.LineBasicMaterial({
-		      color:"#fd8d3c",// scalerConfig.Components_scale_Frequency.get("Voice"),//"#fd8d3c",
-		      linewidth:1,
-		    });
-
-
-				var objectMaterialBase = new THREE.MeshBasicMaterial({
-					//  vertexColors:THREE.VertexColors,
-					 side:THREE.DoubleSide,
-					 shading: THREE.SmoothShading,
-					 vertexColors: THREE.FaceColors,
-					 combine: THREE.MixOperation,
-					 color: "#fd8d3c",
-					 transparent: true,
-					 opacity: 0.5,
-					 depthWrite: true, depthTest: false
-					//  alphaTest: 0.5
-				});
-
-	      var line = new THREE.Line(lineGeometry, lineMaterial);
-				var lineVoice = new THREE.Line(lineGeometryVoice, lineMaterialVoice);
-				var lineBase = new THREE.Line(lineGeometryBase, lineMaterialBase);
-
-				var object = new THREE.Mesh( lineGeometry, objectMaterial );
-				var objectVoice = new THREE.Mesh( lineGeometryVoice, objectMaterialVoice );
-				var objectBase = new THREE.Mesh( lineGeometryBase, objectMaterialBase );
-
-
-
-
-				line.name = sorted_streets[iii].id;
-				lineVoice.name = sorted_streets[iii].id;
-				lineBase.name = sorted_streets[iii].id;
 
 				axis_line.name = sorted_streets[iii].id;
 
-	      lineColorGroup.add(line);
-				lineColorGroupVoice.add(lineVoice)
-				lineColorGroupBase.add(lineBase)
-
-				objectColorGroup.add(object)
-				objectColorGroupVoice.add(objectVoice)
-				objectColorGroupBase.add(objectBase)
 
 
 				axisStreetGroups.add(axis_line)
 
-				lineStreetGroupsHigh.add(line)
-				lineStreetGroupsVoice.add(lineVoice)
-				lineStreetGroupsBase.add(lineBase)
+
 
 				// axis_lines_group.add(axisStreetGroups)
 
 
-				objectColorGroup.name = sorted_streets[iii].street
-				objectColorGroupVoice.name = sorted_streets[iii].street
-				objectColorGroupBase.name = sorted_streets[iii].street
+
 
 
 				axisColorGroup.name = sorted_streets[iii].street
 
 
-				lineColorGroup.name = sorted_streets[iii].street;
-				lineColorGroupVoice.name = sorted_streets[iii].street;
-				lineColorGroupBase.name = sorted_streets[iii].street;
 
-				lineColorGroup.numberOfNodesInStreet = sorted_streets.length;
-				lineColorGroupVoice.numberOfNodesInStreet = sorted_streets.length;
-				lineColorGroupBase.numberOfNodesInStreet = sorted_streets.length;
 				// console.log(object)
 				// scene.add(object)
 
@@ -636,28 +575,11 @@ window.addEventListener( 'resize', onWindowResize, false );
 
 		axisColorGroup.add(axisStreetGroups)
 
-		lineColorGroup.add(lineStreetGroupsHigh)
-		lineColorGroupVoice.add(lineStreetGroupsVoice)
-		lineColorGroupBase.add(lineStreetGroupsBase)
-
-		// lineGroup.add(lineColorGroup);
-		// lineGroupVoice.add(lineColorGroupVoice)
-		// lineGroupBase.add(lineColorGroupBase)
-
-		objectGroup.add(objectColorGroup)
-		objectGroupVoice.add(objectColorGroupVoice)
-		objectGroupBase.add(objectColorGroupBase)
 
 
 		// axisGroups.add(axisStreetGroupsGroup);
 
-    street_lines_group.add(lineColorGroup)
-		street_lines_group_voice.add(lineColorGroupVoice)
-		street_lines_group_base.add(lineColorGroupBase)
 
-		street_lines_object_group.add(objectGroup)
-		street_lines_object_group_voice.add(objectGroupVoice)
-		street_lines_object_group_base.add(objectGroupBase)
 		axis_lines_group.add(axisColorGroup)
 
 
@@ -684,10 +606,10 @@ window.addEventListener( 'resize', onWindowResize, false );
 	// scene.add(street_lines_object_group);
 
 	scene.add(street_surf_group);
-	scene.add(street_surf_group2);
-	scene.add(street_surf_group3);
-	scene.add(axis_lines_group);
 
+	scene.add(street_surf_group3);
+	// scene.add(axis_lines_group);
+scene.add(street_surf_group2);
 
 }
 
@@ -777,12 +699,12 @@ console.log(street_surf_group)
 				var Leqdba = va.get("Leqdba")
 				var Lmaxdba = va.get("Lmaxdba")
 				var Lmindba = va.get("Lmindba")
-				axis_lines_group.children[sn].children[0].children[0].geometry.vertices[1].z = scalerConfig.Leqdba_scale(Leqdba)
+				axis_lines_group.children[sn].children[vert].children[0].geometry.vertices[1].z = scalerConfig.Lmaxdba_scale(Lmaxdba)
 				street_surf_group.children[sn].geometry.vertices[1].z = scalerConfig.Leqdba_scale(Leqdba)
 				street_surf_group2.children[sn].geometry.vertices[1].z = scalerConfig.Lmaxdba_scale(Lmaxdba)
 				street_surf_group3.children[sn].geometry.vertices[1].z = scalerConfig.Lmindba_scale(Lmindba)
-				street_surf_group.children[sn].geometry.vertices[0].z = 0;
-				street_surf_group2.children[sn].geometry.vertices[0].z = 0;
+				street_surf_group.children[sn].geometry.vertices[0].z = 1;
+				street_surf_group2.children[sn].geometry.vertices[0].z = 2;
 				street_surf_group3.children[sn].geometry.vertices[0].z = 0;
 
 			} else if (vert == street_surf_group.children[sn].geometry.vertices.length / 2){
@@ -805,6 +727,9 @@ console.log(street_surf_group)
 
 
 			} else if (vert > (street_surf_group.children[sn].geometry.vertices.length / 2)-1){
+				street_surf_group.children[sn].geometry.vertices[vert].z = 1;
+				street_surf_group2.children[sn].geometry.vertices[vert].z = 2;
+				street_surf_group3.children[sn].geometry.vertices[vert].z = 0;
 
 					// street_surf_group.children[sn].geometry.vertices[vert].z = 0;
 
@@ -825,7 +750,7 @@ console.log(street_surf_group)
 				street_surf_group3.children[sn].geometry.vertices[vert].z = scalerConfig.Lmindba_scale(Lmindba)
 
 
-				axis_lines_group.children[sn].children[0].children[vert].geometry.vertices[1].z = scalerConfig.Leqdba_scale(Leqdba)
+				axis_lines_group.children[sn].children[0].children[vert].geometry.vertices[1].z = scalerConfig.Lmaxdba_scale(Lmaxdba)
 				console.log(axis_lines_group)
 				// console.log(dndn)
 
@@ -842,217 +767,6 @@ street_surf_group3.children[sn].geometry.verticesNeedUpdate = true;
 	}
 	// console.log(kjwekj)
 
-
-
-
-//   for (ji = 0; ji < street_lines_group.children.length; ji++) {
-// 		// street id
-//     // group.children[j].material.color.setHex(0x1A75FF);
-//
-//
-//
-//
-//
-//     for (j = 0; j < street_lines_group.children[ji].children.length; j++) {
-// 			// device_id
-//       // console.log(street_lines_group.children[ji].children[j])
-//
-// 			for (jiv = 0; jiv < street_lines_group.children[ji].children[j].children.length; jiv++) {
-//
-// 				var street_num_of_devices =  street_lines_group.children[ji].children[j].numberOfNodesInStreet;
-//
-// //
-// 				for (v = 0; v < street_lines_group.children[ji].children[j].children[jiv].geometry.vertices.length; v++) {
-//
-// 						var datamap = samples_mapped.get(street_lines_group.children[ji].children[j].children[jiv].name)
-//
-// 						count = t-1;
-// 						var vir_v = v - count - 1;
-//
-// 						if (vir_v < 0){
-// 							var bufferIndex = vir_v + frameConfig.numPoints;
-// 						}
-// 						else if (vir_v < street_lines_group.children[ji].children[j].children[jiv].geometry.vertices.length - 2){
-// 							var bufferIndex = vir_v;
-// 						}	else {
-// 							var bufferIndex = vir_v;
-// 						}
-// 						// console.log(requestStream.frame_counter,v,count, t, vir_v, bufferIndex)
-// 						var va = datamap.get(datamap.keys()[bufferIndex]);
-// 						ui_current_state.set("data_map_buffr_ind", [datamap.keys()[bufferIndex]]);
-// 						updateDynamicText()
-// 						// console.log("vaa", datamap.keys()[bufferIndex])
-//
-// 						if (ui_current_state.get("component") == "frequency") {
-// 							var High = va.get("High")
-// 							var Voice = va.get("Voice")
-// 							var Base = va.get("Base")
-//
-// 							var colorHigh = new THREE.Color(
-// 								"#bd0026"
-// 						  );
-//
-// 							var colorVoice = new THREE.Color(
-// 								"#ffffb2"
-// 						  );
-//
-// 							var colorBase = new THREE.Color(
-// 								"#fd8d3c"
-// 						  );
-//
-//
-//
-// 							if (v == 0){
-// 									street_lines_group.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
-// 									street_lines_group_voice.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
-// 									street_lines_group_base.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
-//
-// 							} else if (v == street_lines_group.children[ji].children[j].children[jiv].geometry.vertices.length - 1) {
-// 								street_lines_group.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
-// 								street_lines_group_voice.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
-// 								street_lines_group_base.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
-// 							} else {
-// 								street_lines_group.children[ji].children[j].children[jiv].material.color = colorHigh;
-// 								street_lines_group_voice.children[ji].children[j].children[jiv].material.color = colorVoice;
-// 								street_lines_group_base.children[ji].children[j].children[jiv].material.color = colorBase;
-// 								for (h = 0; h < street_lines_group.children[ji].children[j].children[jiv].geometry.faces.length; h++){
-// 									street_lines_group.children[ji].children[j].children[jiv].geometry.faces[h].color = colorHigh
-// 									street_lines_group_voice.children[ji].children[j].children[jiv].geometry.faces[h].color = colorVoice
-// 									street_lines_group_voice.children[ji].children[j].children[jiv].geometry.faces[h].color = colorBase
-// 								}
-// 										street_lines_group.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.High_scale(High) ;
-// 									street_lines_object_group.children[ji].children[j].children[jiv].geometry.vertices[1].z = scalerConfig.Leqdba_scale(Leqdba)
-// 									scene.add(street_lines_object_group.children[ji].children[j].children[jiv].clone())
-// 									street_lines_group_voice.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.Voice_scale(Voice) ;
-// 									street_lines_group_base.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.Base_scale(Base) ;
-//
-// 							}
-//
-//
-//
-//
-// 							street_lines_group.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-//
-//
-// 							street_lines_group_voice.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-//
-//
-//
-// 							street_lines_group_base.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-//
-// 							street_lines_object_group.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-// 							street_lines_object_group_voice.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-// 							street_lines_object_group_base.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-//
-//
-// 						} else {
-//
-// 							var Leqdba = va.get("Leqdba")
-// 							var Lmaxdba = va.get("Lmaxdba")
-// 							var Lmindba = va.get("Base")
-// 							var colorLeqdba = new THREE.Color(
-// 								"#42f453"
-// 						  );
-//
-// 							var colorLmaxdba = new THREE.Color(
-// 								"#4280f4"
-// 						  );
-//
-// 							var colorLmindba = new THREE.Color(
-// 								"#f4424e"
-// 						  );
-// 							if (v == 0){
-// 								axis_lines_group.children[ji].children[j].children[jiv].geometry.vertices[0].z = -1;
-// 									street_lines_group.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
-// 									street_lines_group_voice.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
-// 									street_lines_group_base.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
-// 									street_surf_group.children[ji].geometry.vertices[1].z = scalerConfig.Leqdba_scale(Leqdba)
-// 									street_surf_group.children[ji].geometry.vertices[0].z = 0;
-// 							} else if (v == street_lines_group.children[ji].children[j].children[jiv].geometry.vertices.length-1) {
-// 								// for (var j=street_lines_group.children[ji].children[j].children[jiv].geometry.vertices.length-1; j > 0;j--){
-// 								// 	street_surf_group.children[ji].geometry.vertices[j-1].z = 0;
-// 								//
-// 								// }
-// 								street_lines_group.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
-// 								street_lines_group_voice.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
-// 								street_lines_group_base.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
-// 								street_surf_group.children[ji].geometry.vertices[v].z = scalerConfig.Leqdba_scale(Leqdba);
-// 								street_surf_group.children[ji].geometry.vertices[v+1].z = 0;
-//
-// 								// street_surf_group.children[ji].geometry.vertices[v].z = 0;
-// 								for (var jgg=street_surf_group.children[ji].geometry.vertices[v].length; jgg > 0;jgg--){
-// 									street_surf_group.children[ji].geometry.vertices[jgg-1].z = 0;
-// 									street_surf_group.children[ji].geometry.verticesNeedUpdate = true;
-// 								}
-//
-// 							} else {
-// 									street_lines_group.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.Leqdba_scale(Leqdba)
-// 									// console.log(axis_lines_group.children[ji].children[j].children[jiv])
-// 									axis_lines_group.children[ji].children[j].children[jiv].geometry.vertices[1].z = scalerConfig.Leqdba_scale(Leqdba)
-// 									// console.log(axis_lines_group);
-// 									// // console.log(kjsds)
-//
-// 									street_surf_group.children[ji].geometry.vertices[v].z = scalerConfig.Leqdba_scale(Leqdba)
-// 									for (h = 0; h < street_lines_group.children[ji].children[j].children[jiv].geometry.faces.length; h++){
-// 										street_lines_group.children[ji].children[j].children[jiv].geometry.faces[h].color = colorLeqdba
-// 										street_lines_group_voice.children[ji].children[j].children[jiv].geometry.faces[h].color = colorLmaxdba
-// 										street_lines_group_voice.children[ji].children[j].children[jiv].geometry.faces[h].color = colorLmindba
-// 									}
-//
-// 									// street_lines_object_group.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.Leqdba_scale(Leqdba)
-// 									street_lines_group_voice.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.Lmaxdba_scale(Lmaxdba) ;
-// 									street_lines_group_base.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.Lmindba_scale(Lmindba) ;
-//
-// 							}
-//
-// 							// street_lines_object_group.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-// 							// street_lines_object_group_voice.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-// 							// street_lines_object_group_base.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-// 							axis_lines_group.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-//
-// 							// console.log(kjnd)
-// 							street_surf_group.children[ji].geometry.verticesNeedUpdate = true;
-//
-// 							// console.log(street_lines_object_group.children[ji].children[j].children[jiv], street_lines_group)
-// 							// console.log(jsdn)
-// 							street_lines_group_base.children[ji].children[j].children[jiv].material.color = colorLmindba;
-//
-// 							street_lines_group_base.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-// 							// console.log(dlsj)
-// 							street_lines_group.children[ji].children[j].children[jiv].material.color = colorLeqdba;
-// 							// street_lines_group.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.Leqdba_scale(Leqdba) ;
-// 							street_lines_group.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-// 							street_lines_group_base.children[ji].children[j].children[jiv].material.color = colorLmindba;
-//
-// 							street_lines_group_base.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-// 							street_lines_group_voice.children[ji].children[j].children[jiv].material.color = colorLmaxdba;
-//
-// 							street_lines_group_voice.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-//
-//
-//
-//
-// 							// console.log(dds)
-// 						}
-//
-// 						// if (High > 0) {}
-//
-// 						// street_lines_group.children[ji].children[j].children[jiv].material._needsUpdate = true;
-//
-//
-//
-//
-//
-// 				}
-//
-//
-//
-// 			}
-//
-//
-//
-//     }
-//   }
 
 
 
