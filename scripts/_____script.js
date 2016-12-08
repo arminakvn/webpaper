@@ -270,8 +270,6 @@ window.addEventListener( 'resize', onWindowResize, false );
 
 
   street_surf_group = new THREE.Group();
-	street_surf_group2 = new THREE.Group();
-	street_surf_group3 = new THREE.Group();
 
 // creating the line from iteration through the data
 
@@ -287,10 +285,6 @@ window.addEventListener( 'resize', onWindowResize, false );
 
 		var axisStreetGroups = new THREE.Group();
 		var surfStreetGroups = new THREE.Group();
-		var surfStreetGroups2 = new THREE.Group();
-		var surfStreetGroups3 = new THREE.Group();
-
-
 		var lineStreetGroupsHigh = new THREE.Group();
 		var lineStreetGroupsVoice = new THREE.Group();
 		var lineStreetGroupsBase = new THREE.Group();
@@ -323,8 +317,6 @@ window.addEventListener( 'resize', onWindowResize, false );
 
 			var axisColorGroup = new THREE.Group();
 			var surfColorGroup = new THREE.Group();
-			var surfColorGroup2 = new THREE.Group();
-			var surfColorGroup3 = new THREE.Group();
 
 			var lineGeometry = new THREE.Geometry();
 			var lineGeometryVoice = new THREE.Geometry();
@@ -342,8 +334,8 @@ window.addEventListener( 'resize', onWindowResize, false );
 
 
 			var axisMaterial = new THREE.LineBasicMaterial({
-				color: "#fffff", // scalerConfig.Components_scale_Frequency.get("High"),// colorScale(current_component),
-				linewidth:4,
+				color: "#ffffe6", // scalerConfig.Components_scale_Frequency.get("High"),// colorScale(current_component),
+				linewidth:2,
 			});
 
 
@@ -385,7 +377,6 @@ window.addEventListener( 'resize', onWindowResize, false );
 					surf_svector_array.push(_add_point_buffer_surf)
 				}
 			} else {
-				_this_point_surf = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,0);
 				surf_svector_array.push(_this_point)
 			}
 
@@ -456,35 +447,9 @@ window.addEventListener( 'resize', onWindowResize, false );
           //  vertexColors:THREE.VertexColors,
            side:THREE.DoubleSide,
 					 shading: THREE.SmoothShading,
-					combine: THREE.NoBlending,
+					//  combine: THREE.AddOperation,
 					 vertexColors: THREE.FaceColors,
 					 color: "#bd0026",
-					 transparent: true,
-					 opacity: 0.5,
-					 depthWrite: true, depthTest: false
-					//  alphaTest: 0.5
-				});
-
-				var objectMaterial2 = new THREE.MeshBasicMaterial({
-          //  vertexColors:THREE.VertexColors,
-           side:THREE.DoubleSide,
-					 shading: THREE.SmoothShading,
-					 combine: THREE.NoBlending,
-					 vertexColors: THREE.FaceColors,
-					 color: "#ffffb2",
-					 transparent: true,
-					 opacity: 0.3,
-					 depthWrite: true, depthTest: false
-					//  alphaTest: 0.5
-				});
-
-				var objectMaterial3 = new THREE.MeshBasicMaterial({
-          //  vertexColors:THREE.VertexColors,
-           side:THREE.DoubleSide,
-					 shading: THREE.SmoothShading,
-					combine: THREE.NoBlending,
-					 vertexColors: THREE.FaceColors,
-					 color: "#fd8d3c",
 					 transparent: true,
 					 opacity: 0.5,
 					 depthWrite: true, depthTest: false
@@ -599,40 +564,22 @@ window.addEventListener( 'resize', onWindowResize, false );
 		for (var inn=0; inn < sorted_streets.length; inn++){
 
 			if (inn==0){
-				surfGeometry.faces.push( new THREE.Face3( inn, inn+1, 2*sorted_streets.length-1));
+				surfGeometry.faces.push( new THREE.Face3( inn, inn+1, (2*sorted_streets.length)-1));
 
 			} else if (inn==sorted_streets.length-1){
-				surfGeometry.faces.push( new THREE.Face3( inn, inn+1, inn+2));
+				surfGeometry.faces.push( new THREE.Face3( inn-1, inn, inn+1));
 			} else {
-				surfGeometry.faces.push( new THREE.Face3( inn, inn+1, 2*sorted_streets.length-inn));
-				surfGeometry.faces.push( new THREE.Face3( inn+1, 2*sorted_streets.length-inn-1, 2*sorted_streets.length-inn));
+				surfGeometry.faces.push( new THREE.Face3( inn, inn+1, (2*sorted_streets.length-1)-(inn+1)));
+				surfGeometry.faces.push( new THREE.Face3( inn, (2*sorted_streets.length-1)-(inn+1), (2*sorted_streets.length-1)-(inn+2)));
 
 				// surfGeometry.faces.push( new THREE.Face3( inn, inn+2, (2*sorted_streets.length-1)-(inn+1)));
 			}
 
 		}
 
-		var surfGeometry2 = surfGeometry.clone()
-		var surfGeometry3 = surfGeometry.clone()
 
 		var surfObject = new THREE.Mesh( surfGeometry, objectMaterial );
-		var surfObject2 = new THREE.Mesh( surfGeometry2, objectMaterial2 );
-		var surfObject3 = new THREE.Mesh( surfGeometry3, objectMaterial3 );
-
 		surfObject.num_of_street_devices = sorted_streets.length;
-		var userData={}
-		for (dev_ind=0;dev_ind <sorted_streets.length;dev_ind++){
-			userData[dev_ind] = sorted_streets[dev_ind].id
-		}
-		// for(var iiii=0; iiii < sorted_streets.length; iiii++){
-		//
-		// 	surfGeometry.name = sorted_streets[iiii].street;
-		// }
-		// console.log(sorted_streets[0].street)
-		surfObject.name = sorted_streets[0].street;
-		surfObject.userData = userData;
-
-
 
 		axisColorGroup.add(axisStreetGroups)
 
@@ -659,11 +606,7 @@ window.addEventListener( 'resize', onWindowResize, false );
 		street_lines_object_group_voice.add(objectGroupVoice)
 		street_lines_object_group_base.add(objectGroupBase)
 		axis_lines_group.add(axisColorGroup)
-
-
 		street_surf_group.add(surfObject)
-		street_surf_group2.add(surfObject2)
-		street_surf_group3.add(surfObject3)
 
 
   })
@@ -684,8 +627,6 @@ window.addEventListener( 'resize', onWindowResize, false );
 	// scene.add(street_lines_object_group);
 
 	scene.add(street_surf_group);
-	scene.add(street_surf_group2);
-	scene.add(street_surf_group3);
 	scene.add(axis_lines_group);
 
 
@@ -710,7 +651,7 @@ function animateScene(){
 // console.log(lkjnsdlk)
 
 
-	if (requestStream.frame_counter > frameConfig.numPoints-1){
+	if (requestStream.frame_counter > frameConfig.numPoints){
 			requestStream.frame_counter = 1;
 			var t = requestStream.frame_counter;
 	} else {
@@ -722,337 +663,212 @@ function animateScene(){
     data  = filterData()
   } else {
   }
-
-console.log(street_surf_group)
-// console.log(kjwekj)
-	for (var sn = 0; sn < street_surf_group.children.length; sn++){
-		for (var vert = 0; vert < street_surf_group.children[sn].geometry.vertices.length; vert++){
+  for (ji = 0; ji < street_lines_group.children.length; ji++) {
+		// street id
+    // group.children[j].material.color.setHex(0x1A75FF);
 
 
 
-			count = t;
-			var vir_v = vert - count - 1;
 
-			if (vir_v < 0){
-				var bufferIndex = vir_v + frameConfig.numPoints;
+
+    for (j = 0; j < street_lines_group.children[ji].children.length; j++) {
+			// device_id
+      // console.log(street_lines_group.children[ji].children[j])
+
+			for (jiv = 0; jiv < street_lines_group.children[ji].children[j].children.length; jiv++) {
+
+				var street_num_of_devices =  street_lines_group.children[ji].children[j].numberOfNodesInStreet;
+
+//
+				for (v = 0; v < street_lines_group.children[ji].children[j].children[jiv].geometry.vertices.length; v++) {
+						var datamap = samples_mapped.get(street_lines_group.children[ji].children[j].children[jiv].name)
+
+						count = t-1;
+						var vir_v = v - count - 1;
+
+						if (vir_v < 0){
+							var bufferIndex = vir_v + frameConfig.numPoints;
+						}
+						else if (vir_v < street_lines_group.children[ji].children[j].children[jiv].geometry.vertices.length - 2){
+							var bufferIndex = vir_v;
+						}	else {
+							var bufferIndex = vir_v;
+						}
+						// console.log(requestStream.frame_counter,v,count, t, vir_v, bufferIndex)
+						var va = datamap.get(datamap.keys()[bufferIndex]);
+						ui_current_state.set("data_map_buffr_ind", [datamap.keys()[bufferIndex]]);
+						updateDynamicText()
+						// console.log("vaa", datamap.keys()[bufferIndex])
+
+						if (ui_current_state.get("component") == "frequency") {
+							var High = va.get("High")
+							var Voice = va.get("Voice")
+							var Base = va.get("Base")
+
+							var colorHigh = new THREE.Color(
+								"#bd0026"
+						  );
+
+							var colorVoice = new THREE.Color(
+								"#ffffb2"
+						  );
+
+							var colorBase = new THREE.Color(
+								"#fd8d3c"
+						  );
+
+
+
+							if (v == 0){
+									street_lines_group.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
+									street_lines_group_voice.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
+									street_lines_group_base.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
+
+							} else if (v == street_lines_group.children[ji].children[j].children[jiv].geometry.vertices.length - 1) {
+								street_lines_group.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
+								street_lines_group_voice.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
+								street_lines_group_base.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
+							} else {
+								street_lines_group.children[ji].children[j].children[jiv].material.color = colorHigh;
+								street_lines_group_voice.children[ji].children[j].children[jiv].material.color = colorVoice;
+								street_lines_group_base.children[ji].children[j].children[jiv].material.color = colorBase;
+								for (h = 0; h < street_lines_group.children[ji].children[j].children[jiv].geometry.faces.length; h++){
+									street_lines_group.children[ji].children[j].children[jiv].geometry.faces[h].color = colorHigh
+									street_lines_group_voice.children[ji].children[j].children[jiv].geometry.faces[h].color = colorVoice
+									street_lines_group_voice.children[ji].children[j].children[jiv].geometry.faces[h].color = colorBase
+								}
+										street_lines_group.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.High_scale(High) ;
+									street_lines_object_group.children[ji].children[j].children[jiv].geometry.vertices[1].z = scalerConfig.Leqdba_scale(Leqdba)
+									scene.add(street_lines_object_group.children[ji].children[j].children[jiv].clone())
+									street_lines_group_voice.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.Voice_scale(Voice) ;
+									street_lines_group_base.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.Base_scale(Base) ;
+
+							}
+
+
+
+
+							street_lines_group.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
+
+
+							street_lines_group_voice.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
+
+
+
+							street_lines_group_base.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
+
+							street_lines_object_group.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
+							street_lines_object_group_voice.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
+							street_lines_object_group_base.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
+
+
+						} else {
+
+							var Leqdba = va.get("Leqdba")
+							var Lmaxdba = va.get("Lmaxdba")
+							var Lmindba = va.get("Base")
+							var colorLeqdba = new THREE.Color(
+								"#42f453"
+						  );
+
+							var colorLmaxdba = new THREE.Color(
+								"#4280f4"
+						  );
+
+							var colorLmindba = new THREE.Color(
+								"#f4424e"
+						  );
+							if (v == 0){
+								axis_lines_group.children[ji].children[j].children[jiv].geometry.vertices[0].z = -1;
+									street_lines_group.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
+									street_lines_group_voice.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
+									street_lines_group_base.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
+									street_surf_group.children[ji].geometry.vertices[1].z = scalerConfig.Leqdba_scale(Leqdba)
+									street_surf_group.children[ji].geometry.vertices[0].z = 0;
+							} else if (v == street_lines_group.children[ji].children[j].children[jiv].geometry.vertices.length) {
+								// for (var j=street_lines_group.children[ji].children[j].children[jiv].geometry.vertices.length-1; j > 0;j--){
+								// 	street_surf_group.children[ji].geometry.vertices[j-1].z = 0;
+								//
+								// }
+								street_lines_group.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
+								street_lines_group_voice.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
+								street_lines_group_base.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
+								street_surf_group.children[ji].geometry.vertices[v].z = scalerConfig.Leqdba_scale(Leqdba);
+								street_surf_group.children[ji].geometry.vertices[v+1].z = 0;
+
+								// street_surf_group.children[ji].geometry.vertices[v].z = 0;
+								for (var jgg=street_surf_group.children[ji].geometry.vertices[v].length; jgg > 0;jgg--){
+									street_surf_group.children[ji].geometry.vertices[jgg-1].z = 0;
+									street_surf_group.children[ji].geometry.verticesNeedUpdate = true;
+								}
+
+							} else {
+									street_lines_group.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.Leqdba_scale(Leqdba)
+									// console.log(axis_lines_group.children[ji].children[j].children[jiv])
+									axis_lines_group.children[ji].children[j].children[jiv].geometry.vertices[1].z = scalerConfig.Leqdba_scale(Leqdba)
+									// console.log(axis_lines_group);
+									// // console.log(kjsds)
+
+									street_surf_group.children[ji].geometry.vertices[v].z = scalerConfig.Leqdba_scale(Leqdba)
+									for (h = 0; h < street_lines_group.children[ji].children[j].children[jiv].geometry.faces.length; h++){
+										street_lines_group.children[ji].children[j].children[jiv].geometry.faces[h].color = colorLeqdba
+										street_lines_group_voice.children[ji].children[j].children[jiv].geometry.faces[h].color = colorLmaxdba
+										street_lines_group_voice.children[ji].children[j].children[jiv].geometry.faces[h].color = colorLmindba
+									}
+
+									// street_lines_object_group.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.Leqdba_scale(Leqdba)
+									street_lines_group_voice.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.Lmaxdba_scale(Lmaxdba) ;
+									street_lines_group_base.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.Lmindba_scale(Lmindba) ;
+
+							}
+
+							// street_lines_object_group.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
+							// street_lines_object_group_voice.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
+							// street_lines_object_group_base.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
+							axis_lines_group.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
+							console.log(street_surf_group)
+							street_surf_group.children[ji].geometry.verticesNeedUpdate = true;
+
+							// console.log(street_lines_object_group.children[ji].children[j].children[jiv], street_lines_group)
+							// console.log(jsdn)
+							street_lines_group_base.children[ji].children[j].children[jiv].material.color = colorLmindba;
+
+							street_lines_group_base.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
+							// console.log(dlsj)
+							street_lines_group.children[ji].children[j].children[jiv].material.color = colorLeqdba;
+							// street_lines_group.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.Leqdba_scale(Leqdba) ;
+							street_lines_group.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
+							street_lines_group_base.children[ji].children[j].children[jiv].material.color = colorLmindba;
+
+							street_lines_group_base.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
+							street_lines_group_voice.children[ji].children[j].children[jiv].material.color = colorLmaxdba;
+
+							street_lines_group_voice.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
+
+
+
+
+							// console.log(dds)
+						}
+
+						// if (High > 0) {}
+
+						// street_lines_group.children[ji].children[j].children[jiv].material._needsUpdate = true;
+
+
+
+
+
+				}
+
+
+
 			}
-			else if (vir_v < street_surf_group.children[sn].num_of_street_devices - 1){
-				var bufferIndex = vir_v;
-			}	else {
-				var bufferIndex = vir_v;
-			}
-
-										var colorLeqdba = new THREE.Color(
-											"#42f453"
-									  );
-
-										var colorLmaxdba = new THREE.Color(
-											"#4280f4"
-									  );
-
-										var colorLmindba = new THREE.Color(
-											"#f4424e"
-									  );
 
 
 
-
-			if (vert == 0){
-
-				// var va = datamap.get(datamap.keys()[bufferIndex]);
-				// ui_current_state.set("data_map_buffr_ind", [datamap.keys()[bufferIndex]]);
-
-
-
-				// console.log(lsdj)
-
-				var deviceid = street_surf_group.children[sn].userData[vert]
-
-				datamap = samples_mapped.get(deviceid)
-
-				var va = datamap.get(datamap.keys()[bufferIndex]);
-				ui_current_state.set("data_map_buffr_ind", [datamap.keys()[bufferIndex]]);
-				updateDynamicText()
-
-				var Leqdba = va.get("Leqdba")
-				var Lmaxdba = va.get("Lmaxdba")
-				var Lmindba = va.get("Lmindba")
-				axis_lines_group.children[sn].children[0].children[0].geometry.vertices[1].z = scalerConfig.Leqdba_scale(Leqdba)
-				street_surf_group.children[sn].geometry.vertices[1].z = scalerConfig.Leqdba_scale(Leqdba)
-				street_surf_group2.children[sn].geometry.vertices[1].z = scalerConfig.Lmaxdba_scale(Lmaxdba)
-				street_surf_group3.children[sn].geometry.vertices[1].z = scalerConfig.Lmindba_scale(Lmindba)
-				street_surf_group.children[sn].geometry.vertices[0].z = 0;
-				street_surf_group2.children[sn].geometry.vertices[0].z = 0;
-				street_surf_group3.children[sn].geometry.vertices[0].z = 0;
-
-			} else if (vert == street_surf_group.children[sn].geometry.vertices.length / 2){
-				var deviceid = street_surf_group.children[sn].userData[street_surf_group.children[sn].num_of_street_devices-1]
-
-				datamap = samples_mapped.get(deviceid)
-
-				var va = datamap.get(datamap.keys()[bufferIndex]);
-				ui_current_state.set("data_map_buffr_ind", [datamap.keys()[bufferIndex]]);
-				updateDynamicText()
-
-				var Leqdba = va.get("Leqdba")
-											var Lmaxdba = va.get("Lmaxdba")
-											var Lmindba = va.get("Lmindba")
-
-
-					street_surf_group.children[sn].geometry.vertices[vert].z = scalerConfig.Leqdba_scale(Leqdba);
-					street_surf_group2.children[sn].geometry.vertices[vert].z = scalerConfig.Lmaxdba_scale(Lmaxdba)
-					street_surf_group3.children[sn].geometry.vertices[vert].z = scalerConfig.Lmindba_scale(Lmindba)
-
-
-			} else if (vert > (street_surf_group.children[sn].geometry.vertices.length / 2)-1){
-
-					// street_surf_group.children[sn].geometry.vertices[vert].z = 0;
-
-			} else {
-				var deviceid = street_surf_group.children[sn].userData[vert]
-				datamap = samples_mapped.get(deviceid)
-
-				var va = datamap.get(datamap.keys()[bufferIndex]);
-				ui_current_state.set("data_map_buffr_ind", [datamap.keys()[bufferIndex]]);
-
-				var Leqdba = va.get("Leqdba")
-											var Lmaxdba = va.get("Lmaxdba")
-											var Lmindba = va.get("Lmindba")
-				updateDynamicText()
-
-				street_surf_group.children[sn].geometry.vertices[vert].z = scalerConfig.Leqdba_scale(Leqdba)
-				street_surf_group2.children[sn].geometry.vertices[vert].z = scalerConfig.Lmaxdba_scale(Lmaxdba)
-				street_surf_group3.children[sn].geometry.vertices[vert].z = scalerConfig.Lmindba_scale(Lmindba)
-
-
-				axis_lines_group.children[sn].children[0].children[vert].geometry.vertices[1].z = scalerConfig.Leqdba_scale(Leqdba)
-				console.log(axis_lines_group)
-				// console.log(dndn)
-
-
-axis_lines_group.children[sn].children[0].children[vert].geometry.verticesNeedUpdate = true;
-
-			}
-street_surf_group.children[sn].geometry.verticesNeedUpdate = true;
-street_surf_group2.children[sn].geometry.verticesNeedUpdate = true;
-street_surf_group3.children[sn].geometry.verticesNeedUpdate = true;
-
-		}
-
-	}
-	// console.log(kjwekj)
-
-
-
-
-//   for (ji = 0; ji < street_lines_group.children.length; ji++) {
-// 		// street id
-//     // group.children[j].material.color.setHex(0x1A75FF);
-//
-//
-//
-//
-//
-//     for (j = 0; j < street_lines_group.children[ji].children.length; j++) {
-// 			// device_id
-//       // console.log(street_lines_group.children[ji].children[j])
-//
-// 			for (jiv = 0; jiv < street_lines_group.children[ji].children[j].children.length; jiv++) {
-//
-// 				var street_num_of_devices =  street_lines_group.children[ji].children[j].numberOfNodesInStreet;
-//
-// //
-// 				for (v = 0; v < street_lines_group.children[ji].children[j].children[jiv].geometry.vertices.length; v++) {
-//
-// 						var datamap = samples_mapped.get(street_lines_group.children[ji].children[j].children[jiv].name)
-//
-// 						count = t-1;
-// 						var vir_v = v - count - 1;
-//
-// 						if (vir_v < 0){
-// 							var bufferIndex = vir_v + frameConfig.numPoints;
-// 						}
-// 						else if (vir_v < street_lines_group.children[ji].children[j].children[jiv].geometry.vertices.length - 2){
-// 							var bufferIndex = vir_v;
-// 						}	else {
-// 							var bufferIndex = vir_v;
-// 						}
-// 						// console.log(requestStream.frame_counter,v,count, t, vir_v, bufferIndex)
-// 						var va = datamap.get(datamap.keys()[bufferIndex]);
-// 						ui_current_state.set("data_map_buffr_ind", [datamap.keys()[bufferIndex]]);
-// 						updateDynamicText()
-// 						// console.log("vaa", datamap.keys()[bufferIndex])
-//
-// 						if (ui_current_state.get("component") == "frequency") {
-// 							var High = va.get("High")
-// 							var Voice = va.get("Voice")
-// 							var Base = va.get("Base")
-//
-// 							var colorHigh = new THREE.Color(
-// 								"#bd0026"
-// 						  );
-//
-// 							var colorVoice = new THREE.Color(
-// 								"#ffffb2"
-// 						  );
-//
-// 							var colorBase = new THREE.Color(
-// 								"#fd8d3c"
-// 						  );
-//
-//
-//
-// 							if (v == 0){
-// 									street_lines_group.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
-// 									street_lines_group_voice.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
-// 									street_lines_group_base.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
-//
-// 							} else if (v == street_lines_group.children[ji].children[j].children[jiv].geometry.vertices.length - 1) {
-// 								street_lines_group.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
-// 								street_lines_group_voice.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
-// 								street_lines_group_base.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
-// 							} else {
-// 								street_lines_group.children[ji].children[j].children[jiv].material.color = colorHigh;
-// 								street_lines_group_voice.children[ji].children[j].children[jiv].material.color = colorVoice;
-// 								street_lines_group_base.children[ji].children[j].children[jiv].material.color = colorBase;
-// 								for (h = 0; h < street_lines_group.children[ji].children[j].children[jiv].geometry.faces.length; h++){
-// 									street_lines_group.children[ji].children[j].children[jiv].geometry.faces[h].color = colorHigh
-// 									street_lines_group_voice.children[ji].children[j].children[jiv].geometry.faces[h].color = colorVoice
-// 									street_lines_group_voice.children[ji].children[j].children[jiv].geometry.faces[h].color = colorBase
-// 								}
-// 										street_lines_group.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.High_scale(High) ;
-// 									street_lines_object_group.children[ji].children[j].children[jiv].geometry.vertices[1].z = scalerConfig.Leqdba_scale(Leqdba)
-// 									scene.add(street_lines_object_group.children[ji].children[j].children[jiv].clone())
-// 									street_lines_group_voice.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.Voice_scale(Voice) ;
-// 									street_lines_group_base.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.Base_scale(Base) ;
-//
-// 							}
-//
-//
-//
-//
-// 							street_lines_group.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-//
-//
-// 							street_lines_group_voice.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-//
-//
-//
-// 							street_lines_group_base.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-//
-// 							street_lines_object_group.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-// 							street_lines_object_group_voice.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-// 							street_lines_object_group_base.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-//
-//
-// 						} else {
-//
-// 							var Leqdba = va.get("Leqdba")
-// 							var Lmaxdba = va.get("Lmaxdba")
-// 							var Lmindba = va.get("Base")
-// 							var colorLeqdba = new THREE.Color(
-// 								"#42f453"
-// 						  );
-//
-// 							var colorLmaxdba = new THREE.Color(
-// 								"#4280f4"
-// 						  );
-//
-// 							var colorLmindba = new THREE.Color(
-// 								"#f4424e"
-// 						  );
-// 							if (v == 0){
-// 								axis_lines_group.children[ji].children[j].children[jiv].geometry.vertices[0].z = -1;
-// 									street_lines_group.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
-// 									street_lines_group_voice.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
-// 									street_lines_group_base.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
-// 									street_surf_group.children[ji].geometry.vertices[1].z = scalerConfig.Leqdba_scale(Leqdba)
-// 									street_surf_group.children[ji].geometry.vertices[0].z = 0;
-// 							} else if (v == street_lines_group.children[ji].children[j].children[jiv].geometry.vertices.length-1) {
-// 								// for (var j=street_lines_group.children[ji].children[j].children[jiv].geometry.vertices.length-1; j > 0;j--){
-// 								// 	street_surf_group.children[ji].geometry.vertices[j-1].z = 0;
-// 								//
-// 								// }
-// 								street_lines_group.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
-// 								street_lines_group_voice.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
-// 								street_lines_group_base.children[ji].children[j].children[jiv].geometry.vertices[v].z = 0;
-// 								street_surf_group.children[ji].geometry.vertices[v].z = scalerConfig.Leqdba_scale(Leqdba);
-// 								street_surf_group.children[ji].geometry.vertices[v+1].z = 0;
-//
-// 								// street_surf_group.children[ji].geometry.vertices[v].z = 0;
-// 								for (var jgg=street_surf_group.children[ji].geometry.vertices[v].length; jgg > 0;jgg--){
-// 									street_surf_group.children[ji].geometry.vertices[jgg-1].z = 0;
-// 									street_surf_group.children[ji].geometry.verticesNeedUpdate = true;
-// 								}
-//
-// 							} else {
-// 									street_lines_group.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.Leqdba_scale(Leqdba)
-// 									// console.log(axis_lines_group.children[ji].children[j].children[jiv])
-// 									axis_lines_group.children[ji].children[j].children[jiv].geometry.vertices[1].z = scalerConfig.Leqdba_scale(Leqdba)
-// 									// console.log(axis_lines_group);
-// 									// // console.log(kjsds)
-//
-// 									street_surf_group.children[ji].geometry.vertices[v].z = scalerConfig.Leqdba_scale(Leqdba)
-// 									for (h = 0; h < street_lines_group.children[ji].children[j].children[jiv].geometry.faces.length; h++){
-// 										street_lines_group.children[ji].children[j].children[jiv].geometry.faces[h].color = colorLeqdba
-// 										street_lines_group_voice.children[ji].children[j].children[jiv].geometry.faces[h].color = colorLmaxdba
-// 										street_lines_group_voice.children[ji].children[j].children[jiv].geometry.faces[h].color = colorLmindba
-// 									}
-//
-// 									// street_lines_object_group.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.Leqdba_scale(Leqdba)
-// 									street_lines_group_voice.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.Lmaxdba_scale(Lmaxdba) ;
-// 									street_lines_group_base.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.Lmindba_scale(Lmindba) ;
-//
-// 							}
-//
-// 							// street_lines_object_group.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-// 							// street_lines_object_group_voice.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-// 							// street_lines_object_group_base.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-// 							axis_lines_group.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-//
-// 							// console.log(kjnd)
-// 							street_surf_group.children[ji].geometry.verticesNeedUpdate = true;
-//
-// 							// console.log(street_lines_object_group.children[ji].children[j].children[jiv], street_lines_group)
-// 							// console.log(jsdn)
-// 							street_lines_group_base.children[ji].children[j].children[jiv].material.color = colorLmindba;
-//
-// 							street_lines_group_base.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-// 							// console.log(dlsj)
-// 							street_lines_group.children[ji].children[j].children[jiv].material.color = colorLeqdba;
-// 							// street_lines_group.children[ji].children[j].children[jiv].geometry.vertices[v].z = scalerConfig.Leqdba_scale(Leqdba) ;
-// 							street_lines_group.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-// 							street_lines_group_base.children[ji].children[j].children[jiv].material.color = colorLmindba;
-//
-// 							street_lines_group_base.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-// 							street_lines_group_voice.children[ji].children[j].children[jiv].material.color = colorLmaxdba;
-//
-// 							street_lines_group_voice.children[ji].children[j].children[jiv].geometry.verticesNeedUpdate = true;
-//
-//
-//
-//
-// 							// console.log(dds)
-// 						}
-//
-// 						// if (High > 0) {}
-//
-// 						// street_lines_group.children[ji].children[j].children[jiv].material._needsUpdate = true;
-//
-//
-//
-//
-//
-// 				}
-//
-//
-//
-// 			}
-//
-//
-//
-//     }
-//   }
+    }
+  }
 
 
 
@@ -1074,7 +890,7 @@ requestStream.frame_counter += 1;
 
 			requestAnimationFrame(animateScene);
 
-	}, 100);
+	}, 0);
 
 
  // requestAnimationFrame(tick);

@@ -270,8 +270,6 @@ window.addEventListener( 'resize', onWindowResize, false );
 
 
   street_surf_group = new THREE.Group();
-	street_surf_group2 = new THREE.Group();
-	street_surf_group3 = new THREE.Group();
 
 // creating the line from iteration through the data
 
@@ -287,10 +285,6 @@ window.addEventListener( 'resize', onWindowResize, false );
 
 		var axisStreetGroups = new THREE.Group();
 		var surfStreetGroups = new THREE.Group();
-		var surfStreetGroups2 = new THREE.Group();
-		var surfStreetGroups3 = new THREE.Group();
-
-
 		var lineStreetGroupsHigh = new THREE.Group();
 		var lineStreetGroupsVoice = new THREE.Group();
 		var lineStreetGroupsBase = new THREE.Group();
@@ -342,8 +336,8 @@ window.addEventListener( 'resize', onWindowResize, false );
 
 
 			var axisMaterial = new THREE.LineBasicMaterial({
-				color: "#fffff", // scalerConfig.Components_scale_Frequency.get("High"),// colorScale(current_component),
-				linewidth:4,
+				color: "#ffffe6", // scalerConfig.Components_scale_Frequency.get("High"),// colorScale(current_component),
+				linewidth:2,
 			});
 
 
@@ -456,35 +450,9 @@ window.addEventListener( 'resize', onWindowResize, false );
           //  vertexColors:THREE.VertexColors,
            side:THREE.DoubleSide,
 					 shading: THREE.SmoothShading,
-					combine: THREE.NoBlending,
+					//  combine: THREE.AddOperation,
 					 vertexColors: THREE.FaceColors,
 					 color: "#bd0026",
-					 transparent: true,
-					 opacity: 0.5,
-					 depthWrite: true, depthTest: false
-					//  alphaTest: 0.5
-				});
-
-				var objectMaterial2 = new THREE.MeshBasicMaterial({
-          //  vertexColors:THREE.VertexColors,
-           side:THREE.DoubleSide,
-					 shading: THREE.SmoothShading,
-					 combine: THREE.NoBlending,
-					 vertexColors: THREE.FaceColors,
-					 color: "#ffffb2",
-					 transparent: true,
-					 opacity: 0.3,
-					 depthWrite: true, depthTest: false
-					//  alphaTest: 0.5
-				});
-
-				var objectMaterial3 = new THREE.MeshBasicMaterial({
-          //  vertexColors:THREE.VertexColors,
-           side:THREE.DoubleSide,
-					 shading: THREE.SmoothShading,
-					combine: THREE.NoBlending,
-					 vertexColors: THREE.FaceColors,
-					 color: "#fd8d3c",
 					 transparent: true,
 					 opacity: 0.5,
 					 depthWrite: true, depthTest: false
@@ -612,13 +580,8 @@ window.addEventListener( 'resize', onWindowResize, false );
 
 		}
 
-		var surfGeometry2 = surfGeometry.clone()
-		var surfGeometry3 = surfGeometry.clone()
 
 		var surfObject = new THREE.Mesh( surfGeometry, objectMaterial );
-		var surfObject2 = new THREE.Mesh( surfGeometry2, objectMaterial2 );
-		var surfObject3 = new THREE.Mesh( surfGeometry3, objectMaterial3 );
-
 		surfObject.num_of_street_devices = sorted_streets.length;
 		var userData={}
 		for (dev_ind=0;dev_ind <sorted_streets.length;dev_ind++){
@@ -631,9 +594,6 @@ window.addEventListener( 'resize', onWindowResize, false );
 		// console.log(sorted_streets[0].street)
 		surfObject.name = sorted_streets[0].street;
 		surfObject.userData = userData;
-
-
-
 		axisColorGroup.add(axisStreetGroups)
 
 		lineColorGroup.add(lineStreetGroupsHigh)
@@ -659,11 +619,7 @@ window.addEventListener( 'resize', onWindowResize, false );
 		street_lines_object_group_voice.add(objectGroupVoice)
 		street_lines_object_group_base.add(objectGroupBase)
 		axis_lines_group.add(axisColorGroup)
-
-
 		street_surf_group.add(surfObject)
-		street_surf_group2.add(surfObject2)
-		street_surf_group3.add(surfObject3)
 
 
   })
@@ -684,8 +640,6 @@ window.addEventListener( 'resize', onWindowResize, false );
 	// scene.add(street_lines_object_group);
 
 	scene.add(street_surf_group);
-	scene.add(street_surf_group2);
-	scene.add(street_surf_group3);
 	scene.add(axis_lines_group);
 
 
@@ -775,15 +729,11 @@ console.log(street_surf_group)
 				updateDynamicText()
 
 				var Leqdba = va.get("Leqdba")
-				var Lmaxdba = va.get("Lmaxdba")
-				var Lmindba = va.get("Lmindba")
-				axis_lines_group.children[sn].children[0].children[0].geometry.vertices[1].z = scalerConfig.Leqdba_scale(Leqdba)
+											var Lmaxdba = va.get("Lmaxdba")
+											var Lmindba = va.get("Base")
+
 				street_surf_group.children[sn].geometry.vertices[1].z = scalerConfig.Leqdba_scale(Leqdba)
-				street_surf_group2.children[sn].geometry.vertices[1].z = scalerConfig.Lmaxdba_scale(Lmaxdba)
-				street_surf_group3.children[sn].geometry.vertices[1].z = scalerConfig.Lmindba_scale(Lmindba)
 				street_surf_group.children[sn].geometry.vertices[0].z = 0;
-				street_surf_group2.children[sn].geometry.vertices[0].z = 0;
-				street_surf_group3.children[sn].geometry.vertices[0].z = 0;
 
 			} else if (vert == street_surf_group.children[sn].geometry.vertices.length / 2){
 				var deviceid = street_surf_group.children[sn].userData[street_surf_group.children[sn].num_of_street_devices-1]
@@ -796,13 +746,10 @@ console.log(street_surf_group)
 
 				var Leqdba = va.get("Leqdba")
 											var Lmaxdba = va.get("Lmaxdba")
-											var Lmindba = va.get("Lmindba")
+											var Lmindba = va.get("Base")
 
 
 					street_surf_group.children[sn].geometry.vertices[vert].z = scalerConfig.Leqdba_scale(Leqdba);
-					street_surf_group2.children[sn].geometry.vertices[vert].z = scalerConfig.Lmaxdba_scale(Lmaxdba)
-					street_surf_group3.children[sn].geometry.vertices[vert].z = scalerConfig.Lmindba_scale(Lmindba)
-
 
 			} else if (vert > (street_surf_group.children[sn].geometry.vertices.length / 2)-1){
 
@@ -817,26 +764,16 @@ console.log(street_surf_group)
 
 				var Leqdba = va.get("Leqdba")
 											var Lmaxdba = va.get("Lmaxdba")
-											var Lmindba = va.get("Lmindba")
+											var Lmindba = va.get("Base")
 				updateDynamicText()
 
 				street_surf_group.children[sn].geometry.vertices[vert].z = scalerConfig.Leqdba_scale(Leqdba)
-				street_surf_group2.children[sn].geometry.vertices[vert].z = scalerConfig.Lmaxdba_scale(Lmaxdba)
-				street_surf_group3.children[sn].geometry.vertices[vert].z = scalerConfig.Lmindba_scale(Lmindba)
 
 
-				axis_lines_group.children[sn].children[0].children[vert].geometry.vertices[1].z = scalerConfig.Leqdba_scale(Leqdba)
-				console.log(axis_lines_group)
-				// console.log(dndn)
 
-
-axis_lines_group.children[sn].children[0].children[vert].geometry.verticesNeedUpdate = true;
 
 			}
 street_surf_group.children[sn].geometry.verticesNeedUpdate = true;
-street_surf_group2.children[sn].geometry.verticesNeedUpdate = true;
-street_surf_group3.children[sn].geometry.verticesNeedUpdate = true;
-
 		}
 
 	}
@@ -1074,7 +1011,7 @@ requestStream.frame_counter += 1;
 
 			requestAnimationFrame(animateScene);
 
-	}, 100);
+	}, 10);
 
 
  // requestAnimationFrame(tick);
