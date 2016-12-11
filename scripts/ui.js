@@ -109,8 +109,8 @@ function brushed(){
 
 
 
-$('#range-speed').range({
-    min: 0,
-    max: 10,
-    start: 5
-  });
+// $('#range-speed').range({
+//     min: 0,
+//     max: 10,
+//     start: 5
+//   });

@@ -7,6 +7,7 @@ var mDuration = 20;
 // Global mesh object of the cube
 var cubeMesh;
 var data_coords = [];
+var controlers = [];
 var data_map = d3.map();
 
 var scene, renderer;
@@ -33,6 +34,12 @@ function loadData(){
 var parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S");
 
 
+
+function xBringToFront(){
+	// get the camera s position
+	// make direction Vector
+
+}
 
 
 requestStream = new (function(){
@@ -129,9 +136,9 @@ function callbackDataLoaded(err, csv_data, sample_data){
   scalerConfig = new (function(){
 		this.lat_scale = d3.scaleLinear().range([frameConfig.padding_bottom,frameConfig.height - frameConfig.padding_top]).domain([lat_min, lat_max]);
 		this.lng_scale = d3.scaleLinear().range([frameConfig.width-frameConfig.padding_left,frameConfig.padding_right]).domain([lon_min, lon_max]);
-    this.High_scale = d3.scalePow().range([0, 4]).domain([40, 800]);
-		this.Base_scale = d3.scalePow().range([0, 4]).domain([40, 800]);
-		this.Voice_scale = d3.scalePow().range([0, 4]).domain([40, 800]);
+    this.High_scale = d3.scaleLog().range([2, 3]).domain([min_High, max_High]);
+		this.Base_scale =d3.scaleLog().range([0, 1]).domain([min_Base, max_Base]);
+		this.Voice_scale = d3.scaleLog().range([1, 2]).domain([min_Voice, max_Voice]);
 		// this.Leqdba_scale = d3.scaleLog().range([0, 4]).domain([min_Leqdba, max_Leqdba]);
 		// this.Lmaxdba_scale = d3.scaleLog().range([0, 4]).domain([min_Lmaxdba, max_Lmaxdba]);
 		// this.Lmindba_scale = d3.scaleLog().range([0, 4]).domain([min_Lmindba, max_Lmindba]);
@@ -214,7 +221,7 @@ function callbackDataLoaded(err, csv_data, sample_data){
 
 
 loadData();
-
+controlables = []
 
 
 function initializeScene(data){
@@ -229,7 +236,7 @@ function initializeScene(data){
 	// setting renderer properties
 	renderer.setClearColor(0x00000, 1);
 	canvasWidth = window.innerWidth;
-	canvasHeight = window.innerHeight;
+	canvasHeight = window.innerHeight-100;
 	renderer.setSize(canvasWidth, canvasHeight);
 	document.getElementById("WebGLCanvas").appendChild(renderer.domElement);
 	// setting up the scene and camera
@@ -238,11 +245,10 @@ function initializeScene(data){
 	// camera = new THREE.CubeCamera( frameConfig.near, frameConfig.far, 128 );
 // camera = new THREE.PerspectiveCamera((frameConfig.width / - 2) - 1 , (frameConfig.width / 2) + 1, frameConfig.height / 3, frameConfig.height / - 3, 1, 1000 )
 
-  controls = new THREE.OrbitControls(camera);
-  controls.enableZoom = true;
-	controls.addEventListener( 'change', renderScene );
-	window.addEventListener( 'resize', onWindowResize, false );
+
 	var boxGeometry = new THREE.BoxGeometry(frameConfig.width, frameConfig.height, 0.01);
+
+
 	var mapTexture = new THREE.ImageUtils.loadTexture('ph8.png');
 	var boxMaterial = new THREE.MeshBasicMaterial({
 		map: mapTexture,
@@ -250,8 +256,12 @@ function initializeScene(data){
 
 	});
 
+
 	boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
-	boxMesh.position.set(frameConfig.width/2,frameConfig.height/2,0.0);
+	// boxMesh.position.set(frameConfig.width/2,frameConfig.height/2,0.0);
+	// controls.attach(boxMesh)
+	// controlers.push(controls)
+
 	scene.add(boxMesh);
 
 
@@ -460,13 +470,13 @@ function initializeScene(data){
            vertexColors:THREE.VertexColors,
            side:THREE.DoubleSide,
 					 shading: THREE.SmoothShading,
-					combine: THREE.NoBlending,
+					combine: THREE.Multiply ,
 					//  vertexColors: THREE.FaceColors,
-					 color: "#bd0026",
+					 color: "#e41a1c",
 					 transparent: true,
-					 opacity: 0.5,
+					 opacity: 0.7,
 					 linewidth:8,
-					 depthWrite: true, depthTest: false
+					 depthWrite: true, depthTest: false,wireframe: false,wireframeLinewidth:3
 					//  alphaTest: 0.5
 				});
 
@@ -476,10 +486,10 @@ function initializeScene(data){
 					 shading: THREE.SmoothShading,
 					 combine: THREE.NoBlending,
 					//  vertexColors: THREE.FaceColors,
-					 color: "#ffffb2",
+					 color: "#bd0026",
 					 transparent: true,
 					 linewidth:5,
-					 opacity: 0.5,
+					 opacity: 0.7,
 					 depthWrite: true, depthTest: false
 					//  alphaTest: 0.5
 				});
@@ -493,7 +503,7 @@ function initializeScene(data){
 					 color: "#fd8d3c",
 					 transparent: true,
 					 linewidth:5,
-					 opacity: 0.5,
+					 opacity: 0.7,
 					 depthWrite: true, depthTest: false
 					//  alphaTest: 0.5
 				});
@@ -558,6 +568,10 @@ function initializeScene(data){
 		var surfObject2 = new THREE.Mesh( surfGeometry2, objectMaterial2 );
 		var surfObject3 = new THREE.Mesh( surfGeometry3, objectMaterial3 );
 
+surfObject.position.set(-frameConfig.width/2,-frameConfig.height/2,0.0);
+surfObject2.position.set(-frameConfig.width/2,-frameConfig.height/2,0.0);
+surfObject3.position.set(-frameConfig.width/2,-frameConfig.height/2,0.0);
+
 		surfObject.num_of_street_devices = sorted_streets.length;
 		var userData={}
 		for (dev_ind=0;dev_ind <sorted_streets.length;dev_ind++){
@@ -592,9 +606,9 @@ function initializeScene(data){
 
 
   camera.position.set(frameConfig.camera_x, frameConfig.camera_y, frameConfig.camera_z);
-  camera.lookAt(new THREE.Vector3(0*5.5*frameConfig.width/10, frameConfig.height/2, 0));
-  camera.rotation.y = frameConfig.camera_rotate_y
-	camera.rotation.z = frameConfig.camera_rotate_z
+  // camera.lookAt(new THREE.Vector3(0*5.5*frameConfig.width/10, frameConfig.height/2, 0));
+  // camera.rotation.y = frameConfig.camera_rotate_y
+	// camera.rotation.z = frameConfig.camera_rotate_z
 	// camera.rotation.x = frameConfig.camera_rotate_x
   scene.add(camera);
 
@@ -605,11 +619,43 @@ function initializeScene(data){
 	// scene.add(street_lines_object_group_base);
 	// scene.add(street_lines_object_group);
 
-	scene.add(street_surf_group);
+allObjGroup = new THREE.Group()
+controlables = []
+controlables.push(boxMesh,street_surf_group,street_surf_group2,street_surf_group3)
 
-	scene.add(street_surf_group3);
-	// scene.add(axis_lines_group);
-scene.add(street_surf_group2);
+var axisHelper = new THREE.AxisHelper( 500 );
+parrent = scene
+controls = new THREE.OrbitControls(camera);
+// var controls = new THREE.TransformControls(camera,renderer.domElement)
+// cameraHelper = new THREE.CameraHelper(camera);
+// cameraHelper.pointMap()
+controls.enableZoom = true;
+controls.addEventListener( 'change', renderScene );
+window.addEventListener( 'resize', onWindowResize, false );
+controlers.push(controls)
+for (var i=0; i < 4; i++){
+
+	var controls = new THREE.TransformControls(camera,renderer.domElement)
+	// cameraHelper = new THREE.CameraHelper(camera);
+	// cameraHelper.pointMap()
+	controls.enableZoom = true;
+	controls.addEventListener( 'change', renderScene );
+
+	controls.attach(controlables[i])
+	controls.setMode("rotate")
+	// controls.setMode("scale")
+	controlers.push(controls)
+	parrent.add(controls);
+	// parrent = controlables[i]
+}
+allObjGroup.add(boxMesh,street_surf_group,street_surf_group2,street_surf_group3)
+scene.add(allObjGroup)
+// scene.add(street_surf_group);
+
+// scene.add(street_surf_group3);
+// scene.add(axis_lines_group);
+// scene.add(street_surf_group2);
+// scene.add( axisHelper );
 
 }
 
@@ -645,7 +691,7 @@ function animateScene(){
   } else {
   }
 
-console.log(street_surf_group)
+// console.log(street_surf_group)
 // console.log(kjwekj)
 	for (var sn = 0; sn < street_surf_group.children.length; sn++){
 		for (var vert = 0; vert < street_surf_group.children[sn].geometry.vertices.length; vert++){
@@ -696,13 +742,36 @@ console.log(street_surf_group)
 				ui_current_state.set("data_map_buffr_ind", [datamap.keys()[bufferIndex]]);
 				updateDynamicText()
 
-				var Leqdba = va.get("Leqdba")
-				var Lmaxdba = va.get("Lmaxdba")
-				var Lmindba = va.get("Lmindba")
-				axis_lines_group.children[sn].children[vert].children[0].geometry.vertices[1].z = scalerConfig.Lmaxdba_scale(Lmaxdba)
-				street_surf_group.children[sn].geometry.vertices[1].z = scalerConfig.Leqdba_scale(Leqdba)
-				street_surf_group2.children[sn].geometry.vertices[1].z = scalerConfig.Lmaxdba_scale(Lmaxdba)
-				street_surf_group3.children[sn].geometry.vertices[1].z = scalerConfig.Lmindba_scale(Lmindba)
+
+				function getZVal(){
+					var Leqdba = va.get("Leqdba")
+					var Lmaxdba = va.get("Lmaxdba")
+					var Lmindba = va.get("Lmindba")
+
+					var Voice = va.get("Voice")
+					var High = va.get("High")
+					var Base = va.get("Base")
+					if (ui_current_state.get("component") == "frequency"){
+						var vals = []
+						vals.push(scalerConfig.Leqdba_scale(Leqdba),scalerConfig.Lmaxdba_scale(Lmaxdba),scalerConfig.Lmindba_scale(Lmindba))
+						return vals
+					} else {
+						var vals = []
+						vals.push(scalerConfig.Voice_scale(Voice),scalerConfig.High_scale(High),scalerConfig.Base_scale(Base))
+						return vals
+					}
+
+				}
+
+				var zVals = getZVal()
+
+
+
+
+				axis_lines_group.children[sn].children[vert].children[0].geometry.vertices[1].z = zVals[1]
+				street_surf_group.children[sn].geometry.vertices[1].z = zVals[0]
+				street_surf_group2.children[sn].geometry.vertices[1].z = zVals[1]
+				street_surf_group3.children[sn].geometry.vertices[1].z = zVals[2]
 				street_surf_group.children[sn].geometry.vertices[0].z = 1;
 				street_surf_group2.children[sn].geometry.vertices[0].z = 2;
 				street_surf_group3.children[sn].geometry.vertices[0].z = 0;
@@ -719,11 +788,31 @@ console.log(street_surf_group)
 				var Leqdba = va.get("Leqdba")
 											var Lmaxdba = va.get("Lmaxdba")
 											var Lmindba = va.get("Lmindba")
+											function getZVal(){
+												var Leqdba = va.get("Leqdba")
+												var Lmaxdba = va.get("Lmaxdba")
+												var Lmindba = va.get("Lmindba")
 
+												var Voice = va.get("Voice")
+												var High = va.get("High")
+												var Base = va.get("Base")
+												if (ui_current_state.get("component") == "frequency"){
+													var vals = []
+													vals.push(scalerConfig.Leqdba_scale(Leqdba),scalerConfig.Lmaxdba_scale(Lmaxdba),scalerConfig.Lmindba_scale(Lmindba))
+													return vals
+												} else {
+													var vals = []
+													vals.push(scalerConfig.Voice_scale(Voice),scalerConfig.High_scale(High),scalerConfig.Base_scale(Base))
+													return vals
+												}
 
-					street_surf_group.children[sn].geometry.vertices[vert].z = scalerConfig.Leqdba_scale(Leqdba);
-					street_surf_group2.children[sn].geometry.vertices[vert].z = scalerConfig.Lmaxdba_scale(Lmaxdba)
-					street_surf_group3.children[sn].geometry.vertices[vert].z = scalerConfig.Lmindba_scale(Lmindba)
+											}
+
+											var zVals = getZVal()
+
+					street_surf_group.children[sn].geometry.vertices[vert].z = zVals[0];
+					street_surf_group2.children[sn].geometry.vertices[vert].z = zVals[1]
+					street_surf_group3.children[sn].geometry.vertices[vert].z = zVals[2]
 
 
 			} else if (vert > (street_surf_group.children[sn].geometry.vertices.length / 2)-1){
@@ -744,14 +833,35 @@ console.log(street_surf_group)
 											var Lmaxdba = va.get("Lmaxdba")
 											var Lmindba = va.get("Lmindba")
 				updateDynamicText()
+				function getZVal(){
+					var Leqdba = va.get("Leqdba")
+					var Lmaxdba = va.get("Lmaxdba")
+					var Lmindba = va.get("Lmindba")
 
-				street_surf_group.children[sn].geometry.vertices[vert].z = scalerConfig.Leqdba_scale(Leqdba)
-				street_surf_group2.children[sn].geometry.vertices[vert].z = scalerConfig.Lmaxdba_scale(Lmaxdba)
-				street_surf_group3.children[sn].geometry.vertices[vert].z = scalerConfig.Lmindba_scale(Lmindba)
+					var Voice = va.get("Voice")
+					var High = va.get("High")
+					var Base = va.get("Base")
+					if (ui_current_state.get("component") == "frequency"){
+						var vals = []
+						vals.push(scalerConfig.Leqdba_scale(Leqdba),scalerConfig.Lmaxdba_scale(Lmaxdba),scalerConfig.Lmindba_scale(Lmindba))
+						return vals
+					} else {
+						var vals = []
+						vals.push(scalerConfig.Voice_scale(Voice),scalerConfig.High_scale(High),scalerConfig.Base_scale(Base))
+						return vals
+					}
+
+				}
+
+				var zVals = getZVal()
+
+				street_surf_group.children[sn].geometry.vertices[vert].z = zVals[0]
+				street_surf_group2.children[sn].geometry.vertices[vert].z = zVals[1]
+				street_surf_group3.children[sn].geometry.vertices[vert].z = zVals[2]
 
 
-				axis_lines_group.children[sn].children[0].children[vert].geometry.vertices[1].z = scalerConfig.Lmaxdba_scale(Lmaxdba)
-				console.log(axis_lines_group)
+				axis_lines_group.children[sn].children[0].children[vert].geometry.vertices[1].z = zVals[1]
+				// console.log(axis_lines_group)
 				// console.log(dndn)
 
 
@@ -798,7 +908,11 @@ requestStream.frame_counter += 1;
 }
 
 function update(){
-	// controls.update();
+	for (var i = 0; i < controlers.length; i++){
+
+		controlers[i].update()
+	}
+
 	// console.log(mTime);
 }
 
@@ -830,7 +944,7 @@ function updateViz(){
 
 
 function updateDynamicText(){
-	console.log("in update dynamic text",ui_current_state.get("data_map_buffr_ind"))
+	// console.log("in update dynamic text",ui_current_state.get("data_map_buffr_ind"))
 	var dtext=$("#dynemictext").html("")
 	var dtext=$("#dynemictext").html(ui_current_state.get("data_map_buffr_ind"))
 	// .selectAll(".textClass")
