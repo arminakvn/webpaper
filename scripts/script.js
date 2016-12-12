@@ -20,6 +20,7 @@ var device_per_street_map = d3.map()
 var device_latlng = d3.map()
 //setting defult values for ui
 ui_current_state.set("component", "loudness")
+ui_current_state.set("delay", 300)
 ui_current_state.set("data_needs_to_filter", 0)
 ui_current_state.set("data_map_buffr_ind", [1]);
 // // loading the data / starting with loading the locations
@@ -614,10 +615,10 @@ surfObject3.position.set(-frameConfig.width/2,-frameConfig.height/2,0.0);
 
 
   camera.position.set(frameConfig.camera_x, frameConfig.camera_y, frameConfig.camera_z);
-  // camera.lookAt(new THREE.Vector3(0*5.5*frameConfig.width/10, frameConfig.height/2, 0));
+  camera.lookAt(new THREE.Vector3(0*5.5*frameConfig.width/10, frameConfig.height/2, 0));
   // camera.rotation.y = frameConfig.camera_rotate_y
 	// camera.rotation.z = frameConfig.camera_rotate_z
-	// camera.rotation.x = frameConfig.camera_rotate_x
+	camera.rotation.x = frameConfig.camera_rotate_x
   scene.add(camera);
 
   // scene.add(street_lines_group);
@@ -633,20 +634,20 @@ controlables.push(boxMesh,street_surf_group,street_surf_group2,street_surf_group
 
 var axisHelper = new THREE.AxisHelper( 500 );
 parrent = scene
-controls = new THREE.OrbitControls(camera);
+// controls = new THREE.OrbitControls(camera);
 // var controls = new THREE.TransformControls(camera,renderer.domElement)
 // cameraHelper = new THREE.CameraHelper(camera);
 // cameraHelper.pointMap()
-controls.enableZoom = true;
-controls.addEventListener( 'change', renderScene );
-window.addEventListener( 'resize', onWindowResize, false );
-controlers.push(controls)
+// controls.enableZoom = false;
+// controls.addEventListener( 'change', renderScene );
+// window.addEventListener( 'resize', onWindowResize, false );
+// controlers.push(controls)
 for (var i=0; i < 4; i++){
 
 	var controls = new THREE.TransformControls(camera,renderer.domElement)
 	// cameraHelper = new THREE.CameraHelper(camera);
 	// cameraHelper.pointMap()
-	controls.enableZoom = true;
+	controls.enableZoom = false;
 	controls.addEventListener( 'change', renderScene );
 
 	controls.attach(controlables[i])
@@ -732,7 +733,7 @@ function animateScene(){
 
 
 
-
+			ui_current_state.set("buffr_ind", bufferIndex);
 			if (vert == 0){
 
 				// var va = datamap.get(datamap.keys()[bufferIndex]);
@@ -837,6 +838,7 @@ function animateScene(){
 				var va = datamap.get(datamap.keys()[bufferIndex]);
 				ui_current_state.set("data_map_buffr_ind", [datamap.keys()[bufferIndex]]);
 
+
 				var Leqdba = va.get("Leqdba")
 											var Lmaxdba = va.get("Lmaxdba")
 											var Lmindba = va.get("Lmindba")
@@ -906,7 +908,7 @@ requestStream.frame_counter += 1;
 
 			requestAnimationFrame(animateScene);
 
-	}, 300);
+	}, ui_current_state.get("delay"));
 
 
  // requestAnimationFrame(tick);
@@ -959,23 +961,68 @@ function updateDynamicText(){
 	// var dtextEnter = dtext.data(ui_current_state.get("data_map_buffr_ind")).enter().append("g").attr("class","textClass").attr('transform', 'translate(' + 30 + ',' + 49 + ')')
 	// // dtextExit = dtext.exit().remove()
 	// dtext.append("text").text(function(d){return d;})
+
+	// console.log(handle)
+
+
+
+
+	var width_scale = d3.scaleLinear().range([time_line_width,0]).domain([0,155])
+	console.log(width_scale(ui_current_state.get("buffr_ind")))
+
+	handle = container.selectAll(".handle")
+
+	handle_enter = handle.data([width_scale(ui_current_state.get("buffr_ind"))]).enter().append("g").attr("class", "handle").attr(
+		"width", 4
+	).attr(
+		"height", 6
+	).append("rect").attr("width", 4).attr('height', 30).on("mouseover",function(d){
+
+		ui_current_state.set("delay", 300000000)
+	}).on("click",function(d){
+
+		ui_current_state.set("delay", 300)
+		requestStream.frame_counter += 1;
+
+			// if
+
+
+					requestAnimationFrame(animateScene);
+	})
+
+
+
+	handle.exit().remove()
+
+
+	handle.attr('height', 16).attr('transform', function(d){
+		return  'translate(' + d + ',' + -8 + ')'
+	}).call(d3.drag().on("start",dragStart));
+
+	function dragStart(){
+		d3.event.sourceEvent.stopPropagation();
+		d3.select(this).classed("dragging", true);
+		console.log("drag start")
+		console.log(d3.select(this))
+	}
+
 }
 
-function onDocumentMouseMove( event ) {
-				mouseX = event.clientX - windowHalfX;
-				mouseY = event.clientY - windowHalfY;
-			}
-			function onDocumentTouchStart( event ) {
-				if ( event.touches.length > 1 ) {
-					event.preventDefault();
-					mouseX = event.touches[ 0 ].pageX - windowHalfX;
-					mouseY = event.touches[ 0 ].pageY - windowHalfY;
-				}
-			}
-			function onDocumentTouchMove( event ) {
-				if ( event.touches.length == 1 ) {
-					event.preventDefault();
-					mouseX = event.touches[ 0 ].pageX - windowHalfX;
-					mouseY = event.touches[ 0 ].pageY - windowHalfY;
-				}
-			}
+// function onDocumentMouseMove( event ) {
+// 				mouseX = event.clientX - windowHalfX;
+// 				mouseY = event.clientY - windowHalfY;
+// 			}
+// 			function onDocumentTouchStart( event ) {
+// 				if ( event.touches.length > 1 ) {
+// 					event.preventDefault();
+// 					mouseX = event.touches[ 0 ].pageX - windowHalfX;
+// 					mouseY = event.touches[ 0 ].pageY - windowHalfY;
+// 				}
+// 			}
+// 			function onDocumentTouchMove( event ) {
+// 				if ( event.touches.length == 1 ) {
+// 					event.preventDefault();
+// 					mouseX = event.touches[ 0 ].pageX - windowHalfX;
+// 					mouseY = event.touches[ 0 ].pageY - windowHalfY;
+// 				}
+// 			}

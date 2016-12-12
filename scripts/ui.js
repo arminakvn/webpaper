@@ -1,3 +1,8 @@
+d3.select("#uicontrols").on("mouseover",function(event){
+  console.log("on ui controls")
+  d3.event.sourceEvent.stopPropagation();
+})
+
 $('#components').dropdown({
   // allowAdditions: false,
   onChange: function(val){
@@ -51,7 +56,7 @@ var brush=d3.brushX()
 
 var svg=d3.select("#timedatetext").append("g").attr("class","x axis").attr(
   "transform","translate("+margin.left+","+margin.top+")"
-// )
+)
 // svg.append("g")
 
 
@@ -108,7 +113,33 @@ function brushed(){
 }
 
 
+var time_line_width = 600;
 
+var width_scale = d3.scaleLinear().range([0,time_line_width]).domain([0,154])
+
+var time_line = d3.select("#range-speed").append("svg").attr("height", 10).attr("width", time_line_width)
+console.log(time_line,width_scale(ui_current_state.get("data_map_buffr_ind")))
+
+
+var container = time_line.append("g")
+
+// .attr('transform', 'translate(' + 0 + ',' + 5 + ')').attr("class","timeline_container").attr("height", 20).append("rect").attr("height", 20).attr("width", time_line_width)
+time_line.append("g").attr('transform', 'translate(' + 0 + ',' + 5 + ')').attr("class","timeline").append("rect").attr("height", 2).attr("width", time_line_width);
+
+
+// var handle = container.append("g").attr(
+//   "width", 4
+// ).attr(
+//   "height", 6
+// ).attr('transform', 'translate(' + width_scale(ui_current_state.get("data_map_buffr_ind")) + ',' + -8 + ')').append("rect").attr("width", 4).attr('height', 16)
+// .call(d3.drag().on("start",dragStart));
+
+function dragStart(){
+  d3.event.sourceEvent.stopPropagation();
+  d3.select(this).classed("dragging", true);
+  console.log("drag start")
+  console.log(d3.select(this))
+}
 // $('#range-speed').range({
 //     min: 0,
 //     max: 10,
