@@ -23,7 +23,7 @@ var device_per_street_map = d3.map()
 var device_latlng = d3.map()
 //setting defult values for ui
 ui_current_state.set("component", "loudness")
-ui_current_state.set("delay", 300)
+ui_current_state.set("delay", 20)
 ui_current_state.set("data_needs_to_filter", 0)
 ui_current_state.set("data_map_buffr_ind", [1]);
 // // loading the data / starting with loading the locations
@@ -223,7 +223,7 @@ function callbackDataLoaded(err, csv_data, sample_data){
 	animateScene();
 
 
-
+	time_line.append("g").attr("id","timetext").append("text")
 
 	var width_scale = d3.scaleTime().range([0,time_line_width]).domain(scalerConfig.time_range)
 	var textTicksContainer = time_line.append("g");
@@ -999,15 +999,15 @@ var buffertime = d3.isoParse (ui_current_state.get("data_map_buffr_ind")[0])
 	handle = container.selectAll(".handle")
 
 	handle_enter = handle.data([width_scale(buffertime)]).enter().append("g").attr("class", "handle").attr(
-		"width", 4
+		"width", 1
 	).attr(
 		"height", 6
-	).append("rect").attr("width", 4).attr('height', 30).on("mouseover",function(d){
+	).append("rect").attr("width", 1).attr('height', 30).on("mouseover",function(d){
 
 		ui_current_state.set("delay", 300000000)
 	}).on("click",function(d){
 
-		ui_current_state.set("delay", 300)
+		ui_current_state.set("delay", 20)
 		requestStream.frame_counter += 1;
 
 			// if
@@ -1018,12 +1018,22 @@ var buffertime = d3.isoParse (ui_current_state.get("data_map_buffr_ind")[0])
 
 
 
+
 	handle.exit().remove()
 
 
+
+d3.select("#timetext").attr('transform', 'translate(' + width_scale(buffertime) + ',' + 40 + ')').select("text").html("")
+d3.select("#timetext").select("text").html(formatHour(d3.isoParse(ui_current_state.get("data_map_buffr_ind")))+ ":"+formatMinute(d3.isoParse(ui_current_state.get("data_map_buffr_ind"))) ).attr("transform", function(d) {
+							return "rotate(-90)"
+							});
+
+
 	handle.attr('height', 16).attr('transform', function(d){
-		return  'translate(' + d + ',' + 10 + ')'
+		return  'translate(' + d + ',' + 40 + ')'
 	}).call(d3.drag().on("start",dragStart));
+
+
 
 	function dragStart(){
 		d3.event.sourceEvent.stopPropagation();

@@ -15,6 +15,20 @@ $('#components').dropdown({
 })
 
 
+  $( '.ui.button#play' ).click(function() {
+    ui_current_state.set("play","1")
+    ui_current_state.set("delay", 20)
+    requestAnimationFrame(animateScene);
+  })
+  $( '.ui.button#pause' ).click(function() {
+    ui_current_state.set("play","0")
+    ui_current_state.set("delay", 300000000)
+    requestStream.frame_counter += 1;
+    $( '.ui.button#play' ).deactive()
+    requestAnimationFrame(animateScene);
+  })
+
+
 $('#rangestart').calendar({
   // type: 'date',
   endCalendar: $('#rangeend'),
@@ -124,7 +138,7 @@ var time_line = d3.select("#range-speed").append("svg").attr("height", 60).attr(
 var container = time_line.append("g")
 
 // .attr('transform', 'translate(' + 0 + ',' + 5 + ')').attr("class","timeline_container").attr("height", 20).append("rect").attr("height", 20).attr("width", time_line_width)
-time_line.append("g").attr('transform', 'translate(' + 0 + ',' + 40 + ')').attr("class","timeline").append("rect").attr("height", 2).attr("width", time_line_width);
+time_line.append("g").attr('transform', 'translate(' + 0 + ',' + 40 + ')').attr("class","timeline").append("rect").attr("height", 1).attr("width", time_line_width);
 
 
 
