@@ -615,9 +615,9 @@ surfObject3.position.set(-frameConfig.width/2,-frameConfig.height/2,0.0);
 
   camera.position.set(frameConfig.camera_x, frameConfig.camera_y, frameConfig.camera_z);
   // camera.lookAt(new THREE.Vector3(0*5.5*frameConfig.width/10, frameConfig.height/2, 0));
-  camera.rotation.y = frameConfig.camera_rotate_y
-	camera.rotation.z = frameConfig.camera_rotate_z
-	camera.rotation.x = frameConfig.camera_rotate_x
+  // camera.rotation.y = frameConfig.camera_rotate_y
+	// camera.rotation.z = frameConfig.camera_rotate_z
+	// camera.rotation.x = frameConfig.camera_rotate_x
   scene.add(camera);
 
   // scene.add(street_lines_group);

@@ -73,7 +73,7 @@ var svg=d3.select("#timedatetext").append("g").attr("class","x axis").attr(
 //   ).tickValues(
 //     [timeScale.domain()[0],timeScale.domain()[1]]
 //   )
-).call(d3.brush().on("brush", brushed))
+// ).call(d3.brush().on("brush", brushed))
 // .select(".domain").select(function(){
 //   console.log(this);
 //   return this.parentNode.appendChild(this.cloneNode(true));}
