@@ -241,6 +241,13 @@ function initializeScene(data){
 	document.getElementById("WebGLCanvas").appendChild(renderer.domElement);
 	// setting up the scene and camera
 	scene = new THREE.Scene();
+	scene.fog = new THREE.Fog( 0x000000, 250, 1400 );
+	var dirLight = new THREE.DirectionalLight( 0xffffff, 0.125 );
+				dirLight.position.set( 0, 0, 1 ).normalize();
+				scene.add( dirLight );
+				var pointLight = new THREE.PointLight( 0xffffff, 1.5 );
+				pointLight.position.set( 0, 100, 90 );
+				scene.add( pointLight );
 	camera = new THREE.PerspectiveCamera( frameConfig.fov, frameConfig.aspect, frameConfig.near, frameConfig.far );
 	// camera = new THREE.CubeCamera( frameConfig.near, frameConfig.far, 128 );
 // camera = new THREE.PerspectiveCamera((frameConfig.width / - 2) - 1 , (frameConfig.width / 2) + 1, frameConfig.height / 3, frameConfig.height / - 3, 1, 1000 )
@@ -346,6 +353,7 @@ function initializeScene(data){
 
 
 			var axisGeometry = new THREE.Geometry();
+			// var textG = new THREE.TextGeometry("test text")
 
 			var _this_point_axis_base = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,-1);
 			var _this_point_axis_head = _this_point_axis_base.clone();
@@ -607,9 +615,9 @@ surfObject3.position.set(-frameConfig.width/2,-frameConfig.height/2,0.0);
 
   camera.position.set(frameConfig.camera_x, frameConfig.camera_y, frameConfig.camera_z);
   // camera.lookAt(new THREE.Vector3(0*5.5*frameConfig.width/10, frameConfig.height/2, 0));
-  // camera.rotation.y = frameConfig.camera_rotate_y
-	// camera.rotation.z = frameConfig.camera_rotate_z
-	// camera.rotation.x = frameConfig.camera_rotate_x
+  camera.rotation.y = frameConfig.camera_rotate_y
+	camera.rotation.z = frameConfig.camera_rotate_z
+	camera.rotation.x = frameConfig.camera_rotate_x
   scene.add(camera);
 
   // scene.add(street_lines_group);
@@ -898,7 +906,7 @@ requestStream.frame_counter += 1;
 
 			requestAnimationFrame(animateScene);
 
-	}, 100);
+	}, 300);
 
 
  // requestAnimationFrame(tick);
