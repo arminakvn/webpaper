@@ -13,6 +13,9 @@ var data_map = d3.map();
 var scene, renderer;
 			var mouseX = 0, mouseY = 0;
 
+
+			var formatHour = d3.timeFormat("%H")
+			var formatMinute = d3.timeFormat("%M")
 // ui interactions are updating this which is what the animateScene uses
 var ui_current_state = d3.map();
 var data_mapped = d3.map()
@@ -218,6 +221,24 @@ function callbackDataLoaded(err, csv_data, sample_data){
   initializeScene(nested_data);
 	// Animate the scene
 	animateScene();
+
+
+
+
+	var width_scale = d3.scaleTime().range([0,time_line_width]).domain(scalerConfig.time_range)
+	var textTicksContainer = time_line.append("g");
+	textTicksContainer.append("g").attr(
+		'transform', 'translate(' + width_scale(scalerConfig.time_range[0])+10 + ',' + 40 + ')'
+	).append("text").text(formatHour(d3.isoParse(scalerConfig.time_range[0]))+ ":"+formatMinute(d3.isoParse(scalerConfig.time_range[0])) ).attr("transform", function(d) {
+                return "rotate(-90)"
+                });
+
+	textTicksContainer.append("g").attr(
+		'transform', 'translate(' + width_scale(scalerConfig.time_range[1]) + ',' + 40 + ')'
+	).append("text").text(formatHour(d3.isoParse(scalerConfig.time_range[1]))+ ":"+formatMinute(d3.isoParse(scalerConfig.time_range[1])) ).attr("transform", function(d) {
+                return "rotate(-90)"
+                });
+
 }
 
 
@@ -954,10 +975,12 @@ function updateViz(){
 
 
 function updateDynamicText(){
+
+
 	// console.log("in update dynamic text",ui_current_state.get("data_map_buffr_ind"))
 	var dtext=$("#dynemictext").html("")
-	var dtext=$("#dynemictext").html(ui_current_state.get("data_map_buffr_ind"))
-	// .selectAll(".textClass")
+	var dtext=$("#dynemictext").html(formatHour(d3.isoParse(ui_current_state.get("data_map_buffr_ind")))+ ":"+formatMinute(d3.isoParse(ui_current_state.get("data_map_buffr_ind"))) )
+	// .selectAll(".textClass")formatHour(d3.isoParse(scalerConfig.time_range[1]))+ ":"+formatMinute(d3.isoParse(scalerConfig.time_range[1]))
 	// var dtextEnter = dtext.data(ui_current_state.get("data_map_buffr_ind")).enter().append("g").attr("class","textClass").attr('transform', 'translate(' + 30 + ',' + 49 + ')')
 	// // dtextExit = dtext.exit().remove()
 	// dtext.append("text").text(function(d){return d;})
@@ -965,14 +988,17 @@ function updateDynamicText(){
 	// console.log(handle)
 
 
+var parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S");
+var buffertime = d3.isoParse (ui_current_state.get("data_map_buffr_ind")[0])
+// console.log(buffertime,ui_current_state.get("data_map_buffr_ind")[0].replace(" GMT-0400 (EDT)",""))
 
 
-	var width_scale = d3.scaleLinear().range([time_line_width,0]).domain([0,155])
-	console.log(width_scale(ui_current_state.get("buffr_ind")))
+	var width_scale = d3.scaleTime().range([0,time_line_width]).domain(scalerConfig.time_range)
+	// console.log(width_scale(ui_current_state.get("buffr_ind")))
 
 	handle = container.selectAll(".handle")
 
-	handle_enter = handle.data([width_scale(ui_current_state.get("buffr_ind"))]).enter().append("g").attr("class", "handle").attr(
+	handle_enter = handle.data([width_scale(buffertime)]).enter().append("g").attr("class", "handle").attr(
 		"width", 4
 	).attr(
 		"height", 6
@@ -996,7 +1022,7 @@ function updateDynamicText(){
 
 
 	handle.attr('height', 16).attr('transform', function(d){
-		return  'translate(' + d + ',' + -8 + ')'
+		return  'translate(' + d + ',' + 10 + ')'
 	}).call(d3.drag().on("start",dragStart));
 
 	function dragStart(){
@@ -1005,6 +1031,13 @@ function updateDynamicText(){
 		console.log("drag start")
 		console.log(d3.select(this))
 	}
+
+
+
+
+
+
+
 
 }
 
