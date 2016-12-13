@@ -9,13 +9,16 @@ var cubeMesh;
 var data_coords = [];
 var controlers = [];
 var data_map = d3.map();
+var axis_width_range = ["Wed Aug 24 2016 00:00:00 GMT-0400 (EDT)","Wed Aug 24 2016 23:59:59 GMT-0400 (EDT)"]
 
 var scene, renderer;
 			var mouseX = 0, mouseY = 0;
 
-
+			var formatDay = d3.timeFormat("%a")
 			var formatHour = d3.timeFormat("%H")
 			var formatMinute = d3.timeFormat("%M")
+
+
 // ui interactions are updating this which is what the animateScene uses
 var ui_current_state = d3.map();
 var data_mapped = d3.map()
@@ -150,6 +153,7 @@ function callbackDataLoaded(err, csv_data, sample_data){
 		this.Leqdba_scale = d3.scaleLog().range([1, 2]).domain([min_Leqdba, max_Leqdba]);
 		this.Lmaxdba_scale = d3.scaleLog().range([2, 3]).domain([min_Lmaxdba, max_Lmaxdba]);
 		this.Lmindba_scale = d3.scaleLog().range([0, 1]).domain([min_Lmindba, max_Lmindba]);
+
     this.Components_scale_Loudness = d3.scaleOrdinal()
       .range(["#bd0026", "#ffffb2", "#fd8d3c"])
       .domain(["Base","Voice","High"]);
@@ -223,21 +227,84 @@ function callbackDataLoaded(err, csv_data, sample_data){
 	animateScene();
 
 
+
+
+
+
+
+
 	time_line.append("g").attr("id","timetext").append("text")
 
-	var width_scale = d3.scaleTime().range([0,time_line_width]).domain(scalerConfig.time_range)
-	var textTicksContainer = time_line.append("g");
-	textTicksContainer.append("g").attr(
-		'transform', 'translate(' + width_scale(scalerConfig.time_range[0])+10 + ',' + 40 + ')'
-	).append("text").text(formatHour(d3.isoParse(scalerConfig.time_range[0]))+ ":"+formatMinute(d3.isoParse(scalerConfig.time_range[0])) ).attr("transform", function(d) {
-                return "rotate(-90)"
-                });
 
-	textTicksContainer.append("g").attr(
-		'transform', 'translate(' + width_scale(scalerConfig.time_range[1]) + ',' + 40 + ')'
-	).append("text").text(formatHour(d3.isoParse(scalerConfig.time_range[1]))+ ":"+formatMinute(d3.isoParse(scalerConfig.time_range[1])) ).attr("transform", function(d) {
-                return "rotate(-90)"
-                });
+	var width_scale = d3.scaleTime().range([0,time_line_width]).domain(scalerConfig.time_range)
+
+
+
+	var height2 = 50;
+		var width = time_line_width;
+	var xAxis = d3.axisBottom(width_scale);
+		// var brush = d3.brushX()
+		//     .extent([[0, 0], [width, height2]])
+		//     .on("brush end", brushed);
+
+
+
+
+				// var area = d3.area()
+				//     .curve(d3.curveMonotoneX)
+				//     .x(function(d) { return x(ui_current_state.get("data_map_buffr_ind")); })
+				//     .y0(height2)
+				//     .y1(function(d) { return scalerConfig.High_scale(d.High); });
+
+
+
+
+
+
+
+				var context = time_line.append("g")
+				    .attr("class", "context")
+				    .attr("transform", "translate(" + 5 + "," + 5 + ")");
+						context.append("g")
+						      .attr("class", "axis axis--x")
+						      .attr("transform", "translate(0," + 14 + ")")
+						      .call(xAxis);
+
+						context.append("g")
+						      .attr("class", "brush")
+						      // .call(brush)
+						      // .call(brush.move, x.range());
+
+function brushed() {
+	var s = d3.event.selection || x2.range();
+
+
+}
+	var textTicksContainer = time_line.append("g");
+	// var handle = textTicksContainer.append("g").attr("class", "drag").attr(
+	//   "width", 4
+	// ).attr(
+	//   "height", 6
+	// ).attr('transform', 'translate(' + width_scale(ui_current_state.get("data_map_buffr_ind")) + ',' + -8 + ')').append("rect").attr("width", 4).attr('height', 16)
+	// .call(d3.drag().on("start",dragStart));
+
+	function dragStart(){
+	  d3.event.sourceEvent.stopPropagation();
+	  d3.select(this).classed("dragging", true);
+	  console.log("drag start")
+	  console.log(d3.select(this))
+	}
+	// textTicksContainer.append("g").attr(
+	// 	'transform', 'translate(' + width_scale(scalerConfig.time_range[0])+10 + ',' + 10 + ')'
+	// ).append("text").text(formatHour(d3.isoParse(scalerConfig.time_range[0]))+ ":"+formatMinute(d3.isoParse(scalerConfig.time_range[0])) ).attr("transform", function(d) {
+  //               return "rotate(-90)"
+  //               });
+	//
+	// textTicksContainer.append("g").attr(
+	// 	'transform', 'translate(' + width_scale(scalerConfig.time_range[1]) + ',' + 10 + ')'
+	// ).append("text").text(formatHour(d3.isoParse(scalerConfig.time_range[1]))+ ":"+formatMinute(d3.isoParse(scalerConfig.time_range[1])) ).attr("transform", function(d) {
+  //               return "rotate(-90)"
+  //               });
 
 }
 
@@ -979,7 +1046,7 @@ function updateDynamicText(){
 
 	// console.log("in update dynamic text",ui_current_state.get("data_map_buffr_ind"))
 	var dtext=$("#dynemictext").html("")
-	var dtext=$("#dynemictext").html(formatHour(d3.isoParse(ui_current_state.get("data_map_buffr_ind")))+ ":"+formatMinute(d3.isoParse(ui_current_state.get("data_map_buffr_ind"))) )
+	var dtext=$("#dynemictext").html(formatDay(d3.isoParse(ui_current_state.get("data_map_buffr_ind")))+" "+formatHour(d3.isoParse(ui_current_state.get("data_map_buffr_ind")))+ ":"+formatMinute(d3.isoParse(ui_current_state.get("data_map_buffr_ind"))) )
 	// .selectAll(".textClass")formatHour(d3.isoParse(scalerConfig.time_range[1]))+ ":"+formatMinute(d3.isoParse(scalerConfig.time_range[1]))
 	// var dtextEnter = dtext.data(ui_current_state.get("data_map_buffr_ind")).enter().append("g").attr("class","textClass").attr('transform', 'translate(' + 30 + ',' + 49 + ')')
 	// // dtextExit = dtext.exit().remove()
@@ -994,7 +1061,8 @@ var buffertime = d3.isoParse (ui_current_state.get("data_map_buffr_ind")[0])
 
 
 	var width_scale = d3.scaleTime().range([0,time_line_width]).domain(scalerConfig.time_range)
-	// console.log(width_scale(ui_current_state.get("buffr_ind")))
+	console.log(d3.isoParse (axis_width_range[0]))
+	// console.log(lkejw)
 
 	handle = container.selectAll(".handle")
 
@@ -1002,7 +1070,7 @@ var buffertime = d3.isoParse (ui_current_state.get("data_map_buffr_ind")[0])
 		"width", 1
 	).attr(
 		"height", 6
-	).append("rect").attr("width", 1).attr('height', 30).on("mouseover",function(d){
+	).append("rect").attr("width", 1).attr('height', 30).call(d3.drag().on("start",dragStart)).on("mouseover",function(d){
 
 		ui_current_state.set("delay", 300000000)
 	}).on("click",function(d){
@@ -1022,18 +1090,16 @@ var buffertime = d3.isoParse (ui_current_state.get("data_map_buffr_ind")[0])
 	handle.exit().remove()
 
 
-
-d3.select("#timetext").attr('transform', 'translate(' + width_scale(buffertime) + ',' + 40 + ')').select("text").html("")
-d3.select("#timetext").select("text").html(formatHour(d3.isoParse(ui_current_state.get("data_map_buffr_ind")))+ ":"+formatMinute(d3.isoParse(ui_current_state.get("data_map_buffr_ind"))) ).attr("transform", function(d) {
-							return "rotate(-90)"
-							});
+//
+// d3.select("#timetext").attr('transform', 'translate(' + width_scale(buffertime) + ',' + 40 + ')').select("text").html("")
+// d3.select("#timetext").select("text").html(formatHour(d3.isoParse(ui_current_state.get("data_map_buffr_ind")))+ ":"+formatMinute(d3.isoParse(ui_current_state.get("data_map_buffr_ind"))) ).attr("transform", function(d) {
+// 							return "rotate(-90)"
+// 							});
 
 
 	handle.attr('height', 16).attr('transform', function(d){
-		return  'translate(' + d + ',' + 40 + ')'
-	}).call(d3.drag().on("start",dragStart));
-
-
+		return  'translate(' + d + ',' + 10 + ')'
+	}).call(d3.drag().on("start",dragStart))
 
 	function dragStart(){
 		d3.event.sourceEvent.stopPropagation();

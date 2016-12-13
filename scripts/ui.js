@@ -127,7 +127,7 @@ function brushed(){
 }
 
 
-var time_line_width = 600;
+var time_line_width = 900;
 // console.log(scalerConfig)
 
 
@@ -142,19 +142,7 @@ time_line.append("g").attr('transform', 'translate(' + 0 + ',' + 40 + ')').attr(
 
 
 
-// var handle = container.append("g").attr(
-//   "width", 4
-// ).attr(
-//   "height", 6
-// ).attr('transform', 'translate(' + width_scale(ui_current_state.get("data_map_buffr_ind")) + ',' + -8 + ')').append("rect").attr("width", 4).attr('height', 16)
-// .call(d3.drag().on("start",dragStart));
 
-function dragStart(){
-  d3.event.sourceEvent.stopPropagation();
-  d3.select(this).classed("dragging", true);
-  console.log("drag start")
-  console.log(d3.select(this))
-}
 // $('#range-speed').range({
 //     min: 0,
 //     max: 10,
