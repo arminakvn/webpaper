@@ -10,7 +10,7 @@ var data_coords = [];
 var controlers = [];
 var data_map = d3.map();
 var axis_width_range = ["Wed Aug 24 2016 00:00:00 GMT-0400 (EDT)","Wed Aug 24 2016 23:59:59 GMT-0400 (EDT)"]
-
+var anotHelper = d3.map()
 var scene, renderer;
 			var mouseX = 0, mouseY = 0;
 
@@ -29,6 +29,11 @@ ui_current_state.set("component", "frequency")
 ui_current_state.set("delay", 300)
 ui_current_state.set("data_needs_to_filter", 0)
 ui_current_state.set("data_map_buffr_ind", [1]);
+
+
+
+
+anotHelper.set("frequency", ["Base","Voice", "High"])
 // // loading the data / starting with loading the locations
 function loadData(){
 	d3.queue()
@@ -60,6 +65,7 @@ circleTemp = new (function(){
 	this.radius   = 0.1;
     this.segments = 64;
     this.material = new THREE.LineBasicMaterial( { color: 0xffffff } );
+		this.linematerial = new THREE.LineBasicMaterial( { color: 0xffffff, linewidth: 2} );
     this.geometry = new THREE.CircleGeometry( this.radius, this.segments );
 
 
@@ -71,12 +77,26 @@ circleTemp = new (function(){
 		this.line_geometry = new THREE.Geometry()
 		this.line_geometry.vertices.push(
 			new THREE.Vector3( 0, 0, 0 ),
-			new THREE.Vector3( 0, 0, 3 + 0.1 )
+			new THREE.Vector3( 0, 0, 3*frameConfig.bandHeight)
 			// new THREE.Vector3( 10, 0, 0 )
 		);
-		this.line = new THREE.Line( this.line_geometry, this.material );
+		this.line = new THREE.Line( this.line_geometry, this.linematerial );
 
 })
+
+
+
+dashTemp = new (function(){
+	this.geometry = new THREE.Geometry()
+	this.geometry.vertices.push(
+		new THREE.Vector3( 0, 0, 0 ),
+		new THREE.Vector3( 0, 0, 0.2)
+	)
+	this.material = new THREE.LineBasicMaterial( { color: "#42f453", linewidth: 1} );
+	this.obj = new THREE.Line( this.geometry, this.material );
+})
+
+
 
 
 var parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S");
@@ -162,9 +182,9 @@ function callbackDataLoaded(err, csv_data, sample_data){
 		// this.Lmaxdba_scale = d3.scaleLog().range([0, 4]).domain([min_Lmaxdba, max_Lmaxdba]);
 		// this.Lmindba_scale = d3.scaleLog().range([0, 4]).domain([min_Lmindba, max_Lmindba]);
 
-		this.Leqdba_scale = d3.scaleLog().range([1, 2]).domain([min_Leqdba, max_Leqdba]);
-		this.Lmaxdba_scale = d3.scaleLog().range([2, 3]).domain([min_Lmaxdba, max_Lmaxdba]);
-		this.Lmindba_scale = d3.scaleLog().range([0, 1]).domain([min_Lmindba, max_Lmindba]);
+		this.Leqdba_scale = d3.scaleLog().range([frameConfig.bandHeight, 2*frameConfig.bandHeight]).domain([min_Leqdba, max_Leqdba]);
+		this.Lmaxdba_scale = d3.scaleLog().range([2*frameConfig.bandHeight, 3*frameConfig.bandHeight]).domain([min_Lmaxdba, max_Lmaxdba]);
+		this.Lmindba_scale = d3.scaleLog().range([0, frameConfig.bandHeight]).domain([min_Lmindba, max_Lmindba]);
 
     this.Components_scale_Loudness = d3.scaleOrdinal()
       .range(["#bd0026", "#ffffb2", "#fd8d3c"])
@@ -277,7 +297,7 @@ function brushed() {
 
 
 var text = "db",
-	size = 0.075,
+	size = frameConfig.text_size,
 	hover = 3,
 	curveSegments = 4,
 	bevelThickness = 0.02,
@@ -326,6 +346,52 @@ fontLoader.load( 'NeueHaas.json', function ( font ) {
 	// textMesh1.rotation.x = 0;
 	// textMesh1.rotation.y = Math.PI * 2;
 
+
+	annotationTempClass = function(text){
+			this.text = anotHelper.get("text") || "db"
+			this.size = frameConfig.text_size;
+			this.height = 0.01;
+			this.hover = 3;
+			this.curveSegments = 4;
+			this.bevelThickness = 0.02;
+			this.bevelSize = 0.5;
+			this.bevelSegments = 3;
+			this.bevelEnabled = true;
+			this.font = font;
+			// fontName = "optimer", // helvetiker, optimer, gentilis, droid sans, droid serif
+			this.fontWeight = "normal"; // normal bold
+			this.mirror = true;
+
+			this.textmaterial = new THREE.MultiMaterial( [
+								new THREE.MeshBasicMaterial( { color: 0xffffff, overdraw: 0.5 } ),
+								new THREE.MeshBasicMaterial( { color: 0x000000, overdraw: 0.5 } )
+							] );
+
+			this.textGeo = new THREE.TextGeometry( this.text, {
+				font: this.font,
+				size: this.size,
+				height: this.height,
+				curveSegments: this.curveSegments,
+				// bevelThickness: bevelThickness,
+				// bevelSize: bevelSize,
+				// bevelEnabled: bevelEnabled,
+				material: 0,
+				// extrudeMaterial: 1
+			});
+			this.textGeo.computeBoundingBox();
+			this.textGeo.computeVertexNormals();
+
+			// var centerOffset = -0.5 * ( textGeo.boundingBox.max.x - textGeo.boundingBox.min.x );
+			this.obj = new THREE.Mesh( this.textGeo, this.textmaterial );
+
+
+	}
+	annotationTemp = new (annotationTempClass)
+	console.log(annotationTemp)
+	anotHelper.set("text","somett")
+
+	annotationTemp = new (annotationTempClass)
+	console.log(annotationTemp)
 
 
 	loadData();
@@ -444,6 +510,8 @@ camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight
 
 	chart_axis_line_group = new THREE.Group();
 
+	dash_value_line_group = new THREE.Group();
+
 
 	textGroup = new THREE.Group();
 // creating the line from iteration through the data
@@ -455,7 +523,7 @@ camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight
 
 for (var s=0; s < device_latlng.keys().length; s++){
 	var devi_ce = device_latlng.get(device_latlng.keys()[s])
-	console.log("devi_ce",devi_ce)
+	// console.log("devi_ce",devi_ce)
 
 }
 
@@ -502,7 +570,7 @@ for (var s=0; s < device_latlng.keys().length; s++){
 			var axisGeometry = new THREE.Geometry();
 			// var textG = new THREE.TextGeometry("test text")
 
-			var _this_point_axis_base = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,-1);
+			var _this_point_axis_base = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,-frameConfig.lead);
 			var _this_point_axis_head = _this_point_axis_base.clone();
 			// axis_svector_array.push
 			axisGeometry.vertices.push(_this_point_axis_base,_this_point_axis_head)
@@ -523,7 +591,7 @@ for (var s=0; s < device_latlng.keys().length; s++){
 			var _this_point_buffer = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,0);
 
 			if (iii == 0){
-				var _this_point_buffer_surf = new THREE.Vector3(sorted_streets[0].x,sorted_streets[0].y,-1);
+				var _this_point_buffer_surf = new THREE.Vector3(sorted_streets[0].x,sorted_streets[0].y,-frameConfig.lead);
 				var _this_point_surf = new THREE.Vector3(sorted_streets[0].x,sorted_streets[0].y,0);
 				surf_svector_array.push(_this_point_buffer_surf,_this_point_surf);
 				chartaxislines_svector_array.push(_this_point_buffer_surf,_this_point_surf);
@@ -538,7 +606,7 @@ for (var s=0; s < device_latlng.keys().length; s++){
 				surf_svector_array.push(_last_point_buffer_surf)
 				chartaxislines_svector_array.push(_last_point_buffer_surf)
 				for (var j=sorted_streets.length-1; j > 0;j--){
-					var _add_point_buffer_surf = new THREE.Vector3(sorted_streets[j].x,sorted_streets[j].y,-1);
+					var _add_point_buffer_surf = new THREE.Vector3(sorted_streets[j].x,sorted_streets[j].y,-frameConfig.lead);
 					surf_svector_array.push(_add_point_buffer_surf)
 					chartaxislines_svector_array.push(_add_point_buffer_surf)
 
@@ -567,7 +635,7 @@ for (var s=0; s < device_latlng.keys().length; s++){
 					//  vertexColors: THREE.FaceColors,
 					 color: "#e41a1c",
 					 transparent: true,
-					 opacity: 0.7,
+					 opacity: 0.5,
 					 linewidth:8,
 					 depthWrite: true, depthTest: false,wireframe: false,wireframeLinewidth:3
 					//  alphaTest: 0.5
@@ -579,10 +647,10 @@ for (var s=0; s < device_latlng.keys().length; s++){
 					 shading: THREE.SmoothShading,
 					 combine: THREE.NoBlending,
 					//  vertexColors: THREE.FaceColors,
-					 color: "#bd0026",
+					 color: "#e41a1c",
 					 transparent: true,
 					 linewidth:5,
-					 opacity: 0.7,
+					 opacity: 0.5,
 					 depthWrite: true, depthTest: false
 					//  alphaTest: 0.5
 				});
@@ -593,10 +661,10 @@ for (var s=0; s < device_latlng.keys().length; s++){
 					 shading: THREE.SmoothShading,
 					combine: THREE.NoBlending,
 					//  vertexColors: THREE.FaceColors,
-					 color: "#fd8d3c",
+					 color: "#e41a1c",
 					 transparent: true,
 					 linewidth:5,
-					 opacity: 0.7,
+					 opacity: 0.5,
 					 depthWrite: true, depthTest: false
 					//  alphaTest: 0.5
 				});
@@ -632,10 +700,10 @@ for (var s=0; s < device_latlng.keys().length; s++){
 		}
 
 
-				for(var i = 0; i < splineChartAxisPointsSurf.length; i++){
-						chartAxsisGeometry.vertices.push(splineChartAxisPointsSurf[i]);
-				}
-				chartAxsisGeometry.vertices.push(splineChartAxisPointsSurf[0]);
+			for(var i = 0; i < splineChartAxisPointsSurf.length; i++){
+					chartAxsisGeometry.vertices.push(splineChartAxisPointsSurf[i]);
+			}
+			chartAxsisGeometry.vertices.push(splineChartAxisPointsSurf[0]);
 
 
 
@@ -674,9 +742,9 @@ for (var s=0; s < device_latlng.keys().length; s++){
 // MAX Or MIN HERE
 		var chartAxsisObject2 = chartAxsisObject.clone();
 		var chartAxsisObject3 = chartAxsisObject.clone();
-		chartAxsisObject.position.set(-frameConfig.width/2,1.0,frameConfig.height/2);
-		chartAxsisObject2.position.set(-frameConfig.width/2,2.0,frameConfig.height/2);
-		chartAxsisObject3.position.set(-frameConfig.width/2,3.0,frameConfig.height/2);
+		chartAxsisObject.position.set(-frameConfig.width/2,1*frameConfig.bandHeight,frameConfig.height/2);
+		chartAxsisObject2.position.set(-frameConfig.width/2,2*frameConfig.bandHeight,frameConfig.height/2);
+		chartAxsisObject3.position.set(-frameConfig.width/2,3*frameConfig.bandHeight,frameConfig.height/2);
 
 surfObject.rotateX( -Math.PI / 2 );
 surfObject2.rotateX( -Math.PI / 2 );
@@ -703,13 +771,13 @@ chartAxsisObject3.rotateX( -Math.PI / 2 );
 		street_surf_group2.add(surfObject2)
 		street_surf_group3.add(surfObject3)
 
-		chart_axis_line_group.add(chartAxsisObject,chartAxsisObject2,chartAxsisObject3)
+		chart_axis_line_group.add(chartAxsisObject,chartAxsisObject2)
 
 
   })
-console.log("chart_axis_line_group",chart_axis_line_group)
+// console.log("chart_axis_line_group",chart_axis_line_group)
 
-  // camera.position.set(frameConfig.camera_x, frameConfig.camera_y, frameConfig.camera_z);
+  camera.position.set(frameConfig.camera_x, frameConfig.camera_y, frameConfig.camera_z);
   // camera.lookAt(new THREE.Vector3(0*5.5*frameConfig.width/10, frameConfig.height/2, 0));
   // camera.rotation.y = frameConfig.camera_rotate_y
 	// camera.rotation.z = frameConfig.camera_rotate_z
@@ -765,39 +833,99 @@ scene.add(allObjGroup)
 // scene.add(axisHelper)
 
 scene.add(textGroup)
-console.log(street_surf_group,textGroup);
+// console.log(street_surf_group,textGroup);
 
 for (var vr = 0; vr < street_surf_group.children.length;vr++){
+var dev_index = 0
+var dash_instreet_group = new THREE.Group()
+
+
+var text = ui_current_state.get("component")
+anotHelper.set("text",text)
+annotationTemp = new (annotationTempClass)
+var ann = annotationTemp.obj.clone();
+ann.text = "osomethig"
+
+// console.log(ann)
+// ann.rotateZ( -Math.PI / 2 );
+ann.rotateY( -Math.PI / 4  );
+ann.position.set((0.2 + street_surf_group.children[vr].geometry.vertices[1].x - frameConfig.width/2) , 0.1,- (street_surf_group.children[vr].geometry.vertices[1].y - frameConfig.height/2));
+// console.log(ann)
+textGroup.add(ann)
+
 
 	street_surf_group.children[vr].geometry.vertices.forEach(function(vert){
 
-
+		// console.log("street_surf_group",street_surf_group)
+		var dev_id = street_surf_group.children[vr].userData[dev_index]
 		// circles for the sensors locations
 		if (vert.z >= 0){
 			var eps = 0.01;//epsilon to extrude up from the surface
 			var cir = circleTemp.obj.clone();
 			cir.rotateX( -Math.PI / 2 );
 
-			cir.position.set(-frameConfig.width/2,3.0,frameConfig.height/2);
+			cir.position.set(-frameConfig.width/2,3*frameConfig.bandHeight,frameConfig.height/2);
 
 			cir.position.set((vert.x - frameConfig.width/2) , vert.z + eps ,- (vert.y - frameConfig.height/2));
 
+
+			//  axis bounding lines
 			var line = circleTemp.line.clone()
 			line.rotateX( -Math.PI / 2 );
 			line.position.set((vert.x - frameConfig.width/2) , vert.z + eps ,- (vert.y - frameConfig.height/2));
 			scene.add(cir, line);
+
+
+
+
+			// annotations
+
+
+			for (var ii=0; ii<3; ii++){
+				var text = anotHelper.get(ui_current_state.get("component"))[ii]
+				// console.log(text)
+
+				anotHelper.set("text",text)
+				annotationTemp = new (annotationTempClass)
+				var ann = annotationTemp.obj.clone();
+				ann.text = "osomethig"
+
+				// console.log(ann)
+				// ann.rotateZ( -Math.PI / 2 );
+				ann.rotateY( -Math.PI / 2  );
+				ann.position.set((0.1 + vert.x - frameConfig.width/2) , frameConfig.bandHeight/2 + (ii * frameConfig.bandHeight),- (vert.y - frameConfig.height/2));
+				// console.log(ann)
+				textGroup.add(ann)
+			}
+
+
+
+			// value dashes
+			// console.log("dev_id",dev_id)
+			var dash_indevice_group = new THREE.Group()
+			for (var ii=0; ii<4; ii++){
+				var dash = dashTemp.obj.clone();
+				dash.userData = {'device_id': dev_id}
+				dash.rotateY( -ii * Math.PI / 2 );
+				dash.position.set((vert.x - frameConfig.width/2) , vert.z,- (vert.y - frameConfig.height/2));
+				dash_indevice_group.add(dash)
+		}
+		dash_instreet_group.add(dash_indevice_group)
+
+
 		} else {
 			//lines for the sensors locations
 
 
 
 		}
+		// scene.add(cir, line);
 
 
 		// if (vert.z <)
 
 	})
-
+dash_value_line_group.add(dash_instreet_group)
 }
 // scene.add(street_surf_group);
 
@@ -805,11 +933,11 @@ var t = textMesh1.clone();
 // t.position.x = -sorted_streets[iii].y;
 // t.position.z = sorted_streets[iii].x;
 // t.position.y = -1
-t.position.set(chart_axis_line_group.children[1].geometry.vertices[0].y - frameConfig.height/2 , 2,  chart_axis_line_group.children[1].geometry.vertices[0].x - frameConfig.width/2);
+// t.position.set(chart_axis_line_group.children[1].geometry.vertices[0].y - frameConfig.height/2 , 2,  chart_axis_line_group.children[1].geometry.vertices[0].x - frameConfig.width/2);
 
 t.rotateX( -Math.PI / 2 );
 textGroup.add(t)
-
+// console.log(dash_value_line_group)
 
 
 // scene.add(circleTemp.obj)
@@ -897,7 +1025,7 @@ function animateScene(){
 				updateDynamicText()
 
 
-				function getZVal(){
+				function getZVal(va){
 					var Leqdba = va.get("Leqdba")
 					var Lmaxdba = va.get("Lmaxdba")
 					var Lmindba = va.get("Lmindba")
@@ -917,15 +1045,17 @@ function animateScene(){
 
 				}
 
-				var zVals = getZVal()
+				var zVals = getZVal(va)
 
 				axis_lines_group.children[sn].children[vert].children[0].geometry.vertices[1].z = zVals[1]
 				street_surf_group.children[sn].geometry.vertices[1].z = zVals[0]
 				street_surf_group2.children[sn].geometry.vertices[1].z = zVals[1]
 				street_surf_group3.children[sn].geometry.vertices[1].z = zVals[2]
-				street_surf_group.children[sn].geometry.vertices[0].z = 1;
-				street_surf_group2.children[sn].geometry.vertices[0].z = 2;
+				street_surf_group.children[sn].geometry.vertices[0].z = 1 * frameConfig.bandHeight;
+				street_surf_group2.children[sn].geometry.vertices[0].z = 2 * frameConfig.bandHeight;
 				street_surf_group3.children[sn].geometry.vertices[0].z = 0;
+
+
 
 			} else if (vert == street_surf_group.children[sn].geometry.vertices.length / 2){
 				var deviceid = street_surf_group.children[sn].userData[street_surf_group.children[sn].num_of_street_devices-1]
@@ -939,7 +1069,10 @@ function animateScene(){
 				var Leqdba = va.get("Leqdba")
 											var Lmaxdba = va.get("Lmaxdba")
 											var Lmindba = va.get("Lmindba")
-											function getZVal(){
+
+
+
+				function getZVal(va){
 												var Leqdba = va.get("Leqdba")
 												var Lmaxdba = va.get("Lmaxdba")
 												var Lmindba = va.get("Lmindba")
@@ -959,7 +1092,7 @@ function animateScene(){
 
 											}
 
-											var zVals = getZVal()
+			var zVals = getZVal(va)
 
 					street_surf_group.children[sn].geometry.vertices[vert].z = zVals[0];
 					street_surf_group2.children[sn].geometry.vertices[vert].z = zVals[1]
@@ -967,8 +1100,8 @@ function animateScene(){
 
 
 			} else if (vert > (street_surf_group.children[sn].geometry.vertices.length / 2)-1){
-				street_surf_group.children[sn].geometry.vertices[vert].z = 1;
-				street_surf_group2.children[sn].geometry.vertices[vert].z = 2;
+				street_surf_group.children[sn].geometry.vertices[vert].z = 1 * frameConfig.bandHeight;
+				street_surf_group2.children[sn].geometry.vertices[vert].z = 2 * frameConfig.bandHeight;
 				street_surf_group3.children[sn].geometry.vertices[vert].z = 0;
 
 					// street_surf_group.children[sn].geometry.vertices[vert].z = 0;
@@ -985,7 +1118,9 @@ function animateScene(){
 											var Lmaxdba = va.get("Lmaxdba")
 											var Lmindba = va.get("Lmindba")
 				updateDynamicText()
-				function getZVal(){
+
+
+				function getZVal(va){
 					var Leqdba = va.get("Leqdba")
 					var Lmaxdba = va.get("Lmaxdba")
 					var Lmindba = va.get("Lmindba")
@@ -1005,12 +1140,47 @@ function animateScene(){
 
 				}
 
-				var zVals = getZVal()
+				var zVals = getZVal(va)
 
 				street_surf_group.children[sn].geometry.vertices[vert].z = zVals[0]
 				street_surf_group2.children[sn].geometry.vertices[vert].z = zVals[1]
 				street_surf_group3.children[sn].geometry.vertices[vert].z = zVals[2]
 
+				// console.log(dash_value_line_group.children[sn].children[vert])
+
+
+				dash_value_line_group.children[sn].children[vert].children.forEach(function(vd){
+					// console.log(vd)
+					dev_d = vd.userData["device_id"]
+					var datamapd = samples_mapped.get(dev_d)
+
+					var vad = datamapd.get(datamapd.keys()[bufferIndex]);
+					function getZVal(va){
+						var Leqdba = va.get("Leqdba")
+						var Lmaxdba = va.get("Lmaxdba")
+						var Lmindba = va.get("Lmindba")
+
+						var Voice = va.get("Voice")
+						var High = va.get("High")
+						var Base = va.get("Base")
+						if (ui_current_state.get("component") == "frequency"){
+							var vals = []
+							vals.push(scalerConfig.Leqdba_scale(Leqdba),scalerConfig.Lmaxdba_scale(Lmaxdba),scalerConfig.Lmindba_scale(Lmindba))
+							return vals
+						} else {
+							var vals = []
+							vals.push(scalerConfig.Voice_scale(Voice),scalerConfig.High_scale(High),scalerConfig.Base_scale(Base))
+							return vals
+						}
+
+					}
+
+					var zValsd = getZVal(vad)
+					// ui_current_state.set("data_map_buffr_ind", [datamap.keys()[bufferIndex]]);
+					vd.geometry.vertices[0].y = zValsd[1]
+					vd.geometry.vertices[1].y =  zValsd[1]
+					vd.geometry.verticesNeedUpdate = true;
+				})
 
 				axis_lines_group.children[sn].children[0].children[vert].geometry.vertices[1].z = zVals[1]
 				// console.log(axis_lines_group)
@@ -1111,7 +1281,7 @@ var buffertime = d3.isoParse (ui_current_state.get("data_map_buffr_ind")[0])
 		"width", 1
 	).attr(
 		"height", 6
-	).append("rect").attr("width", 1).attr('height', 30).call(d3.drag().on("start",dragStart)).on("mouseover",function(d){
+	).append("rect").attr("width", 5).attr('height', 30).call(d3.drag().on("start",dragStart)).on("mouseover",function(d){
 
 		ui_current_state.set("delay", 300000000)
 	}).on("click",function(d){
