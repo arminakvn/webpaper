@@ -17,7 +17,7 @@ $('#components').dropdown({
 
   $( '.ui.button#play' ).click(function() {
     ui_current_state.set("play","1")
-    ui_current_state.set("delay", 20)
+    ui_current_state.set("delay", 300)
     requestAnimationFrame(animateScene);
   })
   $( '.ui.button#pause' ).click(function() {

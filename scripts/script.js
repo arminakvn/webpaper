@@ -1,6 +1,6 @@
 var scene;
 var camera;
-
+var textGeo;
 var mTime = 0.0;
 var mTimeStep = (1/60);
 var mDuration = 20;
@@ -25,8 +25,8 @@ var data_mapped = d3.map()
 var device_per_street_map = d3.map()
 var device_latlng = d3.map()
 //setting defult values for ui
-ui_current_state.set("component", "loudness")
-ui_current_state.set("delay", 20)
+ui_current_state.set("component", "frequency")
+ui_current_state.set("delay", 300)
 ui_current_state.set("data_needs_to_filter", 0)
 ui_current_state.set("data_map_buffr_ind", [1]);
 // // loading the data / starting with loading the locations
@@ -40,13 +40,6 @@ function loadData(){
 
 var parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S");
 
-
-
-function xBringToFront(){
-	// get the camera s position
-	// make direction Vector
-
-}
 
 
 requestStream = new (function(){
@@ -63,8 +56,27 @@ requestStream = new (function(){
 
 });
 
+circleTemp = new (function(){
+	this.radius   = 0.1;
+    this.segments = 64;
+    this.material = new THREE.LineBasicMaterial( { color: 0xffffff } );
+    this.geometry = new THREE.CircleGeometry( this.radius, this.segments );
 
 
+		// Remove center vertex
+		this.geometry.vertices.shift();
+
+		this.obj =  new THREE.Line( this.geometry, this.material ) ;
+
+		this.line_geometry = new THREE.Geometry()
+		this.line_geometry.vertices.push(
+			new THREE.Vector3( 0, 0, 0 ),
+			new THREE.Vector3( 0, 0, 3 + 0.1 )
+			// new THREE.Vector3( 10, 0, 0 )
+		);
+		this.line = new THREE.Line( this.line_geometry, this.material );
+
+})
 
 
 var parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S");
@@ -143,9 +155,9 @@ function callbackDataLoaded(err, csv_data, sample_data){
   scalerConfig = new (function(){
 		this.lat_scale = d3.scaleLinear().range([frameConfig.padding_bottom,frameConfig.height - frameConfig.padding_top]).domain([lat_min, lat_max]);
 		this.lng_scale = d3.scaleLinear().range([frameConfig.width-frameConfig.padding_left,frameConfig.padding_right]).domain([lon_min, lon_max]);
-    this.High_scale = d3.scaleLog().range([2, 3]).domain([min_High, max_High]);
-		this.Base_scale =d3.scaleLog().range([0, 1]).domain([min_Base, max_Base]);
-		this.Voice_scale = d3.scaleLog().range([1, 2]).domain([min_Voice, max_Voice]);
+    this.High_scale = d3.scaleLog().range([2*frameConfig.bandHeight, 3*frameConfig.bandHeight]).domain([min_High, max_High]);
+		this.Base_scale =d3.scaleLog().range([0, frameConfig.bandHeight]).domain([min_Base, max_Base]);
+		this.Voice_scale = d3.scaleLog().range([frameConfig.bandHeight, 2*frameConfig.bandHeight]).domain([min_Voice, max_Voice]);
 		// this.Leqdba_scale = d3.scaleLog().range([0, 4]).domain([min_Leqdba, max_Leqdba]);
 		// this.Lmaxdba_scale = d3.scaleLog().range([0, 4]).domain([min_Lmaxdba, max_Lmaxdba]);
 		// this.Lmindba_scale = d3.scaleLog().range([0, 4]).domain([min_Lmindba, max_Lmindba]);
@@ -202,8 +214,6 @@ function callbackDataLoaded(err, csv_data, sample_data){
   ui_current_state.set("rangeend", max_time);
 
 
-
-
 	nested_data.forEach(function(each_street){
 		var street_name = each_street.key;
 		var dev_ids = each_street.values.map(function(v){return v.id;})
@@ -227,40 +237,14 @@ function callbackDataLoaded(err, csv_data, sample_data){
 	animateScene();
 
 
-
-
-
-
-
-
 	time_line.append("g").attr("id","timetext").append("text")
 
 
 	var width_scale = d3.scaleTime().range([0,time_line_width]).domain(scalerConfig.time_range)
 
-
-
 	var height2 = 50;
 		var width = time_line_width;
 	var xAxis = d3.axisBottom(width_scale);
-		// var brush = d3.brushX()
-		//     .extent([[0, 0], [width, height2]])
-		//     .on("brush end", brushed);
-
-
-
-
-				// var area = d3.area()
-				//     .curve(d3.curveMonotoneX)
-				//     .x(function(d) { return x(ui_current_state.get("data_map_buffr_ind")); })
-				//     .y0(height2)
-				//     .y1(function(d) { return scalerConfig.High_scale(d.High); });
-
-
-
-
-
-
 
 				var context = time_line.append("g")
 				    .attr("class", "context")
@@ -281,12 +265,6 @@ function brushed() {
 
 }
 	var textTicksContainer = time_line.append("g");
-	// var handle = textTicksContainer.append("g").attr("class", "drag").attr(
-	//   "width", 4
-	// ).attr(
-	//   "height", 6
-	// ).attr('transform', 'translate(' + width_scale(ui_current_state.get("data_map_buffr_ind")) + ',' + -8 + ')').append("rect").attr("width", 4).attr('height', 16)
-	// .call(d3.drag().on("start",dragStart));
 
 	function dragStart(){
 	  d3.event.sourceEvent.stopPropagation();
@@ -294,22 +272,72 @@ function brushed() {
 	  console.log("drag start")
 	  console.log(d3.select(this))
 	}
-	// textTicksContainer.append("g").attr(
-	// 	'transform', 'translate(' + width_scale(scalerConfig.time_range[0])+10 + ',' + 10 + ')'
-	// ).append("text").text(formatHour(d3.isoParse(scalerConfig.time_range[0]))+ ":"+formatMinute(d3.isoParse(scalerConfig.time_range[0])) ).attr("transform", function(d) {
-  //               return "rotate(-90)"
-  //               });
-	//
-	// textTicksContainer.append("g").attr(
-	// 	'transform', 'translate(' + width_scale(scalerConfig.time_range[1]) + ',' + 10 + ')'
-	// ).append("text").text(formatHour(d3.isoParse(scalerConfig.time_range[1]))+ ":"+formatMinute(d3.isoParse(scalerConfig.time_range[1])) ).attr("transform", function(d) {
-  //               return "rotate(-90)"
-  //               });
 
 }
 
 
-loadData();
+var text = "db",
+	size = 0.075,
+	hover = 3,
+	curveSegments = 4,
+	bevelThickness = 0.02,
+	bevelSize = 0.5,
+	bevelSegments = 3,
+	bevelEnabled = true,
+	font = font,
+	// fontName = "optimer", // helvetiker, optimer, gentilis, droid sans, droid serif
+	fontWeight = "normal"; // normal bold
+var mirror = true;
+
+var textmaterial = new THREE.MultiMaterial( [
+					new THREE.MeshBasicMaterial( { color: 0xffffff, overdraw: 0.5 } ),
+					new THREE.MeshBasicMaterial( { color: 0x000000, overdraw: 0.5 } )
+				] );
+
+
+
+
+
+
+
+
+var fontLoader = new THREE.FontLoader();
+fontLoader.load( 'NeueHaas.json', function ( font ) {
+
+	textGeo = new THREE.TextGeometry( text, {
+		font: font,
+		size: size,
+		height: 0.1,
+		curveSegments: curveSegments,
+		// bevelThickness: bevelThickness,
+		// bevelSize: bevelSize,
+		// bevelEnabled: bevelEnabled,
+		material: 0,
+		// extrudeMaterial: 1
+	});
+	textGeo.computeBoundingBox();
+	textGeo.computeVertexNormals();
+
+	// var centerOffset = -0.5 * ( textGeo.boundingBox.max.x - textGeo.boundingBox.min.x );
+	textMesh1 = new THREE.Mesh( textGeo, textmaterial );
+	// textMesh1.position.x = centerOffset;
+	// textMesh1.position.y = hover;
+	// textMesh1.position.z = 0;
+	// textMesh1.rotation.x = 0;
+	// textMesh1.rotation.y = Math.PI * 2;
+
+
+
+	loadData();
+
+	// scene.add(textMesh1);
+
+} );
+
+
+
+
+
 controlables = []
 
 
@@ -341,6 +369,11 @@ function initializeScene(data){
 	// camera = new THREE.CubeCamera( frameConfig.near, frameConfig.far, 128 );
 // camera = new THREE.PerspectiveCamera((frameConfig.width / - 2) - 1 , (frameConfig.width / 2) + 1, frameConfig.height / 3, frameConfig.height / - 3, 1, 1000 )
 
+camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.2, 2000 );
+			// scene = new THREE.Scene();
+			camera.position.y = 30[ frameConfig.width/2 + frameConfig.width/2 * frameConfig.width ] * ( 40 ) + 5;
+			camera.position.z = frameConfig.height / 2;
+			camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
 
 	var boxGeometry = new THREE.BoxGeometry(frameConfig.width, frameConfig.height, 0.01);
 
@@ -358,7 +391,32 @@ function initializeScene(data){
 	// controls.attach(boxMesh)
 	// controlers.push(controls)
 
-	scene.add(boxMesh);
+	// scene.add(boxMesh);
+
+
+
+			var geometry = new THREE.PlaneBufferGeometry( frameConfig.width, frameConfig.height, 20 - 1, 50 - 1 );
+				geometry.rotateX( -Math.PI / 2 );
+				var vertices = geometry.attributes.position.array;
+				// for ( var i = 0, j = 0, l = vertices.length; i < l; i++, j += 3 ) {
+				// 	// j + 1 because it is the y component that we modify
+				// 	vertices[ j + 1 ] = heightData[ i ];
+				// }
+				geometry.computeVertexNormals();
+				var groundMaterial = new THREE.MeshPhongMaterial( { color: 0xC7C7C7 } );
+				terrainMesh = new THREE.Mesh( geometry, groundMaterial );
+				terrainMesh.receiveShadow = true;
+				terrainMesh.castShadow = true;
+				scene.add( terrainMesh );
+				var textureLoader = new THREE.TextureLoader();
+				textureLoader.load("ph8.png", function ( texture ) {
+					// texture.wrapS = THREE.RepeatWrapping;
+					// texture.wrapT = THREE.RepeatWrapping;
+					// texture.repeat.set( terrainWidth - 1, terrainDepth - 1 );
+					groundMaterial.map = texture;
+					groundMaterial.needsUpdate = true;
+				});
+
 
 
 	group = new THREE.Group();
@@ -383,27 +441,37 @@ function initializeScene(data){
 	street_surf_group2 = new THREE.Group();
 	street_surf_group3 = new THREE.Group();
 
+
+	chart_axis_line_group = new THREE.Group();
+
+
+	textGroup = new THREE.Group();
 // creating the line from iteration through the data
 
 
+// basics for making the chart axis lines
+// each street: two lines same vertices as the surf geometries
+// height is min max of the component
+
+for (var s=0; s < device_latlng.keys().length; s++){
+	var devi_ce = device_latlng.get(device_latlng.keys()[s])
+	console.log("devi_ce",devi_ce)
+
+}
+
+
 	data.forEach(function(coord){
-    var lineGroup = new THREE.Group();
-		var lineGroupVoice = new THREE.Group();
-		var lineGroupBase = new THREE.Group();
+
 
 		var objectGroup = new THREE.Group();
 		var objectGroupVoice = new THREE.Group();
 		var objectGroupBase = new THREE.Group();
 
 		var axisStreetGroups = new THREE.Group();
+		var chartAxisLinesGroup = new THREE.Group();
 		var surfStreetGroups = new THREE.Group();
 		var surfStreetGroups2 = new THREE.Group();
 		var surfStreetGroups3 = new THREE.Group();
-
-
-		var lineStreetGroupsHigh = new THREE.Group();
-		var lineStreetGroupsVoice = new THREE.Group();
-		var lineStreetGroupsBase = new THREE.Group();
 
     var curveGeometry = new THREE.Geometry();
 
@@ -413,32 +481,22 @@ function initializeScene(data){
 		})
 
 		var svector_array = [];
-		var svector_array_Voice = [];
-		var svector_array_Base = [];
 
 		var axis_svector_array = [];
 		var surf_svector_array = [];
+		var chartaxislines_svector_array = [];
 
 		// svector_array.push(_this_point_buffer)
 		for (iii = 0; iii < sorted_streets.length; iii++){
 
-
-			var lineColorGroup = new THREE.Group();
-			var lineColorGroupVoice = new THREE.Group();
-			var lineColorGroupBase = new THREE.Group();
 
 			var objectColorGroup = new THREE.Group();
 			var objectColorGroupVoice = new THREE.Group();
 			var objectColorGroupBase = new THREE.Group();
 
 			var axisColorGroup = new THREE.Group();
-			var surfColorGroup = new THREE.Group();
-			var surfColorGroup2 = new THREE.Group();
-			var surfColorGroup3 = new THREE.Group();
 
-			var lineGeometry = new THREE.Geometry();
-			var lineGeometryVoice = new THREE.Geometry();
-			var lineGeometryBase = new THREE.Geometry();
+
 
 
 			var axisGeometry = new THREE.Geometry();
@@ -457,105 +515,43 @@ function initializeScene(data){
 				linewidth:4,
 			});
 
-
-
 			var axis_line = new THREE.Line(axisGeometry, lineMaterial)
 			// axisStreetGroups.add(axis_line)
 
 			var _this_point = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,0);
-			var _this_point_voice = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,0);
-			var _this_point_base = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,0);
 
 			var _this_point_buffer = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,0);
-			var _this_point_buffer_voice = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,0);
-			var _this_point_buffer_base = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,0);
 
 			if (iii == 0){
 				var _this_point_buffer_surf = new THREE.Vector3(sorted_streets[0].x,sorted_streets[0].y,-1);
 				var _this_point_surf = new THREE.Vector3(sorted_streets[0].x,sorted_streets[0].y,0);
 				surf_svector_array.push(_this_point_buffer_surf,_this_point_surf);
+				chartaxislines_svector_array.push(_this_point_buffer_surf,_this_point_surf);
 
 
-				var _this_point_buffer = new THREE.Vector3(sorted_streets[0].x,sorted_streets[0].y,-1);
-				var _this_point_buffer_voice = new THREE.Vector3(sorted_streets[0].x,sorted_streets[0].y,-1);
-				var _this_point_buffer_base = new THREE.Vector3(sorted_streets[0].x,sorted_streets[0].y,-1);
-				svector_array.push(_this_point_buffer)
-				svector_array_Voice.push(_this_point_buffer_voice)
-				svector_array_Base.push(_this_point_buffer_base)
+
 			} else if (iii == sorted_streets.length-1) {
-				var _last_point_buffer = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,-1);
-				var _last_point_buffer_voice = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,-1);
-				var _last_point_buffer_base = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,-1);
-				svector_array.push(_last_point_buffer)
-				svector_array_Voice.push(_last_point_buffer_voice)
-				svector_array_Base.push(_last_point_buffer_base)
+
+
+
 				var _last_point_buffer_surf = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,0);
 				surf_svector_array.push(_last_point_buffer_surf)
+				chartaxislines_svector_array.push(_last_point_buffer_surf)
 				for (var j=sorted_streets.length-1; j > 0;j--){
 					var _add_point_buffer_surf = new THREE.Vector3(sorted_streets[j].x,sorted_streets[j].y,-1);
 					surf_svector_array.push(_add_point_buffer_surf)
+					chartaxislines_svector_array.push(_add_point_buffer_surf)
+
 				}
 			} else {
 				_this_point_surf = new THREE.Vector3(sorted_streets[iii].x,sorted_streets[iii].y,0);
 				surf_svector_array.push(_this_point)
+				chartaxislines_svector_array.push(_this_point)
 			}
 
 			svector_array.push(_this_point)
-			svector_array_Voice.push(_this_point_voice)
-			svector_array_Base.push(_this_point_base)
+			// chartaxislines_svector_array.push(_this_point_buffer_surf)
 
-			// axis_svector_array.push(_this_point_axis_base)
-			// axis_svector_array.push(_this_point_axis_head)
-
-
-
-			var spline = new THREE.SplineCurve3(svector_array)
-			var splinePoints = spline.getPoints(sorted_streets.length+1);
-			var splineVoice = new THREE.SplineCurve3(svector_array_Voice)
-			var splinePointsVoice = splineVoice.getPoints(sorted_streets.length+1);
-			var splineBase = new THREE.SplineCurve3(svector_array_Base)
-			var splinePointsBase = splineBase.getPoints(sorted_streets.length+1);
-
-
-			//
-			//
-			// for(var in=0; in < sorted_streets.length; in++){
-			//
-			//
-			//
-			// }
-
-
-
-			for(var i = 0; i < splinePoints.length; i++){
-			    lineGeometry.vertices.push(splinePoints[i]);
-			}
-
-			for (vi = 0; vi < splinePoints.length-2; vi++){
-				lineGeometry.faces.push( new THREE.Face3( 0, vi+1, vi+2) );
-			}
-
-
-			for(var i = 0; i < splinePointsVoice.length; i++){
-					lineGeometryVoice.vertices.push(splinePointsVoice[i]);
-			}
-
-			for (vi = 0; vi < splinePoints.length-2; vi++){
-				lineGeometryVoice.faces.push( new THREE.Face3( 0, vi+1, vi+2) );
-			}
-
-
-
-			for(var i = 0; i < splinePointsVoice.length; i++){
-					lineGeometryBase.vertices.push(splinePointsBase[i]);
-			}
-
-			for (vi = 0; vi < splinePoints.length-2; vi++){
-				lineGeometryBase.faces.push( new THREE.Face3( 0, vi+1, vi+2) );
-			}
-
-
-// for (iii = 0; iii < sorted_streets.length-1; iii++){
 			var current_component = ui_current_state.get("component");
 			var colorScale = scalerConfig.color_scale_map.get(current_component);
 				var lineMaterial = new THREE.LineBasicMaterial({
@@ -606,40 +602,42 @@ function initializeScene(data){
 				});
 
 
-
-
+				var ChartAxisobjectMaterial =  new THREE.LineBasicMaterial( {
+					color: 0xffffff,
+					opacity: 0.1,
+					linewidth: 0.1
+					} ) ;
 
 
 				axis_line.name = sorted_streets[iii].id;
 
-
-
 				axisStreetGroups.add(axis_line)
-
-
-
 				// axis_lines_group.add(axisStreetGroups)
-
-
-
-
-
 				axisColorGroup.name = sorted_streets[iii].street
-
-
-
 				// console.log(object)
 				// scene.add(object)
 
 		}
 		var surfGeometry = new THREE.Geometry();
+		var chartAxsisGeometry = new THREE.Geometry();
+
 		var splineSurf = new THREE.SplineCurve3(surf_svector_array);
+		var splineChartAxis = new THREE.SplineCurve3(chartaxislines_svector_array);
 		var splinePointsSurf = splineSurf.getPoints(2*sorted_streets.length-1);
+		var splineChartAxisPointsSurf = splineChartAxis.getPoints(2*sorted_streets.length-1);
 
 
 		for(var i = 0; i < splinePointsSurf.length; i++){
 				surfGeometry.vertices.push(splinePointsSurf[i]);
 		}
+
+
+				for(var i = 0; i < splineChartAxisPointsSurf.length; i++){
+						chartAxsisGeometry.vertices.push(splineChartAxisPointsSurf[i]);
+				}
+				chartAxsisGeometry.vertices.push(splineChartAxisPointsSurf[0]);
+
+
 
 
 		for (var inn=0; inn < sorted_streets.length; inn++){
@@ -657,56 +655,65 @@ function initializeScene(data){
 			}
 
 		}
-
 		var surfGeometry2 = surfGeometry.clone()
 		var surfGeometry3 = surfGeometry.clone()
 
 		var surfObject = new THREE.Mesh( surfGeometry, objectMaterial );
+
 		var surfObject2 = new THREE.Mesh( surfGeometry2, objectMaterial2 );
+
 		var surfObject3 = new THREE.Mesh( surfGeometry3, objectMaterial3 );
 
-surfObject.position.set(-frameConfig.width/2,-frameConfig.height/2,0.0);
-surfObject2.position.set(-frameConfig.width/2,-frameConfig.height/2,0.0);
-surfObject3.position.set(-frameConfig.width/2,-frameConfig.height/2,0.0);
+
+		var chartAxsisObject = new THREE.Line( chartAxsisGeometry, ChartAxisobjectMaterial );
+
+		surfObject.position.set(-frameConfig.width/2,0.0,frameConfig.height/2);
+		surfObject2.position.set(-frameConfig.width/2,0.0,frameConfig.height/2);
+		surfObject3.position.set(-frameConfig.width/2,0.0,frameConfig.height/2);
+
+// MAX Or MIN HERE
+		var chartAxsisObject2 = chartAxsisObject.clone();
+		var chartAxsisObject3 = chartAxsisObject.clone();
+		chartAxsisObject.position.set(-frameConfig.width/2,1.0,frameConfig.height/2);
+		chartAxsisObject2.position.set(-frameConfig.width/2,2.0,frameConfig.height/2);
+		chartAxsisObject3.position.set(-frameConfig.width/2,3.0,frameConfig.height/2);
+
+surfObject.rotateX( -Math.PI / 2 );
+surfObject2.rotateX( -Math.PI / 2 );
+surfObject3.rotateX( -Math.PI / 2 );
+
+chartAxsisObject.rotateX( -Math.PI / 2 );
+chartAxsisObject2.rotateX( -Math.PI / 2 );
+chartAxsisObject3.rotateX( -Math.PI / 2 );
 
 		surfObject.num_of_street_devices = sorted_streets.length;
 		var userData={}
 		for (dev_ind=0;dev_ind <sorted_streets.length;dev_ind++){
 			userData[dev_ind] = sorted_streets[dev_ind].id
 		}
-		// for(var iiii=0; iiii < sorted_streets.length; iiii++){
-		//
-		// 	surfGeometry.name = sorted_streets[iiii].street;
-		// }
-		// console.log(sorted_streets[0].street)
+
 		surfObject.name = sorted_streets[0].street;
 		surfObject.userData = userData;
 
-
-
 		axisColorGroup.add(axisStreetGroups)
 
-
-
 		// axisGroups.add(axisStreetGroupsGroup);
-
-
 		axis_lines_group.add(axisColorGroup)
-
-
 		street_surf_group.add(surfObject)
 		street_surf_group2.add(surfObject2)
 		street_surf_group3.add(surfObject3)
 
+		chart_axis_line_group.add(chartAxsisObject,chartAxsisObject2,chartAxsisObject3)
+
 
   })
+console.log("chart_axis_line_group",chart_axis_line_group)
 
-
-  camera.position.set(frameConfig.camera_x, frameConfig.camera_y, frameConfig.camera_z);
-  camera.lookAt(new THREE.Vector3(0*5.5*frameConfig.width/10, frameConfig.height/2, 0));
+  // camera.position.set(frameConfig.camera_x, frameConfig.camera_y, frameConfig.camera_z);
+  // camera.lookAt(new THREE.Vector3(0*5.5*frameConfig.width/10, frameConfig.height/2, 0));
   // camera.rotation.y = frameConfig.camera_rotate_y
 	// camera.rotation.z = frameConfig.camera_rotate_z
-	camera.rotation.x = frameConfig.camera_rotate_x
+	// camera.rotation.x = frameConfig.camera_rotate_x
   scene.add(camera);
 
   // scene.add(street_lines_group);
@@ -722,37 +729,90 @@ controlables.push(boxMesh,street_surf_group,street_surf_group2,street_surf_group
 
 var axisHelper = new THREE.AxisHelper( 500 );
 parrent = scene
-// controls = new THREE.OrbitControls(camera);
+controls = new THREE.OrbitControls(camera);
+// controls.target.y = 2;
 // var controls = new THREE.TransformControls(camera,renderer.domElement)
 // cameraHelper = new THREE.CameraHelper(camera);
 // cameraHelper.pointMap()
-// controls.enableZoom = false;
-// controls.addEventListener( 'change', renderScene );
-// window.addEventListener( 'resize', onWindowResize, false );
-// controlers.push(controls)
+// controls.enableZoom = true;
+controls.target.set( 0.0, 2.0, 0.0 );
+controls.userPanSpeed = 100;
+controls.staticMoving = true;
+controls.dynamicDampingFactor = 0.3;
+controls.keys = [ 65, 83, 68 ];
+controls.addEventListener( 'change', renderScene );
+window.addEventListener( 'resize', onWindowResize, false );
+controlers.push(controls)
 for (var i=0; i < 4; i++){
-
-	var controls = new THREE.TransformControls(camera,renderer.domElement)
+	// controls = new THREE.TrackballControls( camera );
+				// controls.rotateSpeed = 4;
+	// var controls = new THREE.TransformControls(camera,renderer.domElement)
 	// cameraHelper = new THREE.CameraHelper(camera);
 	// cameraHelper.pointMap()
-	controls.enableZoom = false;
-	controls.addEventListener( 'change', renderScene );
+	// controls.enableZoom = false;
+	// controls.addEventListener( 'change', renderScene );
 
-	controls.attach(controlables[i])
-	controls.setMode("rotate")
+	// controls.attach(controlables[i])
+	// controls.setMode("rotate")
 	// controls.setMode("scale")
 	controlers.push(controls)
 	parrent.add(controls);
 	// parrent = controlables[i]
 }
-allObjGroup.add(boxMesh,street_surf_group,street_surf_group2,street_surf_group3)
+allObjGroup.add(street_surf_group,street_surf_group2,street_surf_group3)
+scene.add(chart_axis_line_group)
 scene.add(allObjGroup)
+scene.add(axisHelper)
+
+scene.add(textGroup)
+console.log(street_surf_group,textGroup);
+
+for (var vr = 0; vr < street_surf_group.children.length;vr++){
+
+	street_surf_group.children[vr].geometry.vertices.forEach(function(vert){
+
+
+		// circles for the sensors locations
+		if (vert.z >= 0){
+			var eps = 0.01;//epsilon to extrude up from the surface
+			var cir = circleTemp.obj.clone();
+			cir.rotateX( -Math.PI / 2 );
+
+			cir.position.set(-frameConfig.width/2,3.0,frameConfig.height/2);
+
+			cir.position.set((vert.x - frameConfig.width/2) , vert.z + eps ,- (vert.y - frameConfig.height/2));
+
+			var line = circleTemp.line.clone()
+			line.rotateX( -Math.PI / 2 );
+			line.position.set((vert.x - frameConfig.width/2) , vert.z + eps ,- (vert.y - frameConfig.height/2));
+			scene.add(cir, line);
+		} else {
+			//lines for the sensors locations
+
+
+
+		}
+
+
+		// if (vert.z <)
+
+	})
+
+}
 // scene.add(street_surf_group);
 
-// scene.add(street_surf_group3);
-// scene.add(axis_lines_group);
-// scene.add(street_surf_group2);
-// scene.add( axisHelper );
+var t = textMesh1.clone();
+// t.position.x = -sorted_streets[iii].y;
+// t.position.z = sorted_streets[iii].x;
+// t.position.y = -1
+t.position.set(chart_axis_line_group.children[1].geometry.vertices[0].y - frameConfig.height/2 , 2,  chart_axis_line_group.children[1].geometry.vertices[0].x - frameConfig.width/2);
+
+t.rotateX( -Math.PI / 2 );
+textGroup.add(t)
+
+
+
+// scene.add(circleTemp.obj)
 
 }
 
@@ -766,9 +826,6 @@ function onWindowResize() {
   renderScene();
 
 }
-
-
-
 function animateScene(){
 
 // console.log(axis_lines_group)
@@ -861,9 +918,6 @@ function animateScene(){
 				}
 
 				var zVals = getZVal()
-
-
-
 
 				axis_lines_group.children[sn].children[vert].children[0].geometry.vertices[1].z = zVals[1]
 				street_surf_group.children[sn].geometry.vertices[1].z = zVals[0]
@@ -975,11 +1029,6 @@ street_surf_group3.children[sn].geometry.verticesNeedUpdate = true;
 	}
 	// console.log(kjwekj)
 
-
-
-
-
-
 	update();  //stuff above
 
 
@@ -1000,8 +1049,6 @@ requestStream.frame_counter += 1;
 
 
  // requestAnimationFrame(tick);
-
-
 
 }
 
@@ -1047,12 +1094,6 @@ function updateDynamicText(){
 	// console.log("in update dynamic text",ui_current_state.get("data_map_buffr_ind"))
 	var dtext=$("#dynemictext").html("")
 	var dtext=$("#dynemictext").html(formatDay(d3.isoParse(ui_current_state.get("data_map_buffr_ind")))+" "+formatHour(d3.isoParse(ui_current_state.get("data_map_buffr_ind")))+ ":"+formatMinute(d3.isoParse(ui_current_state.get("data_map_buffr_ind"))) )
-	// .selectAll(".textClass")formatHour(d3.isoParse(scalerConfig.time_range[1]))+ ":"+formatMinute(d3.isoParse(scalerConfig.time_range[1]))
-	// var dtextEnter = dtext.data(ui_current_state.get("data_map_buffr_ind")).enter().append("g").attr("class","textClass").attr('transform', 'translate(' + 30 + ',' + 49 + ')')
-	// // dtextExit = dtext.exit().remove()
-	// dtext.append("text").text(function(d){return d;})
-
-	// console.log(handle)
 
 
 var parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S");
@@ -1061,7 +1102,7 @@ var buffertime = d3.isoParse (ui_current_state.get("data_map_buffr_ind")[0])
 
 
 	var width_scale = d3.scaleTime().range([0,time_line_width]).domain(scalerConfig.time_range)
-	console.log(d3.isoParse (axis_width_range[0]))
+	// console.log(d3.isoParse (axis_width_range[0]))
 	// console.log(lkejw)
 
 	handle = container.selectAll(".handle")
@@ -1075,28 +1116,14 @@ var buffertime = d3.isoParse (ui_current_state.get("data_map_buffr_ind")[0])
 		ui_current_state.set("delay", 300000000)
 	}).on("click",function(d){
 
-		ui_current_state.set("delay", 20)
+		ui_current_state.set("delay", 300)
 		requestStream.frame_counter += 1;
-
-			// if
 
 
 					requestAnimationFrame(animateScene);
 	})
 
-
-
-
 	handle.exit().remove()
-
-
-//
-// d3.select("#timetext").attr('transform', 'translate(' + width_scale(buffertime) + ',' + 40 + ')').select("text").html("")
-// d3.select("#timetext").select("text").html(formatHour(d3.isoParse(ui_current_state.get("data_map_buffr_ind")))+ ":"+formatMinute(d3.isoParse(ui_current_state.get("data_map_buffr_ind"))) ).attr("transform", function(d) {
-// 							return "rotate(-90)"
-// 							});
-
-
 	handle.attr('height', 16).attr('transform', function(d){
 		return  'translate(' + d + ',' + 10 + ')'
 	}).call(d3.drag().on("start",dragStart))
@@ -1108,30 +1135,4 @@ var buffertime = d3.isoParse (ui_current_state.get("data_map_buffr_ind")[0])
 		console.log(d3.select(this))
 	}
 
-
-
-
-
-
-
-
 }
-
-// function onDocumentMouseMove( event ) {
-// 				mouseX = event.clientX - windowHalfX;
-// 				mouseY = event.clientY - windowHalfY;
-// 			}
-// 			function onDocumentTouchStart( event ) {
-// 				if ( event.touches.length > 1 ) {
-// 					event.preventDefault();
-// 					mouseX = event.touches[ 0 ].pageX - windowHalfX;
-// 					mouseY = event.touches[ 0 ].pageY - windowHalfY;
-// 				}
-// 			}
-// 			function onDocumentTouchMove( event ) {
-// 				if ( event.touches.length == 1 ) {
-// 					event.preventDefault();
-// 					mouseX = event.touches[ 0 ].pageX - windowHalfX;
-// 					mouseY = event.touches[ 0 ].pageY - windowHalfY;
-// 				}
-// 			}

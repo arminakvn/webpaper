@@ -5,9 +5,9 @@ frameConfig = new (function() {
   this.bbox_reference_bottom_left_x = -119.291728;
   this.bbox_reference_bottom_left_y = 34.091616;
   this.bbox_reference_top_right_x = -117.284403;
-  this.far = 90 // Camera frustum far plane
-  this.fov = 20 // Camera frustum vertical field of view.
-  this.near = 30 // Camera frustum near plane.
+  this.far = 60 // Camera frustum far plane
+  this.fov = 60 // Camera frustum vertical field of view.
+  this.near = 10 // Camera frustum near plane.
   this.aspect = this.width / this.height // Camera frustum aspect ratio
   this.camera_z = 33
   this.camera_x = 0
@@ -20,10 +20,12 @@ frameConfig = new (function() {
   this.padding_top = 9
   this.padding_bottom = 5
   this.numPoints = 154//154;
+  this.bandHeight = 1;
 });
 
 componentsConfig = new (function(){
   this.components_map = d3.map()
+
 })
 
 componentsConfig.components_map.set("loudness", ["Lmaxdba","Leqdba","Lmindba"])
