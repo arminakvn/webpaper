@@ -65,7 +65,7 @@ circleTemp = new (function(){
 	this.radius   = 0.1;
     this.segments = 64;
     this.material = new THREE.LineBasicMaterial( { color: 0xffffff } );
-		this.linematerial = new THREE.LineBasicMaterial( { color: 0xffffff, linewidth: 2} );
+		this.linematerial = new THREE.LineBasicMaterial( { color: 0xffffff, linewidth: .02, opacity: 0.5} );
     this.geometry = new THREE.CircleGeometry( this.radius, this.segments );
 
 
@@ -175,16 +175,16 @@ function callbackDataLoaded(err, csv_data, sample_data){
   scalerConfig = new (function(){
 		this.lat_scale = d3.scaleLinear().range([frameConfig.padding_bottom,frameConfig.height - frameConfig.padding_top]).domain([lat_min, lat_max]);
 		this.lng_scale = d3.scaleLinear().range([frameConfig.width-frameConfig.padding_left,frameConfig.padding_right]).domain([lon_min, lon_max]);
-    this.High_scale = d3.scaleLog().range([2*frameConfig.bandHeight, 3*frameConfig.bandHeight]).domain([min_High, max_High]);
-		this.Base_scale =d3.scaleLog().range([0, frameConfig.bandHeight]).domain([min_Base, max_Base]);
-		this.Voice_scale = d3.scaleLog().range([frameConfig.bandHeight, 2*frameConfig.bandHeight]).domain([min_Voice, max_Voice]);
+    this.High_scale = d3.scalePow().range([2*frameConfig.bandHeight, 3*frameConfig.bandHeight]).domain([min_High, max_High]);
+		this.Base_scale =d3.scalePow().range([0, frameConfig.bandHeight]).domain([min_Base, max_Base]);
+		this.Voice_scale = d3.scalePow().range([frameConfig.bandHeight, 2*frameConfig.bandHeight]).domain([min_Voice, max_Voice]);
 		// this.Leqdba_scale = d3.scaleLog().range([0, 4]).domain([min_Leqdba, max_Leqdba]);
 		// this.Lmaxdba_scale = d3.scaleLog().range([0, 4]).domain([min_Lmaxdba, max_Lmaxdba]);
 		// this.Lmindba_scale = d3.scaleLog().range([0, 4]).domain([min_Lmindba, max_Lmindba]);
 
-		this.Leqdba_scale = d3.scaleLog().range([frameConfig.bandHeight, 2*frameConfig.bandHeight]).domain([min_Leqdba, max_Leqdba]);
-		this.Lmaxdba_scale = d3.scaleLog().range([2*frameConfig.bandHeight, 3*frameConfig.bandHeight]).domain([min_Lmaxdba, max_Lmaxdba]);
-		this.Lmindba_scale = d3.scaleLog().range([0, frameConfig.bandHeight]).domain([min_Lmindba, max_Lmindba]);
+		this.Leqdba_scale = d3.scalePow().range([frameConfig.bandHeight, 2*frameConfig.bandHeight]).domain([min_Leqdba, max_Leqdba]);
+		this.Lmaxdba_scale = d3.scalePow().range([2*frameConfig.bandHeight, 3*frameConfig.bandHeight]).domain([min_Lmaxdba, max_Lmaxdba]);
+		this.Lmindba_scale = d3.scalePow().range([0, frameConfig.bandHeight]).domain([min_Lmindba, max_Lmindba]);
 
     this.Components_scale_Loudness = d3.scaleOrdinal()
       .range(["#bd0026", "#ffffb2", "#fd8d3c"])
@@ -672,8 +672,8 @@ for (var s=0; s < device_latlng.keys().length; s++){
 
 				var ChartAxisobjectMaterial =  new THREE.LineBasicMaterial( {
 					color: 0xffffff,
-					opacity: 0.1,
-					linewidth: 0.1
+					opacity: 0.01,
+					linewidth: 0.01
 					} ) ;
 
 
@@ -803,7 +803,7 @@ controls = new THREE.OrbitControls(camera);
 // cameraHelper = new THREE.CameraHelper(camera);
 // cameraHelper.pointMap()
 // controls.enableZoom = true;
-controls.target.set( 0.0, 2.0, 0.0 );
+controls.target.set( 0.0, 8.0, 0.0 );
 controls.userPanSpeed = 100;
 controls.staticMoving = true;
 controls.dynamicDampingFactor = 0.3;
