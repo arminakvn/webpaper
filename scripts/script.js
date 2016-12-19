@@ -762,7 +762,7 @@ for (var i=0; i < 4; i++){
 allObjGroup.add(street_surf_group,street_surf_group2,street_surf_group3)
 scene.add(chart_axis_line_group)
 scene.add(allObjGroup)
-scene.add(axisHelper)
+// scene.add(axisHelper)
 
 scene.add(textGroup)
 console.log(street_surf_group,textGroup);
