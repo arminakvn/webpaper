@@ -17,6 +17,7 @@ $('#components').dropdown({
 
   $( '.ui.button#play' ).click(function() {
     ui_current_state.set("play","1")
+    ui_current_state.set("slider_decides",0)
     ui_current_state.set("delay", 300)
     requestAnimationFrame(animateScene);
   })

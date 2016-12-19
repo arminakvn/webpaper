@@ -29,7 +29,7 @@ ui_current_state.set("component", "frequency")
 ui_current_state.set("delay", 300)
 ui_current_state.set("data_needs_to_filter", 0)
 ui_current_state.set("data_map_buffr_ind", [1]);
-
+ui_current_state.set("slider_decides",0)
 
 
 
@@ -959,7 +959,7 @@ function animateScene(){
 // console.log(axis_lines_group)
 // console.log(lkjnsdlk)
 
-
+// console.log(ui_current_state)
 	if (requestStream.frame_counter > frameConfig.numPoints-1){
 			requestStream.frame_counter = 1;
 			var t = requestStream.frame_counter;
@@ -970,7 +970,6 @@ function animateScene(){
 	// console.log("t",t,street_lines_group)
   if (ui_current_state.get("data_needs_to_filter") > 0){
     data  = filterData()
-  } else {
   }
 
 // console.log(street_surf_group)
@@ -1022,7 +1021,11 @@ function animateScene(){
 
 				var va = datamap.get(datamap.keys()[bufferIndex]);
 				ui_current_state.set("data_map_buffr_ind", [datamap.keys()[bufferIndex]]);
-				updateDynamicText()
+
+				if (ui_current_state.get("slider_decides") == 0) {
+					updateDynamicText()
+					ui_current_state.set("data_map_buffr_ind", [datamap.keys()[bufferIndex]]);
+				}
 
 
 				function getZVal(va){
@@ -1063,8 +1066,10 @@ function animateScene(){
 				datamap = samples_mapped.get(deviceid)
 
 				var va = datamap.get(datamap.keys()[bufferIndex]);
-				ui_current_state.set("data_map_buffr_ind", [datamap.keys()[bufferIndex]]);
-				updateDynamicText()
+				if (ui_current_state.get("slider_decides") == 0) {
+					updateDynamicText()
+					ui_current_state.set("data_map_buffr_ind", [datamap.keys()[bufferIndex]]);
+				}
 
 				var Leqdba = va.get("Leqdba")
 											var Lmaxdba = va.get("Lmaxdba")
@@ -1111,13 +1116,19 @@ function animateScene(){
 				datamap = samples_mapped.get(deviceid)
 
 				var va = datamap.get(datamap.keys()[bufferIndex]);
-				ui_current_state.set("data_map_buffr_ind", [datamap.keys()[bufferIndex]]);
+
+				if (ui_current_state.get("slider_decides") == 0) {
+					updateDynamicText()
+					ui_current_state.set("data_map_buffr_ind", [datamap.keys()[bufferIndex]]);
+				}
+
 
 
 				var Leqdba = va.get("Leqdba")
 											var Lmaxdba = va.get("Lmaxdba")
 											var Lmindba = va.get("Lmindba")
-				updateDynamicText()
+
+
 
 
 				function getZVal(va){
@@ -1272,6 +1283,7 @@ var buffertime = d3.isoParse (ui_current_state.get("data_map_buffr_ind")[0])
 
 
 	var width_scale = d3.scaleTime().range([0,time_line_width]).domain(scalerConfig.time_range)
+	var reverse_width_scale = d3.scaleTime().domain([0,time_line_width]).range(scalerConfig.time_range)
 	// console.log(d3.isoParse (axis_width_range[0]))
 	// console.log(lkejw)
 
@@ -1281,28 +1293,66 @@ var buffertime = d3.isoParse (ui_current_state.get("data_map_buffr_ind")[0])
 		"width", 1
 	).attr(
 		"height", 6
-	).append("rect").attr("width", 5).attr('height', 30).call(d3.drag().on("start",dragStart)).on("mouseover",function(d){
+	).append("rect").attr("width", 10).attr('height', 30).call(d3.drag().on("drag",dragmove).on("end", dragend)).on("mouseover",function(d){
 
 		ui_current_state.set("delay", 300000000)
-	}).on("click",function(d){
-
-		ui_current_state.set("delay", 300)
-		requestStream.frame_counter += 1;
-
-
-					requestAnimationFrame(animateScene);
 	})
-
+	//.on("click",function(d){
+	//
+	// 	ui_current_state.set("delay", 300)
+	// 	requestStream.frame_counter += 1;
+	//
+	//
+	// 				requestAnimationFrame(animateScene);
+	// })
+	var drag = d3.drag()
+        .on("drag", function(d,i) {
+            d.x += d3.event.dx
+            d.y += d3.event.dy
+            d3.select(this).attr("transform", function(d,i){
+                return "translate(" + [ d.x,d.y ] + ")"
+            })
+        });
 	handle.exit().remove()
 	handle.attr('height', 16).attr('transform', function(d){
 		return  'translate(' + d + ',' + 10 + ')'
-	}).call(d3.drag().on("start",dragStart))
+	})
+
+
+			// var drag = d3.behavior.drag()
+			//     .on("drag", dragmove);
+			function dragend(d) {
+				 if (d3.event.defaultPrevented) return;
+				var x = d3.event.x;
+			  var y = d3.event.y;
+				console.log("dragend")
+				ui_current_state.set("data_map_buffr_ind",[reverse_width_scale(d3.event.x)])
+				requestAnimationFrame(animateScene);
+
+			}
+			function dragmove(d) {
+				// console.log("ffff")
+				if (d3.event.defaultPrevented) return;
+				ui_current_state.set("slider_decides",1)
+			  var x = d3.event.x;
+			  var y = d3.event.y;
+				console.log([reverse_width_scale(d3.event.x)])
+				ui_current_state.set("data_map_buffr_ind",[reverse_width_scale(d3.event.x)])
+				// console.log(ui_current_state.get("data_map_buffr_ind")[0])
+				// console.log(reverse_width_scale(d3.event.x))
+			  d3.select(this).attr("transform", "translate(" + x + "," + 0 + ")");
+				requestAnimationFrame(animateScene);
+
+
+			}
+
 
 	function dragStart(){
 		d3.event.sourceEvent.stopPropagation();
 		d3.select(this).classed("dragging", true);
 		console.log("drag start")
 		console.log(d3.select(this))
+
 	}
 
 }
