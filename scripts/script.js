@@ -473,9 +473,9 @@ camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight
 				terrainMesh = new THREE.Mesh( geometry, groundMaterial );
 				terrainMesh.receiveShadow = true;
 				terrainMesh.castShadow = true;
-				scene.add( terrainMesh );
+				// scene.add( terrainMesh );
 				var textureLoader = new THREE.TextureLoader();
-				textureLoader.load("ph8.png", function ( texture ) {
+				textureLoader.load("ph10.png", function ( texture ) {
 					// texture.wrapS = THREE.RepeatWrapping;
 					// texture.wrapT = THREE.RepeatWrapping;
 					// texture.repeat.set( terrainWidth - 1, terrainDepth - 1 );
@@ -484,6 +484,68 @@ camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight
 				});
 
 
+
+				// var background_geometry = new THREE.PlaneBufferGeometry( 2 * frameConfig.width, 2 * frameConfig.height, 20 - 1, 50 - 1 );
+				// 	background_geometry.rotateX( -Math.PI / 2 );
+				// 	var b_vertices = background_geometry.attributes.position.array;
+				// 	// for ( var i = 0, j = 0, l = vertices.length; i < l; i++, j += 3 ) {
+				// 	// 	// j + 1 because it is the y component that we modify
+				// 	// 	vertices[ j + 1 ] = heightData[ i ];
+				// 	// }
+				// 	background_geometry.computeVertexNormals();
+				//
+				// 	var b_groundMaterial = new THREE.MeshPhongMaterial( { color: 0xC7C7C7 } );
+				//
+				// 	b_terrainMesh = new THREE.Mesh( background_geometry, b_groundMaterial );
+				// 	b_terrainMesh.position.y = -1;
+				//
+				// 	b_terrainMesh.receiveShadow = false;
+				// 	b_terrainMesh.castShadow = false;
+				//
+				// 	var textureLoader = new THREE.TextureLoader();
+				// 	textureLoader.load("b_ph10.png", function ( texture ) {
+				// 		// texture.wrapS = THREE.RepeatWrapping;
+				// 		// texture.wrapT = THREE.RepeatWrapping;
+				// 		// texture.repeat.set( terrainWidth - 1, terrainDepth - 1 );
+				// 		b_groundMaterial.map = texture;
+				// 		b_groundMaterial.needsUpdate = true;
+				// 	});
+
+
+
+					var Bbackground_geometry = new THREE.PlaneBufferGeometry( 2.1 * frameConfig.width, 2 * frameConfig.height, 20 - 1, 50 - 1 );
+						Bbackground_geometry.rotateX( -Math.PI / 2 );
+						var Bb_vertices = Bbackground_geometry.attributes.position.array;
+						// for ( var i = 0, j = 0, l = vertices.length; i < l; i++, j += 3 ) {
+						// 	// j + 1 because it is the y component that we modify
+						// 	vertices[ j + 1 ] = heightData[ i ];
+						// }
+						Bbackground_geometry.computeVertexNormals();
+
+						var Bb_groundMaterial = new THREE.MeshPhongMaterial( { color: 0xC7C7C7 } );
+
+						Bb_terrainMesh = new THREE.Mesh( Bbackground_geometry, Bb_groundMaterial );
+						Bb_terrainMesh.position.y = -2;
+
+						Bb_terrainMesh.receiveShadow = false;
+						Bb_terrainMesh.castShadow = false;
+
+						var textureLoader = new THREE.TextureLoader();
+						textureLoader.load("b_ph14.png", function ( texture ) {
+							// texture.wrapS = THREE.RepeatWrapping;
+							// texture.wrapT = THREE.RepeatWrapping;
+							// texture.repeat.set( terrainWidth - 1, terrainDepth - 1 );
+							Bb_groundMaterial.map = texture;
+							Bb_groundMaterial.needsUpdate = true;
+						});
+
+
+
+
+					scene.add( Bb_terrainMesh,terrainMesh );
+					// var eh = new THREE.EdgesHelper( Bb_terrainMesh );
+					// eh.material.opacity = 0.5;
+					// eh.material.transparent = true;
 
 	group = new THREE.Group();
   // surfaveGroup = new THREE.Group()
@@ -798,12 +860,17 @@ controlables.push(boxMesh,street_surf_group,street_surf_group2,street_surf_group
 var axisHelper = new THREE.AxisHelper( 500 );
 parrent = scene
 controls = new THREE.OrbitControls(camera);
+// controls.maxPolarAngle = Math.PI/2;
+controls.minDistance = 1;
+controls.maxDistance = 39;
+controls.minPolarAngle = 0; // radians
+controls.maxPolarAngle = Math.PI/5; // radians
 // controls.target.y = 2;
 // var controls = new THREE.TransformControls(camera,renderer.domElement)
 // cameraHelper = new THREE.CameraHelper(camera);
 // cameraHelper.pointMap()
 // controls.enableZoom = true;
-controls.target.set( 0.0, 8.0, 0.0 );
+controls.target.set( 0.0, 4.0, 0.0 );
 controls.userPanSpeed = 100;
 controls.staticMoving = true;
 controls.dynamicDampingFactor = 0.3;
