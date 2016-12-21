@@ -34,6 +34,7 @@ ui_current_state.set("slider_decides",0)
 
 
 anotHelper.set("frequency", ["Base","Voice", "High"])
+anotHelper.set("loudness", ["Lmindba","Leqdba", "Maxdba"])
 // // loading the data / starting with loading the locations
 function loadData(){
 	d3.queue()
@@ -576,6 +577,10 @@ camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight
 
 
 	textGroup = new THREE.Group();
+	componentTextGroup = new THREE.Group();
+	comp1TextGroup = new THREE.Group();
+	comp2TextGroup = new THREE.Group();
+	comp3TextGroup = new THREE.Group();
 // creating the line from iteration through the data
 
 
@@ -864,13 +869,13 @@ controls = new THREE.OrbitControls(camera);
 controls.minDistance = 1;
 controls.maxDistance = 39;
 controls.minPolarAngle = 0; // radians
-controls.maxPolarAngle = Math.PI/5; // radians
+controls.maxPolarAngle = Math.PI/4; // radians
 // controls.target.y = 2;
 // var controls = new THREE.TransformControls(camera,renderer.domElement)
 // cameraHelper = new THREE.CameraHelper(camera);
 // cameraHelper.pointMap()
 // controls.enableZoom = true;
-controls.target.set( 0.0, 4.0, 0.0 );
+controls.target.set( 0.0, 1.0, 0.0 );
 controls.userPanSpeed = 100;
 controls.staticMoving = true;
 controls.dynamicDampingFactor = 0.3;
@@ -899,7 +904,7 @@ scene.add(chart_axis_line_group)
 scene.add(allObjGroup)
 // scene.add(axisHelper)
 
-scene.add(textGroup)
+scene.add(textGroup, componentTextGroup)
 // console.log(street_surf_group,textGroup);
 
 for (var vr = 0; vr < street_surf_group.children.length;vr++){
@@ -907,18 +912,18 @@ var dev_index = 0
 var dash_instreet_group = new THREE.Group()
 
 
-var text = ui_current_state.get("component")
-anotHelper.set("text",text)
-annotationTemp = new (annotationTempClass)
-var ann = annotationTemp.obj.clone();
-ann.text = "osomethig"
-
-// console.log(ann)
-// ann.rotateZ( -Math.PI / 2 );
-ann.rotateY( -Math.PI / 4  );
-ann.position.set((0.2 + street_surf_group.children[vr].geometry.vertices[1].x - frameConfig.width/2) , 0.1,- (street_surf_group.children[vr].geometry.vertices[1].y - frameConfig.height/2));
-// console.log(ann)
-textGroup.add(ann)
+// var text = ui_current_state.get("component")
+// anotHelper.set("text",text)
+// annotationTemp = new (annotationTempClass)
+// var ann = annotationTemp.obj.clone();
+// ann.text = "osomethig"
+//
+// // console.log(ann)
+// // ann.rotateZ( -Math.PI / 2 );
+// ann.rotateY( -Math.PI / 4  );
+// ann.position.set((0.2 + street_surf_group.children[vr].geometry.vertices[1].x - frameConfig.width/2) , 0.1,- (street_surf_group.children[vr].geometry.vertices[1].y - frameConfig.height/2));
+// // console.log(ann)
+// textGroup.add(ann)
 
 
 	street_surf_group.children[vr].geometry.vertices.forEach(function(vert){
@@ -962,7 +967,7 @@ textGroup.add(ann)
 				ann.rotateY( -Math.PI / 2  );
 				ann.position.set((0.1 + vert.x - frameConfig.width/2) , frameConfig.bandHeight/2 + (ii * frameConfig.bandHeight),- (vert.y - frameConfig.height/2));
 				// console.log(ann)
-				textGroup.add(ann)
+				componentTextGroup.add(ann)
 			}
 
 

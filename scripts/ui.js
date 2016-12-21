@@ -2,12 +2,80 @@
 //   console.log("on ui controls")
 //   d3.event.sourceEvent.stopPropagation();
 // })
-
+var counter = 0;
 $('#components').dropdown({
   // allowAdditions: false,
   onChange: function(val){
     console.log("value of selection in drop down", val)
-    ui_current_state.set("component", val)
+    if (ui_current_state.get("component")!= "val"){
+      ui_current_state.set("component", val)
+      console.log("ui_current_s",textGroup)
+
+for (var ini=0; ini < componentTextGroup.children.length; ini++){
+
+      // for (var ii=0; ii<3; ii++){
+        // var iniii = (ini * 3) + ii;
+        // console.log(iniii)
+        var clbl = componentTextGroup.children[ini];
+        console.log(clbl)
+
+
+        var text = anotHelper.get(ui_current_state.get("component"))[counter]
+        console.log(text)
+        // console.log(text)
+
+        anotHelper.set("text",text)
+        annotationTemp = new (annotationTempClass)
+        var ann = annotationTemp.obj.clone();
+        ann.text = "osomethig"
+
+        // console.log(ann)
+        // ann.rotateZ( -Math.PI / 2 );
+        ann.rotateY( -Math.PI / 2  );
+        // ann.position.set((0.1 + vert.x - frameConfig.width/2) , frameConfig.bandHeight/2 + (ii * frameConfig.bandHeight),- (vert.y - frameConfig.height/2));
+        // console.log(ann)
+        clbl.geometry = ann.geometry;
+        clbl.needsUpdate = true;
+        if (counter > 1){
+          counter = 0;
+
+        } else {
+          counter++;
+        }
+        // componentTextGroup.add(ann)
+      // }
+
+}
+
+
+      for (var ini=0; ini < textGroup.children.length; ini++){
+
+
+
+
+
+
+
+            var lbl = textGroup.children[ini];
+
+            var text = ui_current_state.get("component")
+            anotHelper.set("text",text)
+            annotationTemp = new (annotationTempClass)
+            var ann = annotationTemp.obj.clone();
+            ann.text = "osomethig"
+
+            // console.log(ann)
+            // ann.rotateZ( -Math.PI / 2 );
+            ann.rotateY( -Math.PI / 4  );
+            // ann.position.set((0.2 + street_surf_group.children[vr].geometry.vertices[1].x - frameConfig.width/2) , 0.1,- (street_surf_group.children[vr].geometry.vertices[1].y - frameConfig.height/2));
+            // console.log(ann)
+            lbl.geometry = ann.geometry;
+            lbl.needsUpdate = true;
+            // textGroup.add(ann)
+      }
+    }
+
+
     ui_current_state.set("data_needs_to_filter", 0)
 
     updateViz()
