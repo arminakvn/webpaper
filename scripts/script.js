@@ -9,7 +9,7 @@ var cubeMesh;
 var data_coords = [];
 var controlers = [];
 var data_map = d3.map();
-var axis_width_range = ["Wed Aug 24 2016 00:00:00 GMT-0400 (EDT)","Wed Aug 24 2016 23:59:59 GMT-0400 (EDT)"]
+// var axis_width_range = ["Wed Aug 24 2016 00:00:00 GMT-0400 (EDT)","Wed Aug 24 2016 23:59:59 GMT-0400 (EDT)"]
 var anotHelper = d3.map()
 var scene, renderer;
 			var mouseX = 0, mouseY = 0;
@@ -996,14 +996,14 @@ dash_value_line_group.add(dash_instreet_group)
 }
 // scene.add(street_surf_group);
 
-var t = textMesh1.clone();
+// var t = textMesh1.clone();
 // t.position.x = -sorted_streets[iii].y;
 // t.position.z = sorted_streets[iii].x;
 // t.position.y = -1
 // t.position.set(chart_axis_line_group.children[1].geometry.vertices[0].y - frameConfig.height/2 , 2,  chart_axis_line_group.children[1].geometry.vertices[0].x - frameConfig.width/2);
 
-t.rotateX( -Math.PI / 2 );
-textGroup.add(t)
+// t.rotateX( -Math.PI / 2 );
+// textGroup.add(t)
 // console.log(dash_value_line_group)
 
 
