@@ -86,12 +86,12 @@ for (var ini=0; ini < componentTextGroup.children.length; ini++){
   $( '.ui.button#play' ).click(function() {
     ui_current_state.set("play","1")
     ui_current_state.set("slider_decides",0)
-    ui_current_state.set("delay", 300)
+    ui_current_state.set("delay", 200)
     requestAnimationFrame(animateScene);
   })
   $( '.ui.button#pause' ).click(function() {
     ui_current_state.set("play","0")
-    ui_current_state.set("delay", 300000000)
+    ui_current_state.set("delay", 3000)
     requestStream.frame_counter += 1;
     $( '.ui.button#play' ).deactive()
     requestAnimationFrame(animateScene);
@@ -196,7 +196,7 @@ function brushed(){
 }
 
 
-var time_line_width = 900;
+var time_line_width = 500;
 // console.log(scalerConfig)
 
 

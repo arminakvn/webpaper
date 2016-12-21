@@ -26,7 +26,7 @@ var device_per_street_map = d3.map()
 var device_latlng = d3.map()
 //setting defult values for ui
 ui_current_state.set("component", "frequency")
-ui_current_state.set("delay", 300)
+ui_current_state.set("delay", 200)
 ui_current_state.set("data_needs_to_filter", 0)
 ui_current_state.set("data_map_buffr_ind", [1]);
 ui_current_state.set("slider_decides",0)
@@ -1367,7 +1367,7 @@ var buffertime = d3.isoParse (ui_current_state.get("data_map_buffr_ind")[0])
 		"height", 6
 	).append("rect").attr("width", 10).attr('height', 30).call(d3.drag().on("drag",dragmove).on("end", dragend)).on("mouseover",function(d){
 
-		ui_current_state.set("delay", 300000000)
+		ui_current_state.set("delay", 3000)
 	})
 	//.on("click",function(d){
 	//

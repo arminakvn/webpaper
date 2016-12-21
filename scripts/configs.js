@@ -21,7 +21,7 @@ frameConfig = new (function() {
   this.padding_bottom = 6.5
   this.numPoints = 154//154;
   this.bandHeight = 1;
-  this.text_size = .25;
+  this.text_size = .15;
   this.lead = 0.0001
 });
 
