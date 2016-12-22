@@ -9,7 +9,6 @@ $('#components').dropdown({
     console.log("value of selection in drop down", val)
     if (ui_current_state.get("component")!= "val"){
       ui_current_state.set("component", val)
-      console.log("ui_current_s",textGroup)
 
 for (var ini=0; ini < componentTextGroup.children.length; ini++){
 

@@ -11,6 +11,8 @@ var controlers = [];
 var data_map = d3.map();
 // var axis_width_range = ["Wed Aug 24 2016 00:00:00 GMT-0400 (EDT)","Wed Aug 24 2016 23:59:59 GMT-0400 (EDT)"]
 var anotHelper = d3.map()
+var coloHelper = d3.map()
+
 var scene, renderer;
 			var mouseX = 0, mouseY = 0;
 
@@ -35,6 +37,8 @@ ui_current_state.set("slider_decides",0)
 
 anotHelper.set("frequency", ["Base","Voice", "High"])
 anotHelper.set("loudness", ["Lmindba","Leqdba", "Maxdba"])
+anotHelper.set("frequency", ["Base","Voice", "High"])
+
 // // loading the data / starting with loading the locations
 function loadData(){
 	d3.queue()
@@ -290,8 +294,6 @@ function brushed() {
 	function dragStart(){
 	  d3.event.sourceEvent.stopPropagation();
 	  d3.select(this).classed("dragging", true);
-	  console.log("drag start")
-	  console.log(d3.select(this))
 	}
 
 }
@@ -388,11 +390,9 @@ fontLoader.load( 'NeueHaas.json', function ( font ) {
 
 	}
 	annotationTemp = new (annotationTempClass)
-	console.log(annotationTemp)
 	anotHelper.set("text","somett")
 
 	annotationTemp = new (annotationTempClass)
-	console.log(annotationTemp)
 
 
 	loadData();
@@ -428,15 +428,15 @@ function initializeScene(data){
 	scene.fog = new THREE.Fog( 0x000000, 250, 1400 );
 	var dirLight = new THREE.DirectionalLight( 0xffffff, 0.125 );
 				dirLight.position.set( 0, 0, 1 ).normalize();
-				scene.add( dirLight );
-				var pointLight = new THREE.PointLight( 0xffffff, 1.5 );
-				pointLight.position.set( 0, 100, 90 );
+				// scene.add( dirLight );
+				var pointLight = new THREE.HemisphereLight();
+				// pointLight.position.set( 0, 100, 90 );
 				scene.add( pointLight );
 	camera = new THREE.PerspectiveCamera( frameConfig.fov, frameConfig.aspect, frameConfig.near, frameConfig.far );
 	// camera = new THREE.CubeCamera( frameConfig.near, frameConfig.far, 128 );
 // camera = new THREE.PerspectiveCamera((frameConfig.width / - 2) - 1 , (frameConfig.width / 2) + 1, frameConfig.height / 3, frameConfig.height / - 3, 1, 1000 )
 
-camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.2, 2000 );
+// camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.2, 2000 );
 			// scene = new THREE.Scene();
 			camera.position.y = 30[ frameConfig.width/2 + frameConfig.width/2 * frameConfig.width ] * ( 40 ) + 5;
 			camera.position.z = frameConfig.height / 2;
@@ -472,11 +472,11 @@ camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight
 				geometry.computeVertexNormals();
 				var groundMaterial = new THREE.MeshPhongMaterial( { color: 0xC7C7C7 } );
 				terrainMesh = new THREE.Mesh( geometry, groundMaterial );
-				terrainMesh.receiveShadow = true;
-				terrainMesh.castShadow = true;
+				terrainMesh.receiveShadow = false;
+				terrainMesh.castShadow = false;
 				// scene.add( terrainMesh );
 				var textureLoader = new THREE.TextureLoader();
-				textureLoader.load("ph10.png", function ( texture ) {
+				textureLoader.load("ph26.png", function ( texture ) {
 					// texture.wrapS = THREE.RepeatWrapping;
 					// texture.wrapT = THREE.RepeatWrapping;
 					// texture.repeat.set( terrainWidth - 1, terrainDepth - 1 );
@@ -526,13 +526,13 @@ camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight
 						var Bb_groundMaterial = new THREE.MeshPhongMaterial( { color: 0xC7C7C7 } );
 
 						Bb_terrainMesh = new THREE.Mesh( Bbackground_geometry, Bb_groundMaterial );
-						Bb_terrainMesh.position.y = -2;
+						Bb_terrainMesh.position.y = -0.01;
 
 						Bb_terrainMesh.receiveShadow = false;
 						Bb_terrainMesh.castShadow = false;
 
 						var textureLoader = new THREE.TextureLoader();
-						textureLoader.load("b_ph14.png", function ( texture ) {
+						textureLoader.load("b_ph17.png", function ( texture ) {
 							// texture.wrapS = THREE.RepeatWrapping;
 							// texture.wrapT = THREE.RepeatWrapping;
 							// texture.repeat.set( terrainWidth - 1, terrainDepth - 1 );
@@ -700,7 +700,7 @@ for (var s=0; s < device_latlng.keys().length; s++){
 					 shading: THREE.SmoothShading,
 					combine: THREE.Multiply ,
 					//  vertexColors: THREE.FaceColors,
-					 color: "#e41a1c",
+					 color: "#bd0026",
 					 transparent: true,
 					 opacity: 0.5,
 					 linewidth:8,
@@ -714,7 +714,7 @@ for (var s=0; s < device_latlng.keys().length; s++){
 					 shading: THREE.SmoothShading,
 					 combine: THREE.NoBlending,
 					//  vertexColors: THREE.FaceColors,
-					 color: "#e41a1c",
+					 color: "#fd8d3c",
 					 transparent: true,
 					 linewidth:5,
 					 opacity: 0.5,
@@ -728,7 +728,7 @@ for (var s=0; s < device_latlng.keys().length; s++){
 					 shading: THREE.SmoothShading,
 					combine: THREE.NoBlending,
 					//  vertexColors: THREE.FaceColors,
-					 color: "#e41a1c",
+					 color: "#ffffb2",
 					 transparent: true,
 					 linewidth:5,
 					 opacity: 0.5,
@@ -867,9 +867,9 @@ parrent = scene
 controls = new THREE.OrbitControls(camera);
 // controls.maxPolarAngle = Math.PI/2;
 controls.minDistance = 1;
-controls.maxDistance = 39;
+controls.maxDistance = 33;
 controls.minPolarAngle = 0; // radians
-controls.maxPolarAngle = Math.PI/4; // radians
+controls.maxPolarAngle = Math.PI/2.3; // radians
 // controls.target.y = 2;
 // var controls = new THREE.TransformControls(camera,renderer.domElement)
 // cameraHelper = new THREE.CameraHelper(camera);
@@ -905,7 +905,6 @@ scene.add(allObjGroup)
 // scene.add(axisHelper)
 
 scene.add(textGroup, componentTextGroup)
-// console.log(street_surf_group,textGroup);
 
 for (var vr = 0; vr < street_surf_group.children.length;vr++){
 var dev_index = 0
@@ -918,17 +917,14 @@ var dash_instreet_group = new THREE.Group()
 // var ann = annotationTemp.obj.clone();
 // ann.text = "osomethig"
 //
-// // console.log(ann)
 // // ann.rotateZ( -Math.PI / 2 );
 // ann.rotateY( -Math.PI / 4  );
 // ann.position.set((0.2 + street_surf_group.children[vr].geometry.vertices[1].x - frameConfig.width/2) , 0.1,- (street_surf_group.children[vr].geometry.vertices[1].y - frameConfig.height/2));
-// // console.log(ann)
 // textGroup.add(ann)
 
 
 	street_surf_group.children[vr].geometry.vertices.forEach(function(vert){
 
-		// console.log("street_surf_group",street_surf_group)
 		var dev_id = street_surf_group.children[vr].userData[dev_index]
 		// circles for the sensors locations
 		if (vert.z >= 0){
@@ -1027,6 +1023,9 @@ function onWindowResize() {
 
 }
 function animateScene(){
+	for (var ini=0; ini < componentTextGroup.children.length; ini++){
+		rotateBillboard(componentTextGroup.children[ini]);
+	}
 
 // console.log(axis_lines_group)
 // console.log(lkjnsdlk)
@@ -1063,17 +1062,7 @@ function animateScene(){
 				var bufferIndex = vir_v;
 			}
 
-										var colorLeqdba = new THREE.Color(
-											"#42f453"
-									  );
 
-										var colorLmaxdba = new THREE.Color(
-											"#4280f4"
-									  );
-
-										var colorLmindba = new THREE.Color(
-											"#f4424e"
-									  );
 
 
 
@@ -1160,6 +1149,7 @@ function animateScene(){
 												if (ui_current_state.get("component") == "frequency"){
 													var vals = []
 													vals.push(scalerConfig.Leqdba_scale(Leqdba),scalerConfig.Lmaxdba_scale(Lmaxdba),scalerConfig.Lmindba_scale(Lmindba))
+
 													return vals
 												} else {
 													var vals = []
@@ -1223,6 +1213,16 @@ function animateScene(){
 
 				}
 
+
+				var colorVals = getColors()
+
+				street_surf_group.children[sn].material.color = colorVals[0]
+				street_surf_group2.children[sn].material.color = colorVals[1]
+				street_surf_group3.children[sn].material.color = colorVals[2]
+
+
+
+
 				var zVals = getZVal(va)
 
 				street_surf_group.children[sn].geometry.vertices[vert].z = zVals[0]
@@ -1265,12 +1265,14 @@ function animateScene(){
 					vd.geometry.verticesNeedUpdate = true;
 				})
 
-				axis_lines_group.children[sn].children[0].children[vert].geometry.vertices[1].z = zVals[1]
-				// console.log(axis_lines_group)
-				// console.log(dndn)
+				axis_lines_group.children[sn].children[0].children[vert].geometry.vertices[1].z = zVals[1];
 
 
 axis_lines_group.children[sn].children[0].children[vert].geometry.verticesNeedUpdate = true;
+
+
+
+
 
 			}
 street_surf_group.children[sn].geometry.verticesNeedUpdate = true;
@@ -1280,28 +1282,23 @@ street_surf_group3.children[sn].geometry.verticesNeedUpdate = true;
 		}
 
 	}
-	// console.log(kjwekj)
 
-	update();  //stuff above
+
+
+	update();
 
 
  	renderScene();
 
  mTime += mTimeStep;
  mTime %= mDuration;
- // console.log(mTime)
 requestStream.frame_counter += 1;
-
-	// if
 
 	setTimeout(function(){
 
 			requestAnimationFrame(animateScene);
 
 	}, ui_current_state.get("delay"));
-
-
- // requestAnimationFrame(tick);
 
 }
 
@@ -1311,7 +1308,6 @@ function update(){
 		controlers[i].update()
 	}
 
-	// console.log(mTime);
 }
 
 function renderScene(){
@@ -1322,7 +1318,6 @@ function renderScene(){
 
 function makeColorToUpdate(){
   var color = new THREE.Color(
-		// c
     scalerConfig.Components_scale_Loudness(
       ui_current_state.get("component")
     )
@@ -1344,20 +1339,16 @@ function updateViz(){
 function updateDynamicText(){
 
 
-	// console.log("in update dynamic text",ui_current_state.get("data_map_buffr_ind"))
 	var dtext=$("#dynemictext").html("")
 	var dtext=$("#dynemictext").html(formatDay(d3.isoParse(ui_current_state.get("data_map_buffr_ind")))+" "+formatHour(d3.isoParse(ui_current_state.get("data_map_buffr_ind")))+ ":"+formatMinute(d3.isoParse(ui_current_state.get("data_map_buffr_ind"))) )
 
 
 var parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S");
 var buffertime = d3.isoParse (ui_current_state.get("data_map_buffr_ind")[0])
-// console.log(buffertime,ui_current_state.get("data_map_buffr_ind")[0].replace(" GMT-0400 (EDT)",""))
 
 
 	var width_scale = d3.scaleTime().range([0,time_line_width]).domain(scalerConfig.time_range)
 	var reverse_width_scale = d3.scaleTime().domain([0,time_line_width]).range(scalerConfig.time_range)
-	// console.log(d3.isoParse (axis_width_range[0]))
-	// console.log(lkejw)
 
 	handle = container.selectAll(".handle")
 
@@ -1397,7 +1388,6 @@ var buffertime = d3.isoParse (ui_current_state.get("data_map_buffr_ind")[0])
 				 if (d3.event.defaultPrevented) return;
 				var x = d3.event.x;
 			  var y = d3.event.y;
-				console.log("dragend")
 				ui_current_state.set("data_map_buffr_ind",[reverse_width_scale(d3.event.x)])
 				requestAnimationFrame(animateScene);
 
@@ -1408,7 +1398,6 @@ var buffertime = d3.isoParse (ui_current_state.get("data_map_buffr_ind")[0])
 				ui_current_state.set("slider_decides",1)
 			  var x = d3.event.x;
 			  var y = d3.event.y;
-				console.log([reverse_width_scale(d3.event.x)])
 				ui_current_state.set("data_map_buffr_ind",[reverse_width_scale(d3.event.x)])
 				// console.log(ui_current_state.get("data_map_buffr_ind")[0])
 				// console.log(reverse_width_scale(d3.event.x))
@@ -1422,8 +1411,6 @@ var buffertime = d3.isoParse (ui_current_state.get("data_map_buffr_ind")[0])
 	function dragStart(){
 		d3.event.sourceEvent.stopPropagation();
 		d3.select(this).classed("dragging", true);
-		console.log("drag start")
-		console.log(d3.select(this))
 
 	}
 
