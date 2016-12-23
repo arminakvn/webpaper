@@ -425,8 +425,9 @@ function initializeScene(data){
 	document.getElementById("WebGLCanvas").appendChild(renderer.domElement);
 	// setting up the scene and camera
 	scene = new THREE.Scene();
-	scene.fog = new THREE.Fog( 0x000000, 250, 1400 );
-	var dirLight = new THREE.DirectionalLight( 0xffffff, 0.125 );
+	//scene.fog=new THREE.FogExp2( 0xffffff, 0.015 );
+        scene.fog = new THREE.Fog(0x0000000, 30, 53);
+	var dirLight = new THREE.DirectionalLight( 0x0000000, 0.125 );
 				dirLight.position.set( 0, 0, 1 ).normalize();
 				// scene.add( dirLight );
 				var pointLight = new THREE.HemisphereLight();
@@ -472,7 +473,7 @@ function initializeScene(data){
 				terrainMesh.castShadow = false;
 				// scene.add( terrainMesh );
 				var textureLoader = new THREE.TextureLoader();
-				textureLoader.load("ph26.png", function ( texture ) {
+				textureLoader.load("ph28.png", function ( texture ) {
 					// texture.wrapS = THREE.RepeatWrapping;
 					// texture.wrapT = THREE.RepeatWrapping;
 					// texture.repeat.set( terrainWidth - 1, terrainDepth - 1 );
@@ -500,7 +501,7 @@ function initializeScene(data){
 						Bb_terrainMesh.castShadow = false;
 
 						var textureLoader = new THREE.TextureLoader();
-						textureLoader.load("b_ph17.png", function ( texture ) {
+						textureLoader.load("b_ph18.png", function ( texture ) {
 							// texture.wrapS = THREE.RepeatWrapping;
 							// texture.wrapT = THREE.RepeatWrapping;
 							// texture.repeat.set( terrainWidth - 1, terrainDepth - 1 );
