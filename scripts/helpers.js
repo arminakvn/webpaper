@@ -18,15 +18,15 @@ function getPointInBetweenByPerc(pointA, pointB, percentage) {
 
 
 function getColors(){
-  var colorHigh = new THREE.Color(
+  var colorLmaxdba = new THREE.Color(
     "#bd0026"
   );
 
-  var colorVoice = new THREE.Color(
+  var colorLeqdba= new THREE.Color(
     "#fd8d3c"
   );
 
-  var colorBase = new THREE.Color(
+  var colorLmindba= new THREE.Color(
     "#ffffb2"
   );
 
@@ -36,16 +36,16 @@ function getColors(){
 
 
 
-  var colorLmaxdba = new THREE.Color(
-    "#0868ac"
+  var colorHigh  = new THREE.Color(
+    "#f0f9e8"
   );
 
-  var colorLeqdba = new THREE.Color(
+  var  colorVoice = new THREE.Color(
     "#7bccc4"
   );
 
-  var colorLmindba = new THREE.Color(
-    "#f0f9e8"
+  var colorBase = new THREE.Color(
+    "#0868ac"
   );
 
 

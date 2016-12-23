@@ -35,9 +35,9 @@ ui_current_state.set("slider_decides",0)
 
 
 
-anotHelper.set("frequency", ["Base","Voice", "High"])
+anotHelper.set("frequency", ["High","Voice", "Base"])
 anotHelper.set("loudness", ["Lmindba","Leqdba", "Maxdba"])
-anotHelper.set("frequency", ["Base","Voice", "High"])
+anotHelper.set("frequency", ["High","Voice", "Base"])
 
 // // loading the data / starting with loading the locations
 function loadData(){
@@ -454,11 +454,7 @@ function initializeScene(data){
 
 
 	boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
-	// boxMesh.position.set(frameConfig.width/2,frameConfig.height/2,0.0);
-	// controls.attach(boxMesh)
-	// controlers.push(controls)
 
-	// scene.add(boxMesh);
 
 
 
@@ -483,34 +479,6 @@ function initializeScene(data){
 					groundMaterial.map = texture;
 					groundMaterial.needsUpdate = true;
 				});
-
-
-
-				// var background_geometry = new THREE.PlaneBufferGeometry( 2 * frameConfig.width, 2 * frameConfig.height, 20 - 1, 50 - 1 );
-				// 	background_geometry.rotateX( -Math.PI / 2 );
-				// 	var b_vertices = background_geometry.attributes.position.array;
-				// 	// for ( var i = 0, j = 0, l = vertices.length; i < l; i++, j += 3 ) {
-				// 	// 	// j + 1 because it is the y component that we modify
-				// 	// 	vertices[ j + 1 ] = heightData[ i ];
-				// 	// }
-				// 	background_geometry.computeVertexNormals();
-				//
-				// 	var b_groundMaterial = new THREE.MeshPhongMaterial( { color: 0xC7C7C7 } );
-				//
-				// 	b_terrainMesh = new THREE.Mesh( background_geometry, b_groundMaterial );
-				// 	b_terrainMesh.position.y = -1;
-				//
-				// 	b_terrainMesh.receiveShadow = false;
-				// 	b_terrainMesh.castShadow = false;
-				//
-				// 	var textureLoader = new THREE.TextureLoader();
-				// 	textureLoader.load("b_ph10.png", function ( texture ) {
-				// 		// texture.wrapS = THREE.RepeatWrapping;
-				// 		// texture.wrapT = THREE.RepeatWrapping;
-				// 		// texture.repeat.set( terrainWidth - 1, terrainDepth - 1 );
-				// 		b_groundMaterial.map = texture;
-				// 		b_groundMaterial.needsUpdate = true;
-				// 	});
 
 
 
@@ -899,7 +867,11 @@ for (var i=0; i < 4; i++){
 	parrent.add(controls);
 	// parrent = controlables[i]
 }
-allObjGroup.add(street_surf_group,street_surf_group2,street_surf_group3)
+var street_surf_group_c = street_surf_group.clone()
+var street_surf_group2_c = street_surf_group2.clone()
+var street_surf_group3_c = street_surf_group3.clone()
+// console.log("street_surf_group_c",street_surf_group_c)
+allObjGroup.add(street_surf_group,street_surf_group2,street_surf_group3, street_surf_group_c,street_surf_group2_c,street_surf_group3_c)
 scene.add(chart_axis_line_group)
 scene.add(allObjGroup)
 // scene.add(axisHelper)
@@ -909,18 +881,6 @@ scene.add(textGroup, componentTextGroup)
 for (var vr = 0; vr < street_surf_group.children.length;vr++){
 var dev_index = 0
 var dash_instreet_group = new THREE.Group()
-
-
-// var text = ui_current_state.get("component")
-// anotHelper.set("text",text)
-// annotationTemp = new (annotationTempClass)
-// var ann = annotationTemp.obj.clone();
-// ann.text = "osomethig"
-//
-// // ann.rotateZ( -Math.PI / 2 );
-// ann.rotateY( -Math.PI / 4  );
-// ann.position.set((0.2 + street_surf_group.children[vr].geometry.vertices[1].x - frameConfig.width/2) , 0.1,- (street_surf_group.children[vr].geometry.vertices[1].y - frameConfig.height/2));
-// textGroup.add(ann)
 
 
 	street_surf_group.children[vr].geometry.vertices.forEach(function(vert){
@@ -995,20 +955,7 @@ var dash_instreet_group = new THREE.Group()
 	})
 dash_value_line_group.add(dash_instreet_group)
 }
-// scene.add(street_surf_group);
 
-// var t = textMesh1.clone();
-// t.position.x = -sorted_streets[iii].y;
-// t.position.z = sorted_streets[iii].x;
-// t.position.y = -1
-// t.position.set(chart_axis_line_group.children[1].geometry.vertices[0].y - frameConfig.height/2 , 2,  chart_axis_line_group.children[1].geometry.vertices[0].x - frameConfig.width/2);
-
-// t.rotateX( -Math.PI / 2 );
-// textGroup.add(t)
-// console.log(dash_value_line_group)
-
-
-// scene.add(circleTemp.obj)
 
 }
 
