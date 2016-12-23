@@ -24,88 +24,92 @@
 <body>
 
 
+  <div class="pusher">
+    <div class="ui vertical masthead left aligned segment">
 
-    <div class="row">
-      <div class="ten wide column">
+      <div class="ui padded container">
+        <div class="ui mini secondary padded inverted menu">
+          <!-- <a class="toc item">
+            <i class="sidebar icon"></i>
+          </a> -->
+          <a class="active item">LA Pilot</a>
+          <a class="item">About</a>
+          <a class="item">Contur Map</a>
+          <a class="item">Sensor Matrix</a>
+          <a class="item">Analysis</a>
+          <!-- <a class="item">Time View</a> -->
+</div>
+</div>
+</div>
+</div>
 
 
-      <div id="WebGLCanvas"></div>
-
-      </div>
-    </div>
-    <div class="row">
-      <div class="four wide column">
-
-        <br/>
-
-              <div class="ui hidden divider"></div>
+<div class="ui vertical stripe segment">
 
 
+  <div class="main ui container">
 
-        </div>
 
+    <div class="ui vertical masthead left aligned segment">
+
+
+    <div id="WebGLCanvas"></div>
+
+    <div class="ui two column grid">
+
+      <div class="column">
+            <!-- <div class="ui icon buttons">
+              <button class="ui button" id="play">
+                <i class="small play icon"></i>
+              </button>
+              <button class="ui button" id="pause">
+                <i class="small pause icon"></i>
+              </button>
+
+            </div> -->
+            <div class="ui mini basic inverted icon buttons">
+            <button class="ui button" id="play"><i class="play icon"></i>
+              <button class="ui button" id="pause"><i class="pause icon"></i>
+            </div>
+<h4 class="ui header" style="color: #ffffff">Timeline</h4>
+<div id="range-speed"></div>
+
+
+
+
+
+
+</div>
+
+    <div class="column" id="uicontrols">
+
+
+<h3 class="ui header" style="color: #ffffff"> Spatial distribution of sensor readings through time</h3>
+
+
+<h4 class="ui header" style="color: #ffffff">Sound Components</h4>
+<div class="field">
+  <div class="ui radio checkbox">
+    <input type="radio" name="components" checked="" tabindex="0" id="frequency">
+    <label style="color: #ffffff">frequency</label>
+  </div>
+</div>
+<div class="field">
+  <div class="ui radio checkbox">
+    <input type="radio" name="components" tabindex="0" id="loudness">
+    <label style="color: #ffffff">loudness</label>
+  </div>
+</div>
 
 
   </div>
+
+  </div>
 </div>
-<div class="ui grid">
-  <div class="row" id="uicontrols">
-    <div class="two wide column">
 
-
-
-      <div class="ui menu">
-        <div class="ui pointing dropdown link item" id="components">
-          <span class="text">Frequency</span>
-          <i class="dropdown icon"></i>
-          <div class="menu">
-            <div class="item">
-              Loudness</div>
-              <div class="item">
-                Frequency</div>
-            </div>
-          </div>
-          <div class="container">
-              <div class="ui icon buttons">
-                <button class="ui button active" id="play">
-                  <i class="small white play icon"></i>
-                </button>
-                <button class="ui button" id="pause">
-                  <i class="small white pause icon"></i>
-                </button>
-              </div>
-            </div>
-        </div>
-
-    </div>
-    <!-- <div class="six wide column">
-
-      <div id="dynemictext">1</div>
-    </div> -->
-    <div class="twelve wide column">
-      <div id="range-speed"></div>
-
-    </div>
-
-    <!-- <svg id="timedatetext"></svg> -->
-
-      <!-- from  <div class="field">
-          <div class="ui calendar" id="rangestart">
-            <div class="ui input left icon">
-              <i class="calendar icon"></i>
-              <input placeholder="Date" value="5/30/2015 3pm">
-            </div>
-          </div>
-        </div>
-      to  <div class="field">
-          <div class="ui calendar" id="rangeend">
-            <div class="ui input left icon">
-              <i class="calendar icon"></i>
-              <input type="text" placeholder="Date" value="5/30/2015 4pm">
-        </div>
-      </div> -->
-    </div>
 </div>
+  </div>
+
 </div>
 <script src="scripts/helpers.js"></script></body>
 <script src="scripts/configs.js"></script></body>

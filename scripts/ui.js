@@ -3,10 +3,10 @@
 //   d3.event.sourceEvent.stopPropagation();
 // })
 var counter = 0;
-$('#components').dropdown({
+$('.checkbox').checkbox({
   // allowAdditions: false,
-  onChange: function(val){
-    console.log("value of selection in drop down", val)
+  onChange: function(){
+    val = $(this)[0].id;
     if (ui_current_state.get("component")!= "val"){
       ui_current_state.set("component", val)
 
@@ -16,11 +16,9 @@ for (var ini=0; ini < componentTextGroup.children.length; ini++){
         // var iniii = (ini * 3) + ii;
         // console.log(iniii)
         var clbl = componentTextGroup.children[ini];
-        console.log(clbl)
 
 
         var text = anotHelper.get(ui_current_state.get("component"))[counter]
-        console.log(text)
         // console.log(text)
 
         anotHelper.set("text",text)
@@ -101,9 +99,7 @@ $('#rangestart').calendar({
   // type: 'date',
   endCalendar: $('#rangeend'),
   onChange: function(val){
-    console.log(event)
     event.preventDefault()
-    console.log("rangestart", val)
     ui_current_state.set("rangestart", val)
     updateDataForViz()
   }
@@ -112,7 +108,6 @@ $('#rangeend').calendar({
   // type: 'date',
   startCalendar: $('#rangestart'),
   onChange: function(val){
-    console.log("rangeend", val)
     ui_current_state.set("rangeend", val)
     updateDataForViz()
   }
@@ -189,24 +184,23 @@ function brushed(){
   if(d3.event.sourceEvent){value=timeScale.invert(d3.mouse(this)[0]);
     brush.extent([value,value]);
   }
-  console.log("value",value)
   // handle.attr("transform","translate("+timeScale(value)+",0)");
   // handle.select('text').text(formatDate(value));
 }
 
 
-var time_line_width = 500;
+var time_line_width = 450;
 // console.log(scalerConfig)
 
 
-var time_line = d3.select("#range-speed").append("svg").attr("height", 60).attr("width", time_line_width)
+var time_line = d3.select("#range-speed").append("svg").attr("height", 50).attr("width", time_line_width).attr('color', 'white')
 // console.log(time_line,width_scale(ui_current_state.get("data_map_buffr_ind")))
 
 
 var container = time_line.append("g")
 
 // .attr('transform', 'translate(' + 0 + ',' + 5 + ')').attr("class","timeline_container").attr("height", 20).append("rect").attr("height", 20).attr("width", time_line_width)
-time_line.append("g").attr('transform', 'translate(' + 0 + ',' + 40 + ')').attr("class","timeline").append("rect").attr("height", 1).attr("width", time_line_width);
+time_line.append("g").attr('transform', 'translate(' + 0 + ',' + 15 + ')').attr("class","timeline").append("rect").attr("height", 1).attr("width", time_line_width).style('color', '#ffffff');
 
 
 

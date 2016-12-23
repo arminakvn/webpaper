@@ -267,7 +267,7 @@ function callbackDataLoaded(err, csv_data, sample_data){
 
 	var width_scale = d3.scaleTime().range([0,time_line_width]).domain(scalerConfig.time_range)
 
-	var height2 = 50;
+	var height2 = 60;
 		var width = time_line_width;
 	var xAxis = d3.axisBottom(width_scale);
 
@@ -276,7 +276,8 @@ function callbackDataLoaded(err, csv_data, sample_data){
 				    .attr("transform", "translate(" + 5 + "," + 5 + ")");
 						context.append("g")
 						      .attr("class", "axis axis--x")
-						      .attr("transform", "translate(0," + 14 + ")")
+									// .attr('stroke', '#ffffff')
+						      .attr("transform", "translate(0," + 20 + ")")
 						      .call(xAxis);
 
 						context.append("g")
@@ -419,14 +420,14 @@ function initializeScene(data){
 	}
 	// setting renderer properties
 	renderer.setClearColor(0x00000, 1);
-	canvasWidth = window.innerWidth;
-	canvasHeight = window.innerHeight-100;
+	canvasWidth = window.innerWidth-500;
+	canvasHeight = window.innerHeight-300;
 	renderer.setSize(canvasWidth, canvasHeight);
 	document.getElementById("WebGLCanvas").appendChild(renderer.domElement);
 	// setting up the scene and camera
 	scene = new THREE.Scene();
 	//scene.fog=new THREE.FogExp2( 0xffffff, 0.015 );
-        scene.fog = new THREE.Fog(0x0000000, 46, 56);
+        scene.fog = new THREE.Fog(0x0000000, 26, 66);
 	var dirLight = new THREE.DirectionalLight( 0x0000000, 0.125 );
 				dirLight.position.set( 0, 0, 1 ).normalize();
 				// scene.add( dirLight );
@@ -1298,13 +1299,13 @@ var buffertime = d3.isoParse (ui_current_state.get("data_map_buffr_ind")[0])
 	var width_scale = d3.scaleTime().range([0,time_line_width]).domain(scalerConfig.time_range)
 	var reverse_width_scale = d3.scaleTime().domain([0,time_line_width]).range(scalerConfig.time_range)
 
-	handle = container.selectAll(".handle")
+	handle = container.selectAll(".slider.handle")
 
-	handle_enter = handle.data([width_scale(buffertime)]).enter().append("g").attr("class", "handle").attr(
+	handle_enter = handle.data([width_scale(buffertime)]).enter().append("g").attr("class", "slider handle").attr(
 		"width", 1
 	).attr(
-		"height", 6
-	).append("rect").attr("width", 10).attr('height', 30).call(d3.drag().on("drag",dragmove).on("end", dragend)).on("mouseover",function(d){
+		"height", 5
+	).append("circle").attr("class","d3-slider-handle").attr("r", 7).style("fill","#ffffff").attr("z-index","100000000").attr("border","1px solid #ffffff").attr('cy', 10).call(d3.drag().on("drag",dragmove).on("end", dragend)).on("mouseover",function(d){
 
 		ui_current_state.set("delay", 3000)
 	})
@@ -1325,8 +1326,8 @@ var buffertime = d3.isoParse (ui_current_state.get("data_map_buffr_ind")[0])
             })
         });
 	handle.exit().remove()
-	handle.attr('height', 16).attr('transform', function(d){
-		return  'translate(' + d + ',' + 10 + ')'
+	handle.attr('height', 10).attr('transform', function(d){
+		return  'translate(' + d + ',' + 6 + ')'
 	})
 
 
