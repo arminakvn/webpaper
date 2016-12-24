@@ -15,6 +15,7 @@
     "cluster": "^0.7.7",
     "express": "^4.14.0",
     "request": "^2.78.0",
+    "serve-static": "^1.11.1",
     "three-orbit-controls": "^72.0.0",
     "three-transformcontrols": "^0.78.1"
   }

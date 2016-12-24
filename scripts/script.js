@@ -420,7 +420,7 @@ function initializeScene(data){
 	}
 	// setting renderer properties
 	renderer.setClearColor(0x00000, 1);
-	canvasWidth = window.innerWidth-500;
+	canvasWidth = window.innerWidth -300;
 	canvasHeight = window.innerHeight-300;
 	renderer.setSize(canvasWidth, canvasHeight);
 	document.getElementById("WebGLCanvas").appendChild(renderer.domElement);
@@ -966,7 +966,7 @@ function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
 
-  renderer.setSize( window.innerWidth, window.innerHeight );
+  renderer.setSize( window.innerWidth - 300, window.innerHeight -300);
 
   renderScene();
 
