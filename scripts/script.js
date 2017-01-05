@@ -502,7 +502,7 @@ function initializeScene(data){
 						Bb_terrainMesh.castShadow = false;
 
 						var textureLoader = new THREE.TextureLoader();
-						textureLoader.load("b_ph20.png", function ( texture ) {
+						textureLoader.load("b_ph30.png", function ( texture ) {
 							// texture.wrapS = THREE.RepeatWrapping;
 							// texture.wrapT = THREE.RepeatWrapping;
 							// texture.repeat.set( terrainWidth - 1, terrainDepth - 1 );

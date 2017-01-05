@@ -58,7 +58,7 @@
 
   module.exports = {
     app: app,
-    port: 8080
+    port: 8081
   };
 
 }).call(this);
