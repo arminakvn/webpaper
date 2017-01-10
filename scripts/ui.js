@@ -51,17 +51,19 @@ $('.checkbox').checkbox({
 })
 
 
-$( '.ui.button#play' ).click(function() {
-  ui_current_state.set("play","1")
-  ui_current_state.set("slider_decides",0)
-  ui_current_state.set("delay", 200)
-  requestAnimationFrame(animateScene);
-})
+// $( '.ui.button#play' ).click(function() {
+//   ui_current_state.set("play","1")
+//   ui_current_state.set("slider_decides",0)
+//   ui_current_state.set("delay", 200)
+//   requestAnimationFrame(animateScene);
+// })
 $( '.ui.button#pause' ).click(function() {
   ui_current_state.set("play","0")
-  ui_current_state.set("delay", 3000)
-  requestStream.frame_counter += 1;
+  // ui_current_state.set("delay", 3000)
+  // requestStream.frame_counter += 1;
   $( '.ui.button#play' ).deactive()
+  ui_current_state.set("play","1")
+  ui_current_state.set("delay", 20)
   requestAnimationFrame(animateScene);
 })
 

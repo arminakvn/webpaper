@@ -1,4 +1,5 @@
 var scene;
+var frametimeout;
 var camera;
 var textGeo;
 var mTime = 0.0;
@@ -19,6 +20,18 @@ var scene, renderer;
 			var formatDay = d3.timeFormat("%a")
 			var formatHour = d3.timeFormat("%H")
 			var formatMinute = d3.timeFormat("%M")
+
+var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
+                            window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+
+var cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
+
+var start = window.mozAnimationStartTime || Date.now();  // Only supported in FF. Other browsers can use something like Date.now().
+
+var myReq;
+
+
+
 
 
 // ui interactions are updating this which is what the animateScene uses
@@ -216,6 +229,7 @@ function callbackDataLoaded(err, csv_data, sample_data){
 		var sorted_values = dev_d.values.sort(function(a,b){
 			return d3.descending(a.time, b.time);
 		})
+		console.log("lenfth of valyes",sorted_values.length)
     sorted_values.forEach(function(d){
       var device_mapped_values = d3.map();
       device_mapped_values.set("Base",d.Base);
@@ -971,7 +985,22 @@ function onWindowResize() {
   renderScene();
 
 }
-function animateScene(){
+fps = 10;
+function animateScene(timestamp){
+	var progress = timestamp - start;
+	updateDynamicText()
+
+	// console.log(timestamp, progress)
+  // d.style.left = Math.min(progress/10, 200) + "px";
+  // if (progress < 2) {
+  //   myReq = requestAnimationFrame(animateScene);
+  // }
+
+  
+
+  
+
+
 	for (var ini=0; ini < componentTextGroup.children.length; ini++){
 		rotateBillboard(componentTextGroup.children[ini]);
 	}
@@ -983,8 +1012,12 @@ function animateScene(){
 	if (requestStream.frame_counter > frameConfig.numPoints-1){
 			requestStream.frame_counter = 1;
 			var t = requestStream.frame_counter;
+			requestStream.frame_counter += 1;
+			// updateDynamicText()
 	} else {
 		var t = requestStream.frame_counter;
+		requestStream.frame_counter += 1;
+		
 	}
 
 	// console.log("t",t,street_lines_group)
@@ -1004,18 +1037,21 @@ function animateScene(){
 
 			if (vir_v < 0){
 				var bufferIndex = vir_v + frameConfig.numPoints;
+
 			}
 			else if (vir_v < street_surf_group.children[sn].num_of_street_devices - 1){
 				var bufferIndex = vir_v;
 			}	else {
 				var bufferIndex = vir_v;
 			}
+			// ui_current_state.set("buffr_ind",buffr_ind);
+			// if (count = 1){
+			// 	bufferIndex = 0
+			// } 
 
 
 
-
-
-			ui_current_state.set("buffr_ind", bufferIndex);
+			console.log("requestStream.frame_counter",requestStream.frame_counter)
 			if (vert == 0){
 
 				// var va = datamap.get(datamap.keys()[bufferIndex]);
@@ -1033,7 +1069,7 @@ function animateScene(){
 				ui_current_state.set("data_map_buffr_ind", [datamap.keys()[bufferIndex]]);
 
 				if (ui_current_state.get("slider_decides") == 0) {
-					updateDynamicText()
+					// updateDynamicText()
 					ui_current_state.set("data_map_buffr_ind", [datamap.keys()[bufferIndex]]);
 				}
 
@@ -1077,7 +1113,7 @@ function animateScene(){
 
 				var va = datamap.get(datamap.keys()[bufferIndex]);
 				if (ui_current_state.get("slider_decides") == 0) {
-					updateDynamicText()
+					// updateDynamicText()
 					ui_current_state.set("data_map_buffr_ind", [datamap.keys()[bufferIndex]]);
 				}
 
@@ -1129,7 +1165,7 @@ function animateScene(){
 				var va = datamap.get(datamap.keys()[bufferIndex]);
 
 				if (ui_current_state.get("slider_decides") == 0) {
-					updateDynamicText()
+					// updateDynamicText()
 					ui_current_state.set("data_map_buffr_ind", [datamap.keys()[bufferIndex]]);
 				}
 
@@ -1217,18 +1253,21 @@ function animateScene(){
 				axis_lines_group.children[sn].children[0].children[vert].geometry.vertices[1].z = zVals[1];
 
 
-axis_lines_group.children[sn].children[0].children[vert].geometry.verticesNeedUpdate = true;
+				axis_lines_group.children[sn].children[0].children[vert].geometry.verticesNeedUpdate = true;
 
 
 
 
 
 			}
-street_surf_group.children[sn].geometry.verticesNeedUpdate = true;
-street_surf_group2.children[sn].geometry.verticesNeedUpdate = true;
-street_surf_group3.children[sn].geometry.verticesNeedUpdate = true;
+			street_surf_group.children[sn].geometry.verticesNeedUpdate = true;
+			street_surf_group2.children[sn].geometry.verticesNeedUpdate = true;
+			street_surf_group3.children[sn].geometry.verticesNeedUpdate = true;
 
 		}
+		
+		
+
 
 	}
 
@@ -1241,13 +1280,46 @@ street_surf_group3.children[sn].geometry.verticesNeedUpdate = true;
 
  mTime += mTimeStep;
  mTime %= mDuration;
-requestStream.frame_counter += 1;
 
-	setTimeout(function(){
 
-			requestAnimationFrame(animateScene);
 
-	}, ui_current_state.get("delay"));
+// setTimeout(function() {
+//         myReq = window.requestAnimationFrame(animateScene);
+//         // Drawing code goes here
+//     }, 1000 / fps);
+
+
+// function step(timestamp) {
+//   var progress = timestamp - start;
+//   d.style.left = Math.min(progress/10, 200) + "px";
+//   if (progress < 2000) {
+//     myReq = requestAnimationFrame(step);
+//   }
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+frametimeout = setTimeout(function() {
+        myReq = requestAnimationFrame(animateScene);
+        // Drawing code goes here
+    }, 1000 / fps);
+
+
+	// setTimeout(function(){
+
+	// 		req = window.requestAnimationFrame(animateScene);
+
+	// }, ui_current_state.get("delay"));
 
 }
 
@@ -1292,22 +1364,24 @@ function updateDynamicText(){
 	var dtext=$("#dynemictext").html(formatDay(d3.isoParse(ui_current_state.get("data_map_buffr_ind")))+" "+formatHour(d3.isoParse(ui_current_state.get("data_map_buffr_ind")))+ ":"+formatMinute(d3.isoParse(ui_current_state.get("data_map_buffr_ind"))) )
 
 
-var parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S");
-var buffertime = d3.isoParse (ui_current_state.get("data_map_buffr_ind")[0])
-
+	var parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S");
+	var buffertime = d3.isoParse (ui_current_state.get("data_map_buffr_ind")[0])
+	console.log("buffertime",buffertime)
 
 	var width_scale = d3.scaleTime().range([0,time_line_width]).domain(scalerConfig.time_range)
 	var reverse_width_scale = d3.scaleTime().domain([0,time_line_width]).range(scalerConfig.time_range)
-
+	var width_range_scale = d3.scaleLinear().domain([0,time_line_width]).range(0, scalerConfig.numPoints)
 	handle = container.selectAll(".slider.handle")
 
 	handle_enter = handle.data([width_scale(buffertime)]).enter().append("g").attr("class", "slider handle").attr(
 		"width", 1
 	).attr(
 		"height", 5
-	).append("circle").attr("class","d3-slider-handle").attr("r", 7).style("fill","#ffffff").attr("z-index","100000000").attr("border","1px solid #ffffff").attr('cy', 10).call(d3.drag().on("drag",dragmove).on("end", dragend)).on("mouseover",function(d){
-
-		ui_current_state.set("delay", 3000)
+	).append("circle").attr("class","d3-slider-handle").attr("r", 8).style("fill","#ffffff").attr("z-index","100000000").attr("border","1px solid #ffffff").attr('cy', 10).call(d3.drag().on("drag",dragmove).on("end", dragend)).on("mouseover",function(d){
+		console.log(myReq, frametimeout);
+		clearTimeout(frametimeout);
+		cancelAnimationFrame(myReq);
+		// ui_current_state.set("delay", 3000)
 	})
 	//.on("click",function(d){
 	//
@@ -1319,8 +1393,13 @@ var buffertime = d3.isoParse (ui_current_state.get("data_map_buffr_ind")[0])
 	// })
 	var drag = d3.drag()
         .on("drag", function(d,i) {
+
             d.x += d3.event.dx
             d.y += d3.event.dy
+            ui_current_state.set("data_map_buffr_ind",[reverse_width_scale(d.x)])
+            console.log("width_range_scale(d3.x)",width_range_scale(d.x))
+
+            // ui_current_state.set("buffr_ind",width_range_scale(d3.x))
             d3.select(this).attr("transform", function(d,i){
                 return "translate(" + [ d.x,d.y ] + ")"
             })
@@ -1334,11 +1413,21 @@ var buffertime = d3.isoParse (ui_current_state.get("data_map_buffr_ind")[0])
 			// var drag = d3.behavior.drag()
 			//     .on("drag", dragmove);
 			function dragend(d) {
+
 				 if (d3.event.defaultPrevented) return;
 				var x = d3.event.x;
 			  var y = d3.event.y;
-				ui_current_state.set("data_map_buffr_ind",[reverse_width_scale(d3.event.x)])
-				requestAnimationFrame(animateScene);
+				// ui_current_state.set("data_map_buffr_ind",[reverse_width_scale(d3.event.x)])
+				// requestAnimationFrame(animateScene);
+				// animateScene(); ui_current_state.get("data_map_buffr_ind")
+				console.log( d3.event.x,width_range_scale( d3.event.x))
+				// requestStream.frame_counter = Math.floor(d3.event.x) //width_range_scale( d3.event.x);
+				fm = requestStream.frame_counter + Math.floor(d3.event.x)
+				setTimeout(function() {
+					requestStream.frame_counter = fm
+        myReq = requestAnimationFrame(animateScene);
+        // Drawing code goes here
+    }, 1000 / fps);
 
 			}
 			function dragmove(d) {
@@ -1347,11 +1436,13 @@ var buffertime = d3.isoParse (ui_current_state.get("data_map_buffr_ind")[0])
 				ui_current_state.set("slider_decides",1)
 			  var x = d3.event.x;
 			  var y = d3.event.y;
-				ui_current_state.set("data_map_buffr_ind",[reverse_width_scale(d3.event.x)])
+				
 				// console.log(ui_current_state.get("data_map_buffr_ind")[0])
 				// console.log(reverse_width_scale(d3.event.x))
 			  d3.select(this).attr("transform", "translate(" + x + "," + 0 + ")");
-				requestAnimationFrame(animateScene);
+			  		
+			  		// animateScene()
+				// myReq = requestAnimationFrame(animateScene);
 
 
 			}
