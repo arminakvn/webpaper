@@ -1378,9 +1378,10 @@ function updateDynamicText(){
 	).attr(
 		"height", 5
 	).append("circle").attr("class","d3-slider-handle").attr("r", 8).style("fill","#ffffff").attr("z-index","100000000").attr("border","1px solid #ffffff").attr('cy', 10).call(d3.drag().on("drag",dragmove).on("end", dragend)).on("mouseover",function(d){
-		console.log(myReq, frametimeout);
+		// console.log(myReq, frametimeout);/
 		clearTimeout(frametimeout);
 		cancelAnimationFrame(myReq);
+		// console.log( d3.event.x,width_range_scale( d3.event.x))
 		// ui_current_state.set("delay", 3000)
 	})
 	//.on("click",function(d){
@@ -1397,7 +1398,7 @@ function updateDynamicText(){
             d.x += d3.event.dx
             d.y += d3.event.dy
             ui_current_state.set("data_map_buffr_ind",[reverse_width_scale(d.x)])
-            console.log("width_range_scale(d3.x)",width_range_scale(d.x))
+            // console.log("width_range_scale(d3.x)",width_range_scale(d.x))
 
             // ui_current_state.set("buffr_ind",width_range_scale(d3.x))
             d3.select(this).attr("transform", function(d,i){
@@ -1420,14 +1421,15 @@ function updateDynamicText(){
 				// ui_current_state.set("data_map_buffr_ind",[reverse_width_scale(d3.event.x)])
 				// requestAnimationFrame(animateScene);
 				// animateScene(); ui_current_state.get("data_map_buffr_ind")
-				console.log( d3.event.x,width_range_scale( d3.event.x))
+				
 				// requestStream.frame_counter = Math.floor(d3.event.x) //width_range_scale( d3.event.x);
 				fm = requestStream.frame_counter + Math.floor(d3.event.x)
 				setTimeout(function() {
-					requestStream.frame_counter = fm
-        myReq = requestAnimationFrame(animateScene);
-        // Drawing code goes here
-    }, 1000 / fps);
+					
+			        myReq = requestAnimationFrame(animateScene);
+			        requestStream.frame_counter = fm
+			        // Drawing code goes here
+			    }, 1000 / fps);
 
 			}
 			function dragmove(d) {
