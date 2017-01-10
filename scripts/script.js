@@ -180,15 +180,15 @@ function callbackDataLoaded(err, csv_data, sample_data){
   scalerConfig = new (function(){
 		this.lat_scale = d3.scaleLinear().range([frameConfig.padding_bottom,frameConfig.height - frameConfig.padding_top]).domain([lat_min, lat_max]);
 		this.lng_scale = d3.scaleLinear().range([frameConfig.width-frameConfig.padding_left,frameConfig.padding_right]).domain([lon_min, lon_max]);
-    this.High_scale = d3.scalePow().range([2*frameConfig.bandHeight, 3*frameConfig.bandHeight]).domain([min_High, max_High]);
+    this.High_scale = d3.scalePow().range([0, frameConfig.bandHeight]).domain([min_High, max_High]);
 		this.Base_scale =d3.scalePow().range([0, frameConfig.bandHeight]).domain([min_Base, max_Base]);
-		this.Voice_scale = d3.scalePow().range([frameConfig.bandHeight, 2*frameConfig.bandHeight]).domain([min_Voice, max_Voice]);
+		this.Voice_scale = d3.scalePow().range([0, frameConfig.bandHeight]).domain([min_Voice, max_Voice]);
 		// this.Leqdba_scale = d3.scaleLog().range([0, 4]).domain([min_Leqdba, max_Leqdba]);
 		// this.Lmaxdba_scale = d3.scaleLog().range([0, 4]).domain([min_Lmaxdba, max_Lmaxdba]);
 		// this.Lmindba_scale = d3.scaleLog().range([0, 4]).domain([min_Lmindba, max_Lmindba]);
 
-		this.Leqdba_scale = d3.scalePow().range([frameConfig.bandHeight, 2*frameConfig.bandHeight]).domain([min_Leqdba, max_Leqdba]);
-		this.Lmaxdba_scale = d3.scalePow().range([2*frameConfig.bandHeight, 3*frameConfig.bandHeight]).domain([min_Lmaxdba, max_Lmaxdba]);
+		this.Leqdba_scale = d3.scalePow().range([0, frameConfig.bandHeight]).domain([min_Leqdba, max_Leqdba]);
+		this.Lmaxdba_scale = d3.scalePow().range([0, frameConfig.bandHeight]).domain([min_Lmaxdba, max_Lmaxdba]);
 		this.Lmindba_scale = d3.scalePow().range([0, frameConfig.bandHeight]).domain([min_Lmindba, max_Lmindba]);
 
     this.Components_scale_Loudness = d3.scaleOrdinal()
@@ -668,11 +668,11 @@ for (var s=0; s < device_latlng.keys().length; s++){
            vertexColors:THREE.VertexColors,
            side:THREE.DoubleSide,
 					 shading: THREE.SmoothShading,
-					combine: THREE.Multiply ,
+					combine: THREE.AddOperation,//THREE.Multiply ,
 					//  vertexColors: THREE.FaceColors,
 					 color: "#bd0026",
 					 transparent: true,
-					 opacity: 0.5,
+					 opacity: 0.3,
 					 linewidth:8,
 					 depthWrite: true, depthTest: false,wireframe: false,wireframeLinewidth:3
 					//  alphaTest: 0.5
@@ -682,12 +682,12 @@ for (var s=0; s < device_latlng.keys().length; s++){
            vertexColors:THREE.VertexColors,
            side:THREE.DoubleSide,
 					 shading: THREE.SmoothShading,
-					 combine: THREE.NoBlending,
+					 combine: THREE.AddOperation,//THREE.NoBlending,
 					//  vertexColors: THREE.FaceColors,
 					 color: "#fd8d3c",
 					 transparent: true,
 					 linewidth:5,
-					 opacity: 0.5,
+					 opacity: 0.3,
 					 depthWrite: true, depthTest: false
 					//  alphaTest: 0.5
 				});
@@ -696,12 +696,12 @@ for (var s=0; s < device_latlng.keys().length; s++){
            vertexColors:THREE.VertexColors,
            side:THREE.DoubleSide,
 					 shading: THREE.SmoothShading,
-					combine: THREE.NoBlending,
+					combine: THREE.AddOperation,//THREE.NoBlending,
 					//  vertexColors: THREE.FaceColors,
 					 color: "#ffffb2",
 					 transparent: true,
 					 linewidth:5,
-					 opacity: 0.5,
+					 opacity: 0.3,
 					 depthWrite: true, depthTest: false
 					//  alphaTest: 0.5
 				});
@@ -780,8 +780,8 @@ for (var s=0; s < device_latlng.keys().length; s++){
 		var chartAxsisObject2 = chartAxsisObject.clone();
 		var chartAxsisObject3 = chartAxsisObject.clone();
 		chartAxsisObject.position.set(-frameConfig.width/2,1*frameConfig.bandHeight,frameConfig.height/2);
-		chartAxsisObject2.position.set(-frameConfig.width/2,2*frameConfig.bandHeight,frameConfig.height/2);
-		chartAxsisObject3.position.set(-frameConfig.width/2,3*frameConfig.bandHeight,frameConfig.height/2);
+		chartAxsisObject2.position.set(-frameConfig.width/2,1*frameConfig.bandHeight,frameConfig.height/2);
+		chartAxsisObject3.position.set(-frameConfig.width/2,1*frameConfig.bandHeight,frameConfig.height/2);
 
 surfObject.rotateX( -Math.PI / 2 );
 surfObject2.rotateX( -Math.PI / 2 );
@@ -874,11 +874,11 @@ var street_surf_group2_c = street_surf_group2.clone()
 var street_surf_group3_c = street_surf_group3.clone()
 // console.log("street_surf_group_c",street_surf_group_c)
 allObjGroup.add(street_surf_group,street_surf_group2,street_surf_group3, street_surf_group_c,street_surf_group2_c,street_surf_group3_c)
-scene.add(chart_axis_line_group)
+// scene.add(chart_axis_line_group)
 scene.add(allObjGroup)
 // scene.add(axisHelper)
 
-scene.add(textGroup, componentTextGroup)
+// scene.add(textGroup, componentTextGroup)
 
 for (var vr = 0; vr < street_surf_group.children.length;vr++){
 var dev_index = 0
@@ -903,7 +903,7 @@ var dash_instreet_group = new THREE.Group()
 			var line = circleTemp.line.clone()
 			line.rotateX( -Math.PI / 2 );
 			line.position.set((vert.x - frameConfig.width/2) , vert.z + eps ,- (vert.y - frameConfig.height/2));
-			scene.add(cir, line);
+			scene.add(cir)//, line);
 
 
 
@@ -1064,8 +1064,8 @@ function animateScene(){
 				street_surf_group.children[sn].geometry.vertices[1].z = zVals[0]
 				street_surf_group2.children[sn].geometry.vertices[1].z = zVals[1]
 				street_surf_group3.children[sn].geometry.vertices[1].z = zVals[2]
-				street_surf_group.children[sn].geometry.vertices[0].z = 1 * frameConfig.bandHeight;
-				street_surf_group2.children[sn].geometry.vertices[0].z = 2 * frameConfig.bandHeight;
+				street_surf_group.children[sn].geometry.vertices[0].z = 0 * frameConfig.bandHeight;
+				street_surf_group2.children[sn].geometry.vertices[0].z = 0 * frameConfig.bandHeight;
 				street_surf_group3.children[sn].geometry.vertices[0].z = 0;
 
 
@@ -1116,8 +1116,8 @@ function animateScene(){
 
 
 			} else if (vert > (street_surf_group.children[sn].geometry.vertices.length / 2)-1){
-				street_surf_group.children[sn].geometry.vertices[vert].z = 1 * frameConfig.bandHeight;
-				street_surf_group2.children[sn].geometry.vertices[vert].z = 2 * frameConfig.bandHeight;
+				street_surf_group.children[sn].geometry.vertices[vert].z = 0 * frameConfig.bandHeight;
+				street_surf_group2.children[sn].geometry.vertices[vert].z = 0 * frameConfig.bandHeight;
 				street_surf_group3.children[sn].geometry.vertices[vert].z = 0;
 
 					// street_surf_group.children[sn].geometry.vertices[vert].z = 0;

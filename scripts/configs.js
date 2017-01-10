@@ -9,7 +9,7 @@ frameConfig = new (function() {
   this.fov = 60 // Camera frustum vertical field of view.
   this.near = 1 // Camera frustum near plane.
   this.aspect = this.width / this.height // Camera frustum aspect ratio
-  this.camera_z = 19
+  this.camera_z = 25
   this.camera_x = -5
   this.camera_y = 15
   this.camera_rotate_y = 30 * Math.PI / 180
@@ -20,7 +20,7 @@ frameConfig = new (function() {
   this.padding_top = 9.7
   this.padding_bottom = 6.5
   this.numPoints = 154//154;
-  this.bandHeight = 1;
+  this.bandHeight = 6;
   this.text_size = .15;
   this.lead = 0.0001
 });
